@@ -11,7 +11,7 @@ binary + json을 의미한다. mongodb에서는 bson 형태로 데이터를 저�
 ##### 샤딩(출처: https://nesoy.github.io/articles/2018-05/Database-Shard)
 ~강대명 멘토님 시간에 배웠는데 금방 까먹었다.~  
 
-* 샤딩이란 같은 테이블 스키마를 가진 데이터를 다수의 데이터베이스에 분산하여 저장하는 방법을 의미한다.
+* 같은 테이블 스키마를 가진 데이터를 다수의 데이터베이스에 분산하여 저장하는 방법을 의미한다.
 * application level에서도 가능하지만 database level에서도 가능하다.
 * Horizontal Partitioning이라고 볼 수 있다.  
 
@@ -31,7 +31,7 @@ binary + json을 의미한다. mongodb에서는 bson 형태로 데이터를 저�
 RDB로는 MySQL, Oracle, PostgreSQL 등이 있고, NoSQL에는 mongoDB, Redis, Cassandra, HBase 등이 있다.  
 
 ##### vs RDBMS
-NoSQL의 가장 큰 특징은 수평 확장 가능한 분산 시스템, Schema-less, 완화된 ACID이다.  
+NoSQL의 가장 큰 특징은 _수평 확장 가능한 분산 시스템, Schema-less, 완화된 ACID_ 이다.  
 특히 SNS와 같이 간단하고 엄청나게 많은 데이터를 처리하기 위해, 그리고 기존 RDB로는 표현하기 힘든 다양한 데이터를 처리하기 위해 생겨났다.  
 자세한 차이는 아래 표를 보면 알 수 있다.  
 
@@ -51,6 +51,7 @@ NoSQL의 가장 큰 특징은 수평 확장 가능한 분산 시스템, Schema-l
 * Document(BSON)
 * BASE(염기)
 * Open Source
+
 위 네 가지 단어가 mongoDB를 나타내주는 가장 큰 특징이다.  
 데이터는 document(그냥 json이라고 봐도 무방) 기반으로 구성되어 있고, ACID(산) 대신 BASE를 택하여 성능과 가용성을 우선시하며, open source라 무료이다.  
 또한 BSON으로 데이터가 쌓이기 때문에 Array 데이터나 Nested한 데이터를 쉽게 넣을 수 있다.  
@@ -67,11 +68,12 @@ NoSQL의 가장 큰 특징은 수평 확장 가능한 분산 시스템, Schema-l
 <p align="center">
 <img src="https://kciter.so/images/2021-02-25-about-mongodb/bson.png" alt="json(bson)의 형태" />
 </p>
+
 위 데이터 구조에서 ObjectId라는 생소한 타입을 볼 수 있다.  
 ObjectId는 RDBMS의 Primary Key와 같이 고유한 키를 의미하는데 차이점은 Primary Key는 DBMS가 직접 부여한다면 ObjectId는 클라이언트에서 생성한다는 점이다.  
 이는 MongoDB 클러스터에서 Sharding된 데이터를 빠르게 가져오기 위함인데 Router(mongos)는 ObjectId를 보고 데이터가 존재하는 Shard에서 데이터를 요청할 수 있다.  
 의아하게도 MongoDB 서버에서 알아서 ObjectId를 부여해서 저장해도 될 것 같은데 딱히 지원해주지 않는다.  
-참고로 ObjectId를 넣지않고 저장한다면 데이터가 그대로 저장된다.
+참고로 ObjectId를 넣지않고 저장한다면 데이터가 그대로 저장된다.  
 
 ##### BASE
 BASE는 ACID와 대립되는 개념으로 다음 세 가지로 이루어진다.  
@@ -96,20 +98,25 @@ NoSQL이 나온 이유 중 하나는 대규모 데이터를 처리하는데 RDBM
   * 모든 노드가 같은 시간에 같은 데이터를 볼 수 있다는 의미이다.
   * 데이터가 업데이트된 후 다른 노드에 동기화가 필요한데, 이 때 유저는 동기화를 위해 대기해야 한다.
   * 동기화를 위한 대기 시간이 길어질 경우 가용성이 떨어진다.
+
 <p align="center">
 <img src="https://kciter.so/images/2021-02-25-about-mongodb/consistency.png" alt="" />
 </p>
+
 * Availablility
   * 모든 요청에 성공 혹은 실패 결과를 반환할 수 있다는 의미이다.
   * 하나의 노드가 망가져도 다른 노드를 통해 데이터를 제공할 수 있다면 가용성이 있는 시스템이다.
   * 다만 다시 노드가 살아났을 때 다른 노드와 데이터가 다르다면 일관성이 일관성이 떨어지게 된다
+
 <p align="center">
 <img src="https://kciter.so/images/2021-02-25-about-mongodb/availability.png" alt="" />
 </p>
+
 * Partition tolerance
   * 통신에 실패해도 시스템이 계속 동작해야 한다는 의미이다.
   * 노드가 망가진 것이 아닌 노드끼리 연결시켜주는 네트워크가 고장나는 경우, 동기화가 불가능하면 일관성이 떨어진다.
   * 만약 통신이 복구되고 동기화되는 것을 기다린다면 가용성이 떨어진다.
+
 <p align="center">
 <img src="https://kciter.so/images/2021-02-25-about-mongodb/partition-tolerance.png" alt="" />
 </p>
@@ -134,7 +141,7 @@ mongoDB는 PA /EC 시스템이므로 네트워크 파티션 상황일 때는 가
 mongoDB는 document라는 방식을 사용하기 때문에 모델링을 해야 하며 이를 위해 패턴을 정리할 필요가 있다.  
 
 ##### Model Tree Structure
-일반적으인 tree를 생각하면 된다.  
+일반적인 tree를 생각하면 된다.  
 기본적인 tree를 그릴 때 항상 문제가 되는 것은 부모를 어떻게 찾냐는 것이다.  
 이러한 문제에 따라 refrence하는 법을 다르게 해 tree를 짤 수 있다.  
 
@@ -219,7 +226,7 @@ mongoDB는 document라는 방식을 사용하기 때문에 모델링을 해야 �
 ```
 
 ##### 모델링 패턴
-길이 너무 길기 때문에 자세한 것은 https://kciter.so/posts/about-mongodb#modeling-pattern 여기서 참조하면 된다.
+글이 너무 길기 때문에 자세한 것은 https://kciter.so/posts/about-mongodb#modeling-pattern 여기서 참조하면 된다.
 
 * Attribute
   * 동일한 필드를 묶어서 인덱싱 수를 줄이는 패턴이다.
