@@ -135,3 +135,51 @@ afterAll(() => {
 4. toContain('Example'): 특정 원소가 배열에 들어있는지를 테스트할 때 쓰인다.  
 5. toMatch('문자열 또는 정규표현식'): 문자열과 일치하는지 또는 정규표현식에 일치하는지 쓰인다.  
 6. toThrow(argument?): 함수는 인자도 받는데 문자열을 넘기면 예외 메세지를 비교하고 정규식을 넘기면 정규식 체크를 해준다.
+
+## 5. 후기
+app-root-path라는 모듈을 사용했었는데, jest랑 같이 사용하려니까 자꾸 오류가 났다.  
+같이 사용하면 안 되겠다...  
+그리고 yarn berry, ts랑 같이 사용하기 위해 tsconfig.json 설정도
+
+```
+{
+  "compilerOptions": {
+    "target": "es2021",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "types": ["node", "jest"],
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "removeComments": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "exclude": ["node_modules", "dist"]
+}
+```
+
+로 바꿔줬으며
+
+```
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: ['**/__tests__/*.test.js'],
+  testTimeout: 120000,
+}
+```
+
+위와 같이 
+jest.config.ts도 바꿔줬다.  
+
+테스트 코드를 짠 후에
+
+```
+yarn build && yarn test
+```
+
+명령어를 치면 테스트가 실행된다.  
+진짜 이것 때문에 babel도 설치하고 개개개개개 고생을 다 했다.
