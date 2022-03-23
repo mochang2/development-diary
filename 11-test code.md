@@ -137,9 +137,16 @@ afterAll(() => {
 6. toThrow(argument?): 함수는 인자도 받는데 문자열을 넘기면 예외 메세지를 비교하고 정규식을 넘기면 정규식 체크를 해준다.
 
 ## 5. 후기
-app-root-path라는 모듈을 사용했었는데, jest랑 같이 사용하려니까 자꾸 오류가 났다.  
-같이 사용하면 안 되겠다...  
-그리고 yarn berry, ts랑 같이 사용하기 위해 tsconfig.json 설정도
+##### 오류 났던 부분들
+0. 내가 진행했던 프로젝트는 express + typescript + yarn berry로 이루어져 있다.
+1. winston 로그를 남기기 위해 app-root-path라는 모듈을 사용했었는데, jest랑 같이 사용하려다 보니 계속 오류가 났다. yarn berry로 모듈을 관리하면서 지정된 path를 제대로 읽어오지 못하는 것 같았다. 그래서 app-root-path라는 모듈을 지우고 rootDir(상대경로)를 하드 코딩하여 해결했다.
+2. ts-jest가 필요없다. ES6 문법인 import를 인식하지 못해서 검색해보니 require을 사용하거나 babel 관련 모듈을 다운받으라고 했다. require로 바꾸면 프로젝트 전체 문법을 바꿔야 하니 포기했고 babel을 사용해도 해결이 되지 않았다. (지금 생각해보니 1번 문제였는데 babel 문제로 착각했던 것 같다).
+3. jest, jest-extended 모듈을 받고 빌드 후 테스트를 진행했다. 빌드하는 시간까지 포함돼서 테스트 시간이 조금 더 걸렸지만 무사히 jest 모듈을 이용해 테스트를 진행할 수 있었다.
+
+##### 설정 파일
+* tsconfig.json
+
+설정에 대한 설명은 https://www.typescriptlang.org/ko/docs/handbook/tsconfig-json.html 에 자세히 나와 있다.
 
 ```
 {
@@ -162,7 +169,7 @@ app-root-path라는 모듈을 사용했었는데, jest랑 같이 사용하려니
 }
 ```
 
-로 바꿔줬으며
+* jest.config.ts
 
 ```
 module.exports = {
@@ -172,8 +179,35 @@ module.exports = {
 }
 ```
 
-위와 같이 
-jest.config.ts도 바꿔줬다.  
+* index.ts(app.ts에서 짠 기본 설명 미들웨어들을 거치고 난 후의 app을 실행하는 코드)
+
+```
+const port = ~~
+const app = initApp()
+
+const serve = async () => {
+	try {
+		checkRequiredEnvs()
+		
+		await connectMongoDb()
+
+		const server = http.createServer(app)
+
+		server.listen(port, () => {
+			console.log('서버가 실행되었습니다.')
+		})
+	} catch(err) {
+		console.error(err)
+	}
+}
+
+serve()
+
+export default app // 테스트 코드에서 이 app 변수를 import 하기 위함.
+// http.createServer가 진행된 app을 import해야 테스트 코드(supertest)가 제대로 동작한다고 함. 
+// app.address is not a function 에러가 발생할 시 아래 주소 참고.
+// https://stackoverflow.com/questions/33986863/mocha-api-testing-getting-typeerror-app-address-is-not-a-function 참고
+```
 
 테스트 코드를 짠 후에
 
@@ -181,5 +215,4 @@ jest.config.ts도 바꿔줬다.
 yarn build && yarn test
 ```
 
-명령어를 치면 테스트가 실행된다.  
-진짜 이것 때문에 babel도 설치하고 개개개개개 고생을 다 했다.
+명령어를 치면 테스트가 실행된다.
