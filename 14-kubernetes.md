@@ -124,8 +124,51 @@ k8s API 중 하나로 관리에 도움을 주는 기능이다.
 참고해야할 점은 namespace를 지우면 해당 namespace에 포함되어 있는 모든 object들이 지워진다.
 
 
+## 5. kubectl 명령어
+> kubectl \[command\] <TYPE> <NAME> <flags>
+
+command에는 자원(object)에 실행할 명령인 create, get, delete, edit, run, apply, port-forward 등이 들어간다.  
+type에는 자원의 타입인 node, pod, service, replicationcontrollers 등이 들어간다.  
+name은 사용자가 만든 자원의 이름이 들어간다.  
+
+```
+kubectl get namespaces # namespace들을 볼 수 있음.
+  
+kubectl api-resource # api resource에 대한 약어 정보 등을 볼 수 있음.
+
+kubectl logs [컨테이너] # 컨테이너의 로그를 봄.
+  
+kubectl get nodes(no) # node 정보들을 보여줌.
+  
+kubectl describe node [노드 이름] # 자세한 정보를 보여줌.
+  
+kubectl run [pod 명명] --image=[컨테이너 이미지] # pod을 만듦.
+  
+kubectl get pods # 컨테이너 pod 정보들을 보여줌. 기본적으로 default namespace에 해당하는 pod들을 보여줌.
+# 모든 namespace에 대해 보고 싶으면 --all-namespaces 옵션을 붙이면 됨.
+  
+kubectl create deployment [pod 명명] --image=[컨테이너 이미지]:[버전] --replicas=[개수]
+# 개수만큼 컨테이너 pod을 만들 수 있음.
+  
+kubectl get deploy(deployments, deployments.apps)
+  
+kubectl exec pod(생략 가능) [pod 이름] <-c> <컨테이너 이름> -it -- /bin/bash # 컨테이너 내부로 들어가서 bash를 실행시킴.
+# pod이 여러 컨테이너를 포함하고 있을 때 -c 옵션으로 특정한 컨테이너를 지정할 수 있다.
+  
+kubectl create -f(file) [파일 이름] # 컨테이너 pod을 파일에 적힌 명령어 대로 실행(yaml, json 등).
+# run 명령어 시 --dry-run을 사용하면 실행 가능한지를 확인할 수 있으며 -o 옵션으로 출력 형식을 변경함으로써
+# 위에서 사용한 [파일 이름]에 해당하는 파일의 내용을 얻을 수 있음.
+```
+
+
+## 6. init container
+서비스가 정상적으로 실행하기 전에 즉, main container를 실행하기 전에 전제 조건이 있을 수 있다.  
+예를 들면, 로그인을 하기 위해서는 db와 connection이 이루어져 있어야 되고, 또는 특정 서비스가 켜져있어야 될 수도 있다.  
+이러한 서비스들을 정의해두는 컨테이너를 init container라고 한다.  
+
+
 ## 7. Controller
-controller의 종류에는 daemon set, replica set, statefule sets, cronjob, replication controller 등이 있다.  
+controller의 종류에는 daemon set, __replica set__, statefule sets, cronjob, __replication controller__ 등이 있다.  
 
 ##### replication controller
 API, etcd, Scheduler와 함께 Pod의 개수를 보장한다.  
@@ -190,13 +233,13 @@ spec:
 ```
 
 ##### deamon set
-전체 노드가 pod이 한 개씩 실행되도록 보장하는 것이다.  
+__전체 노드가 pod이 한 개씩 실행되도록 보장__ 하는 것이다.  
 따라서 replicaset과 yaml 파일에서 `replicas`만 제외하고 동일하게 사용할 수 있다.  
 로그 수입기, 모니터링 에이전트와 같은 프로그램 실행 시 적합하다.  
 daemon set 또한 rolling update 기능이 존재한다.  
 
 ##### stateful set
-pod의 상태를 유지해주는 컨트롤러이다.  
+__pod의 상태를 유지해주는 컨트롤러__ 이다.  
 pod의 상태에는 pod의 이름, pod의 볼륨을 말한다.  
 `kubectl run`을 통해서 pod을 실행하면 그 뒤에 이름이 자동으로 random hash값이 생성된다.  
 하지만 stateful set 설정을 해주면 0부터 차례대로 붙고, scale out을 하면 순차적으로 숫자가 증가한다.  
@@ -214,50 +257,13 @@ spec:
   이하 동일..
 ```
 
-
-## 5. kubectl 명령어
-> kubectl \[command\] <TYPE> <NAME> <flags>
-
-command에는 자원(object)에 실행할 명령인 create, get, delete, edit, run, apply, port-forward 등이 들어간다.  
-type에는 자원의 타입인 node, pod, service, replicationcontrollers 등이 들어간다.  
-name은 사용자가 만든 자원의 이름이 들어간다.  
-
-```
-kubectl get namespaces # namespace들을 볼 수 있음.
-  
-kubectl api-resource # api resource에 대한 약어 정보 등을 볼 수 있음.
-
-kubectl logs [컨테이너] # 컨테이너의 로그를 봄.
-  
-kubectl get nodes(no) # node 정보들을 보여줌.
-  
-kubectl describe node [노드 이름] # 자세한 정보를 보여줌.
-  
-kubectl run [pod 명명] --image=[컨테이너 이미지] # pod을 만듦.
-  
-kubectl get pods # 컨테이너 pod 정보들을 보여줌. 기본적으로 default namespace에 해당하는 pod들을 보여줌.
-# 모든 namespace에 대해 보고 싶으면 --all-namespaces 옵션을 붙이면 됨.
-  
-kubectl create deployment [pod 명명] --image=[컨테이너 이미지]:[버전] --replicas=[개수]
-# 개수만큼 컨테이너 pod을 만들 수 있음.
-  
-kubectl get deploy(deployments, deployments.apps)
-  
-kubectl exec pod(생략 가능) [pod 이름] <-c> <컨테이너 이름> -it -- /bin/bash # 컨테이너 내부로 들어가서 bash를 실행시킴.
-# pod이 여러 컨테이너를 포함하고 있을 때 -c 옵션으로 특정한 컨테이너를 지정할 수 있다.
-  
-kubectl create -f(file) [파일 이름] # 컨테이너 pod을 파일에 적힌 명령어 대로 실행(yaml, json 등).
-# run 명령어 시 --dry-run을 사용하면 실행 가능한지를 확인할 수 있으며 -o 옵션으로 출력 형식을 변경함으로써
-# 위에서 사용한 [파일 이름]에 해당하는 파일의 내용을 얻을 수 있음.
-```
-
-
-## 6. init container
-서비스가 정상적으로 실행하기 전에 즉, main container를 실행하기 전에 전제 조건이 있을 수 있다.  
-예를 들면, 로그인을 하기 위해서는 db와 connection이 이루어져 있어야 되고, 또는 특정 서비스가 켜져있어야 될 수도 있다.  
-이러한 서비스들을 정의해두는 컨테이너를 init container라고 한다.  
-
-
+##### job(cronjob의 하위 controller)
+k8s는 기본적으로 pod을 running 중인 상태로 유지하려는 경향이 있다.  
+그래서 한 번만 실행되기 원하는 서비스도, 작업이 정상적으로 완료된 서비스도 다시 실행시킨다.  
+이를 해결하기 위해, 만약 __해당 작업을 완료한 뒤 pod을 종료시키고 싶다면__ job을 사용하면 된다.  
+job은 batch 처리에 적합한 컨트롤러로 pod의 성공적인 완료를 보장한다.  
+동작은 다음과 같다. 비정상 종료 시 pod을 다시 실행시키며, 정상 종료 시는 pod을 다시 실행시키지 않는다.  ㅓ
+단 이는 pod을 삭제한다는 의미가 아니라, pod을 "다시 실행시키지 않는다"라는 의미이므로 로그 등은 여전히 볼 수 있다.  
 
 
 
