@@ -206,12 +206,12 @@ selector:
 
 ##### deployment
 rolling update / rolling back을 위해 자주 사용되며 replica set을 컨트롤해서 pod을 조절한다.  
-즉, replicaset의 상위 개념으로 이해해도 되며, replicaset이 지워져도 deploy를 선언했다면 deploye에 의해 관리된다.  
+즉, replicaset의 상위 개념으로 이해해도 되며, replicaset이 지워져도 deploy를 선언했다면 deploy에 의해 관리된다.  
 `kubectl set image deplay <deploy 이름> <container 이름>=<container 이미지>:<이미지 버전> --record` 명령어를 통해 rolling update를 진행할 수 있다.  
 `kubelctl rollout undo deployment <deploy 이름>` 명령어를 통해 rolling back을 진행할 수 있다.  
 
 ```
-// yaml 예시. replica set과 kind만 제외하고 똑같이 사용할 수 있다.
+// yaml 예시. replica set과 비교할  kind만 제외하고 똑같이 사용할 수 있다.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -262,20 +262,112 @@ k8s는 기본적으로 pod을 running 중인 상태로 유지하려는 경향이
 그래서 한 번만 실행되기 원하는 서비스도, 작업이 정상적으로 완료된 서비스도 다시 실행시킨다.  
 이를 해결하기 위해, 만약 __해당 작업을 완료한 뒤 pod을 종료시키고 싶다면__ job을 사용하면 된다.  
 job은 batch 처리에 적합한 컨트롤러로 pod의 성공적인 완료를 보장한다.  
-동작은 다음과 같다. 비정상 종료 시 pod을 다시 실행시키며, 정상 종료 시는 pod을 다시 실행시키지 않는다.  ㅓ
+동작은 다음과 같다. 비정상 종료 시 pod을 다시 실행시키며, 정상 종료 시는 pod을 다시 실행시키지 않는다.  
 단 이는 pod을 삭제한다는 의미가 아니라, pod을 "다시 실행시키지 않는다"라는 의미이므로 로그 등은 여전히 볼 수 있다.  
 
 
+## 8. Service
+4가지 종류가 있다.  
+각각 cluster IP(default), node port, load balancer, external name이다.  
+이와 달리 cluster IP가 없는 서비스로 단일 진입점이 필요 없을 때는 headless service를 사용하면 된다.  
+
+##### cluster IP
+동일한 서비스를 제공하는 pod 그룹의 단일 진입점을 제공하는 것을 말한다.  
+deployment 등으로 하나의 서비스를 실행할 때 같은 동작을 하는 여러 컨테이너(pod)들이 서로 다른 노드에서 실행될 수 있다.  
+이때 각각의 서비스들은 다른 IP를 갖게 되는데, label 설정을 통해 하나의 IP(Virtual IP)로 묶어서 관리할 수 있다.  
+이 IP는 LB IP처럼 사용되며, control plane의 etcd에 기록된다.  
+
+```
+// yaml 예시
+apiVersion: v1
+kind: Service
+metadata:
+  name: <service 이름>
+spec:
+  clusterIP: x.x.x.x # 생략 가능
+  selector:
+    <key>: <value>
+  ports:
+  - protocol: TCP 등
+    port: <cluster port>
+    targetPort: <pod port>
+```
+
+##### node port
+cluster IP를 기본적으로 포함하고 있다.  
+추가적으로 모든 worker node에 외부에서 접속가능한 포트를 예약할 수 있다.  
+이 worker node port를 통해 cluster IP 기능을 수행할 수 있다.  
+default port 범위는 30000-32767이다.  
+
+##### load balancer
+node port를 기본적으로 포함하고 있다.  
+클라우드 플랫폼(public cloud 환경)에서만 사용 가능하다.  
+LB처럼 동작하는 것이 아니라 실제 LB를 자동으로 프로비전하는 기능을 지원한다.  
+
+##### external name(DNS와 비슷한 서비스)
+클러스터 내부에서 외부에 접속 시 사용할 도메인을 등록해서 사용 가능하다.  
+클러스터 도메인이 실제 외부 도메인으로 치환되어 동작한다.  
 
 
+## 9. ingress controller
+HTTP나 HTTPS를 통해 클러스터 내부의 서비스를 외부로 노출시키는 것이다.  
+이 앞까지의 방법을 통해서는 외부에서 내가 실행 중인 컨테이너들에 접근할 수 있는 방법이 없었다.  
+ingress controller를 이용하면 가능하다.  
+단 이를 이용하기 위해서는 k8s 이외에 별도의 설치가 필요하며 어떤 서비스와 매핑시킬지 ingress rule에 대한 설정이 필요하다.  
+
+* 기능
+  * Service에 외부 URL을 제공
+  * 트래픽을 로드밸런싱
+  * SSL 인증서 처리
+  * Virtual hosting 지정
+* 동작 방식
+
+![화면 캡처 2022-04-02 182334](https://user-images.githubusercontent.com/63287638/161376773-e0a40088-8555-47ca-ad4b-7b7c1b0f5bd1.png)
+<br/>
+출처: https://www.youtube.com/watch?v=y5-u4jtflic&list=PLApuRlvrZKohaBHvXAOhUD-RxD0uQ3z0c&index=28
+<br/>
+      
+```
+// yaml(ingress rule) 예시
+apiVersion: extensions/v1
+kind: Ingress
+metadata:
+  name: <ingress 이름>
+spec:
+  rules:
+  - http:
+    paths:
+    - path: /
+      backend:
+        serviceName: <서비스 이름>
+        servicePort: <서비스 포트>
+    - path: /another
+      backend:
+        serviceName: <서비스 이름>
+        servicePort: <서비스 포트>
+```
 
 
+## 10. annotation
+label과 동일하게 key-value를 통해 리소스의 특성을 기록하는 것이다.  
+k8s에게 특정 정보 전달할 용도로 사용된다.  
+예를 들어 Deployment의 rolling update 정보를 기록하고 한다면
 
+```
+annotations:
+  kubernetes.io/change-cause: version 1.15
+```
 
+라고 사용할 수 있다.  
 
+또는 아래와 같이 관리를 위해 필요한 정보를 기록할 용도로 사용할 수도 있다.
 
-
-
+```
+annotations:
+  builder: "누가"
+  buildDate: "언제"
+  imageRegistry: "docker hub"
+```
 
 
 
