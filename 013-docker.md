@@ -32,7 +32,7 @@ cf) _hypervisor type_
 
 ## 2. 도커 라이프 사이클
 <img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fdpg8ad%2Fbtq7p8EQS7r%2FLonFV2oDMsiAnO9nobx8hK%2Fimg.jpg" alt=" " width="500" height="auto" />  
-_출처: https://jaimemin.tistory.com/1829_  
+출처: https://jaimemin.tistory.com/1829  
 
 <br/>위 그림을 설명하자면 이미지는 레지스트리에서 pull을 받아서 사용할 수 있고, 반대로 원하는 이미지가 있다면 도커 허브에 이미지를 push할 수 있다.  
 깃과 비슷한 개념이라고 생각할 수 있으며, push를 하기 위해서는 인증 정보(로그인 정보)가 필요하다.  
@@ -52,41 +52,41 @@ docker run을 통해 이미지로 컨테이너를 생성할 경우 기존의 이
   
 또한 이런 레이어 구조 덕분에 용량을 크게 줄일 수 있다.  
 python:3.8와 python:3.7의 이미지가 동시에 필요하다고 하면, (아마) 최상위 레이어를 제외하고 그 아래 레이어들은 동일할 것이다.  
-ubuntu 이미지를 활용하고, apt 명령어로 python을 설치하며, ... 해당 과정에서 동일한 부분은 레이어 하나만 사용해서 이미지를 표현할 수 있기 때문이다.
+ubuntu 이미지를 활용하고, apt 명령어로 python을 설치하며, ... 해당 과정에서 동일한 부분은 하나의 이미지로 표현할 수 있기 때문이다.
 
 ## 4. docker 명령어
 ~docker 설치는 구글링해보면 금방 나오므로 사용하는 OS 별로 검색하면 될 것 같다.~  
 https://captcha.tistory.com/49 를 참조했다.  
 
 ```
-docker search <이미지> # docker hub로부터 사용 가능한 image를 찾는 명령어.
+docker search <이미지> # docker hub로부터 사용 가능한 image를 찾는 명령어
 
-docker pull <이미지[:버전]> # docker hub로부터 image를 다운받는 명령어.
-# 버전을 명시하지 않는 경우 최신 버전을 기본으로 함.
+docker pull <이미지[:버전]> # docker hub로부터 image를 다운받는 명령어
+# 버전을 명시하지 않는 경우 최신 버전을 기본으로 함
 
-docker images # 현재 PC에 받아져 있는 image들을 출력하는 명령어.
+docker images # 현재 PC에 받아져 있는 image들을 출력하는 명령어
 
-docker inspect [옵션] <image> # 이미지에 대한 정보들을 출력. 
-# 대표적으로 이미지 레이어의 해시값, ID, Cmd 등을 볼 수 있음.
+docker inspect [옵션] <image> # 이미지에 대한 정보들을 출력
+# 대표적으로 이미지 레이어의 해시값, ID, Cmd 등을 볼 수 있음
 
-docker run [옵션] <이미지> [실행할 파일] # pull + create + start를 포괄하는 명령어.
+docker run [옵션] <이미지> [실행할 파일] # pull + create + start를 포괄하는 명령어
 # 자주 사용하는 옵션으로는
 ## -d: 백그라운드에서 실행
 ## -i: interactive. 사용자가 입출력을 할 수 있는 상태로 실행
 ## -t: 가상 터미널 환경을 애뮬리이트
-## -p: 포트 포워딩. Host port:container port로 사용
-## -v: 볼륨 마운드. Host location:container location으로 사용
-## -e: 환경 설정.
+## -p: 포트 포워딩. host port:container port로 사용
+## -v: 볼륨 마운드. host location:container location으로 사용
+## -e: 환경 설정
 
 docker exec <컨테이너> <명령어> # 실행중인 container에 명령어 실행 가능
 ## 예시 docker exec QW341C5 ls
 
-docker ps # process를 볼 수 있는 명령어. 실행 중인 container만 볼 수 있음.
+docker ps # process를 볼 수 있는 명령어. 실행 중인 container만 볼 수 있음
 ## -a: 종료된 container까지 볼 수 있음
 ## -q: container id만 출력
 ### 응용: docker -rm `docker ps -aq`
 
-docker attach <컨테이너> # 현재 실행중인 container에 접속.
+docker attach <컨테이너> # 현재 실행중인 container에 접속
 
 docker create <이미지> # 이미지를 통해 컨테이너 생성
 docker start <컨테이너> # 종료된 컨테이너 시작
@@ -107,8 +107,8 @@ FROM : Docker Base Image (기반이 되는 이미지, <이미지 이름>:<태그
 MAINTAINER : 메인테이너 정보 (작성자 정보)
 RUN : Shell Script 또는 명령을 실행
 CMD : 컨테이너가 실행되었을 때 명령이 실행
-LABEL : 라벨 작성 (docker inspect 명령으로 label 확인할 수 있습니다.)
-EXPOSE : 호스트와 연결할 포트 번호를 설정한다.
+LABEL : 라벨 작성 (docker inspect 명령으로 label 확인 가능)
+EXPOSE : 호스트와 연결할 포트 번호를 설정
 ENV : 환경변수 설정
 ADD : 파일 / 디렉터리 추가
 COPY : 파일 복사
@@ -182,10 +182,10 @@ docker network ls
 ## 7. docker-compose
 https://sohyun-lee.tistory.com/12 를 참고했다.  
 여러 개의 컨테이너가 하나의 애플리케이션으로 동작할 때, 이를 테스트하려면 각 컨테이너를 하나씩 생성해야 한다.  
-여러 개의 컨테이너로 구성된 애플리케이션을 구축하기 위해 run 명령어를 여러 번 사용할 수 있지만, 테스트 단계에서는 매번 run 명령어에 대한 옵션을 설정해서 진행하기 번거롭다.  
-이를 해결하기 위해 yaml 파일 설정한 뒤 docker-compose 명령어를 수행함으로써 여러 개의 컨테이 실행을 하나의 프로젝트처럼 다룰 수 있다.  
-기본저긍로 현재 또는 상위 디렉토리에서 docker-compose.yml 파일을 찾아 컨테이너를 생성하지만, _-f_ 옵션을 통해 위치와 이름을 지정할 수 있다.  
-또한 docker-compose config 명령어를 통해 오타나 파일 포맷이 적절한지 등에 대한 검사를 할 수 있다.  
+여러 개의 컨테이너로 구성된 애플리케이션을 구축하기 위해 `run` 명령어를 여러 번 사용할 수 있지만, 테스트 단계에서는 매번 `run` 명령어에 대한 옵션을 설정해서 진행하기 번거롭다.  
+이를 해결하기 위해 yaml 파일 설정한 뒤 `docker-compose` 명령어를 수행함으로써 여러 개의 컨테이너 실행을 하나의 프로젝트처럼 다룰 수 있다.  
+기본적으로 현재 또는 상위 디렉토리에서 docker-compose.yml 파일을 찾아 컨테이너를 생성하지만, _-f_ 옵션을 통해 위치와 이름을 지정할 수 있다.  
+또한 `docker-compose config` 명령어를 통해 오타나 파일 포맷이 적절한지 등에 대한 검사를 할 수 있다.  
 참고로 docker와 별도로 추가적인 설치가 필요하다.  
 
 ##### docker-compose.yml 구조
