@@ -38,7 +38,7 @@ control plane이 worker node들을 관리하는 구조를 말한다.
   * ~여기도 kubelet은 있지만 크게 중요하게 보진 않는듯~
 * worker node: 도커 플랫폼을 통해 컨테이너를 동작하며 실제 서비스 제공.
   * kubelet: 모든 노드에서 실행되는 k8s 에이전트. 데몬 형태로 동작. `docker` 명령어로 런타임에게 실행해달라고 전달.
-  * kube-proxy: k8x의 network 동작을 관리.
+  * kube-proxy: k8s의 network 동작을 관리.
   * 컨테이너 런타임: 컨테이너를 실행하는 엔진. docker, containerd, runc 등
 
 `kubectl` 명령어로 master node에 REST call을 발생시키면 scheduler는 가장 적합한 worker node에 할당한다.  
@@ -47,7 +47,7 @@ control plane이 worker node들을 관리하는 구조를 말한다.
 
 ##### kubeadm, kubelet, kubectl
 * kubeadm: k8s 전체를 관리, 운영하는 커맨드
-* kubelet: 컨테이너를 조작해주고 마스터와 통신하기 위한 데몬. static pod을 동작시킴.
+* kubelet: 컨테이너를 조작해주고 마스터와 통신하기 위한 데몬. static pod을 동작시킴
 * kubectl: 클러스터를 조작하기 위한 cli util
 
 ```
@@ -148,7 +148,7 @@ kubectl get pods # 컨테이너 pod 정보들을 보여줌. 기본적으로 defa
 # 모든 namespace에 대해 보고 싶으면 --all-namespaces 옵션을 붙이면 됨.
   
 kubectl create deployment [pod 명명] --image=[컨테이너 이미지]:[버전] --replicas=[개수]
-# 개수만큼 컨테이너 pod을 만들 수 있음.
+# 개수만큼 pod을 만들 수 있음.
   
 kubectl get deploy(deployments, deployments.apps)
   
@@ -207,7 +207,7 @@ selector:
 ##### deployment
 rolling update / rolling back을 위해 자주 사용되며 replica set을 컨트롤해서 pod을 조절한다.  
 즉, replicaset의 상위 개념으로 이해해도 되며, replicaset이 지워져도 deploy를 선언했다면 deploy에 의해 관리된다.  
-`kubectl set image deplay <deploy 이름> <container 이름>=<container 이미지>:<이미지 버전> --record` 명령어를 통해 rolling update를 진행할 수 있다.  
+`kubectl set image deploy <deploy 이름> <container 이름>=<container 이미지>:<이미지 버전> --record` 명령어를 통해 rolling update를 진행할 수 있다.  
 `kubelctl rollout undo deployment <deploy 이름>` 명령어를 통해 rolling back을 진행할 수 있다.  
 
 ```
@@ -233,14 +233,14 @@ spec:
 ```
 
 ##### deamon set
-__전체 노드가 pod이 한 개씩 실행되도록 보장__ 하는 것이다.  
-따라서 replicaset과 yaml 파일에서 `replicas`만 제외하고 동일하게 사용할 수 있다.  
+_전체 노드가 pod이 한 개씩 실행되도록 보장_ 하는 것이다.  
+따라서 replicaset의 yaml 파일에서 `replicas`만 제외하고 동일하게 사용할 수 있다.  
 로그 수입기, 모니터링 에이전트와 같은 프로그램 실행 시 적합하다.  
 daemon set 또한 rolling update 기능이 존재한다.  
 
 ##### stateful set
-__pod의 상태를 유지해주는 컨트롤러__ 이다.  
-pod의 상태에는 pod의 이름, pod의 볼륨을 말한다.  
+_pod의 상태를 유지해주는 컨트롤러_ 이다.  
+pod의 상태는 pod의 이름, pod의 볼륨을 말한다.  
 `kubectl run`을 통해서 pod을 실행하면 그 뒤에 이름이 자동으로 random hash값이 생성된다.  
 하지만 stateful set 설정을 해주면 0부터 차례대로 붙고, scale out을 하면 순차적으로 숫자가 증가한다.  
 반대로 하나씩 지우게 되면 가장 큰 숫자부터 사라지게 된다.  
@@ -260,7 +260,7 @@ spec:
 ##### job(cronjob의 하위 controller)
 k8s는 기본적으로 pod을 running 중인 상태로 유지하려는 경향이 있다.  
 그래서 한 번만 실행되기 원하는 서비스도, 작업이 정상적으로 완료된 서비스도 다시 실행시킨다.  
-이를 해결하기 위해, 만약 __해당 작업을 완료한 뒤 pod을 종료시키고 싶다면__ job을 사용하면 된다.  
+이를 해결하기 위해, 만약 _해당 작업을 완료한 뒤 pod을 종료시키고 싶다면_ job을 사용하면 된다.  
 job은 batch 처리에 적합한 컨트롤러로 pod의 성공적인 완료를 보장한다.  
 동작은 다음과 같다. 비정상 종료 시 pod을 다시 실행시키며, 정상 종료 시는 pod을 다시 실행시키지 않는다.  
 단 이는 pod을 삭제한다는 의미가 아니라, pod을 "다시 실행시키지 않는다"라는 의미이므로 로그 등은 여전히 볼 수 있다.  
