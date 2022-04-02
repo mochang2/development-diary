@@ -370,7 +370,39 @@ annotations:
 ```
 
 
+## 11. config map
+일반적으로 개발 프로젝트를 진행할 때 설정 파일을 한 곳에서 모아 관리한 뒤 해당 설정 내용들을 갖다 쓰기도 한다.  
+이것을 생각하면 config map의 용도가 쉽게 와닿을 것이다.  
+config map은 컨테이너 구성 정보를 한 곳에 모아서 관리하는 것을 말한다.  
+`kubectl create configmap <이름> [--from-file=source] [--from-literal=key1=value1]` 과 같은 식으로 사용 가능하며 파일에서 읽어올 수 있다.  
+여기서 value는 1Mi를 넘지만 않는 어떠한 형식(json, nginx.conf 등)이든 들어갈 수 있다.  
+      
+```
+// yaml 예시(선언)
+apiVersion: v1
+data:
+  key1: value1
+  key2: value2
+kind: ConfigMap
+metadata:
+  ~~
+```
 
+이후 yaml 형식으로 config map을 적용할 수 있다.  
+
+```
+// yaml 예시(적용)
+~~
+spec:
+  containers:
+  -image: <컨테이너 이미지>
+  env:
+  - name: <환경 설정 이름>
+  valueFrom:
+    configMapKeyRef:
+      name: <config map 이름>
+      key: <config map의 key>
+```
 
 
 
