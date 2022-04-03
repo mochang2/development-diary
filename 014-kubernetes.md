@@ -125,7 +125,7 @@ k8s API 중 하나로 관리에 도움을 주는 기능이다.
 
 
 ## 5. kubectl 명령어
-> kubectl \[command\] <TYPE> <NAME> <flags>
+> kubectl \[command] \[TYPE] \[NAME] \<flags>
 
 command에는 자원(object)에 실행할 명령인 create, get, delete, edit, run, apply, port-forward 등이 들어간다.  
 type에는 자원의 타입인 node, pod, service, replicationcontrollers 등이 들어간다.  
