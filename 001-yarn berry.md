@@ -47,6 +47,7 @@ package.json에 명시하지 않은 라이브러리를 조용히 사용할 수 �
 npm install -g yarn
 cd ../path/to/some-package
 yarn set version berry
+// yarn set version berry가 안되면 yarn policies set-version을 사용
 ```
 
 Yarn Berry는 node_modules를 생성하지 않는다.  
@@ -78,3 +79,50 @@ yarn pnp는 의존성을 압축 파일로 관리하기 때문에 의존성의 �
 
 ##### 장점 1) 새로 저장소를 복제하거나 브랜치를 바꾸었다고 해서 yarn install을 실행하지 않아도 된다.
 ##### 장점 2) CI에서 의존성 설치하는 시간을 크게 절약할 수 있다.
+
+## 4. 사용법
+참고: https://velog.io/@altmshfkgudtjr/yarn2%EC%99%80-%ED%95%A8%EA%BB%98-Plug-n-Play%EB%A5%BC-%EC%A0%81%EC%9A%A9%ED%95%B4%EB%B3%B4%EC%9E%90  
+npm으로 yarn을 install 한 뒤 `yarn set version berry`를 이미 했다고 가정한 뒤 진행한다.
+
+##### 1) 기존 파일 수정
+* .npmrc -> .yarnrc.yml으로 이름 변경. 만약 pnp 방식을 사용하지 않겠다면 .yarnrc.yml에 `nodeLinker: node-modules` 추가
+* package.lock.json이 존재한다면 제거
+* node_modules 제거
+* package.json 내에 eslintConfig는 .eslintrc.json으로 별도 생성
+
+##### 2) 모듈 설치
+* `yarn` 또는 `yarn install`
+
+##### 3) .gitignore 설정
+```
+# Zero-Install 사용
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Zero-Install 사용 x
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+```
+
+##### 4) typescript 설정
+typescript를 사용하는 프로젝트라면 설정을 변경한다.  
+
+* jsconfig.json -> tsconfig.json 이름 변경
+* `yarn add -D typescript @types/node @typesjest ...나머지는 프레임워크에 따라 추가 설치`
+
+##### 5) vscode 설정
+
+* _ZipFS_ 확장자를 VSCode extension에서 설치
+* 프로젝트 최상위 경로에서 `yarn dlx @yarnpkg/sdks vscode` 설치. 기존에 있던 sdks가 .yarn 디렉토리 내부에 별도로 설치됨.
+* http://daplus.net/typescript-visual-studio-code%EB%8A%94-%EC%96%B4%EB%96%A4-typescript-%EB%B2%84%EC%A0%84%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%98%EB%82%98%EC%9A%94-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%97%85%EB%8D%B0/ 를 참고하여 typescript 버전 선택
+
