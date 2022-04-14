@@ -81,6 +81,83 @@ tensorflow-crawling
 */
 ```
 
+```
+// 실제 크롤링 코드
+(async function () {
+  try {
+    // 멤버 등급 정보
+    const rankPage = await axios.get(T_MEMBERSHIP_URL.rank);
+    const $ = cheerio.load(rankPage.data);
+    const $specialRank = $("div.info-txt > p > em:nth-child(2)")
+      .text()
+      .split(" / ");
+    console.log("등급 정보:", $specialRank);
+    const $normalRank = $("div.info-txt > p > em:nth-child(4)").text();
+    console.log("등급 정보:", $normalRank, "\n");
+
+    // 멤버십 혜택 정보
+    // 크롬 브라우저 빌드
+    const service = new chrome.ServiceBuilder("./chromedriver").build();
+    chrome.setDefaultService(service);
+    const driver = await new webdriver.Builder().forBrowser("chrome").build();
+
+    await driver.get(`${T_MEMBERSHIP_URL.benefit}0`);
+
+    const brands = await driver.findElements(By.css("#sel-list > li"));
+    for (const brand of brands) {
+      // 브랜드 정보
+      const brandName = await brand
+        .findElement(By.xpath("./child::*"))
+        .getAttribute("text");
+      const brandId = await brand.getAttribute("id");
+      console.log("브랜드 정보:", brandName, brandId);
+
+      // 브랜드별 혜택
+      const benefitPage = await axios.get(
+        `${T_MEMBERSHIP_URL.benefit}${brandId}`
+      );
+      const $ = cheerio.load(benefitPage.data);
+      const $benefits = $("div.detail-list dl.dl-bnf");
+      $benefits.each((_, beneift) => {
+        // 할인형 vs 적립형
+        console.log($(beneift).children("dt").text());
+
+        const $benefitDetails = $(beneift).find("dd > div.info");
+        $benefitDetails.each((_, benefitDetail) => {
+          // 혜택 대상 등급
+          const $benefitRanks = $(benefitDetail).find("span.badge-list > i");
+          $benefitRanks.each((_, benefitRank) => {
+            console.log(
+              "적용 등급:",
+              $(benefitRank).attr().class.split(" ")[1].toUpperCase()
+            );
+          });
+          // 혜택 정보
+          console.log(
+            "혜택 정보:",
+            $(benefitDetail)
+              .first()
+              .contents()
+              .filter(function () {
+                return this.type === "text";
+              })
+              .text()
+              .trim()
+          );
+        });
+      });
+      console.log();
+
+      sleep(50); // 너무 자주 크롤링하지 않도록 하기 위해
+    }
+
+    await driver.quit();
+  } catch (err) {
+    console.error(err);
+  }
+})();
+```
+
 * 문제점
 
 다만 이러한 방식은 간단한 방식에 대한 크롤링밖에 진행할 수 없고 user interaction이 필요하다면 다른 방법을 찾았어야 한다.  
