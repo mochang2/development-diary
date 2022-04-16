@@ -48,7 +48,7 @@ memcached와 비슷한 '캐시 시스템'으로 in-memory DB의 하나로 NoSQL�
   * matser-slave 구조를 통해 비동기식 복제를 지원
   * 스냅샷(RDB) 및 Append Only File(AOF) 생성을 모두 지원
     * 스냅샷: 순간적으로 메모리에 있는 내용 전체를 disk에 옮겨 담는 방식
-    * Append Only File: Reids의 모든 write/update 연산 자체를 log 파일에 기록
+    * Append Only File: Redis의 모든 write/update 연산 자체를 log 파일에 기록
 * Java, Python, PHP, C, C++, C#, JS, Node, Ruby, R, Go 등 다양한 언어 지원
 * 읽기 성능 증대를 위한 서버 측 복제를 지원
 * 쓰기 성능 증대를 위한 클라이언트 측 샤딩(Sharding) 지원
