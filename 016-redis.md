@@ -67,10 +67,20 @@ MacOS: `brew install redis`
 Linux: `sudo apt install redis-server`  
 현재는 이미 있는 서버를 사용하므로 클라이언트 측에 대한 지식만 있으면 된다. 추후에 서버를 사용할 일이 있다면 추가할 예정이다.
 
-## 3. Node.js로 client 사용
+## 3. client
+[2](https://github.com/mochang2/development-diary/edit/main/016-redis.md#2-server-%EC%84%A4%EC%B9%98) 와 같은 명령어를 사용하여 설치한다.  
+
+##### 접속
+`redis-cli -h ${접속할 호스트} -p ${접속할 포트} -a ${비밀번호}
+
+##### 명령어
+자세한 명령어는 https://freeblogger.tistory.com/10 참조  
+참고사항: https://sabarada.tistory.com/135
+
+## 4. Node.js로 client 사용
 Node.js에서 가장 많이 사용하는 클라이언트는 ioredis이다.  
 [공식문서](https://www.npmjs.com/package/ioredis) 에 따르면 다음과 같은 특징을 가지고 있다.  
-* Cluster, Sentinel, Streams, Pipelining, Lua scripting, Redis Functions, Pub/Sub 등의 기능 지원
+* Cluster, Sentinel, Streams, Pipelining(수많은 요청 시 매번 응답을 받으면 오버헤드가 커지기 때문에 한 번에 여러 원소들을 보내고 응답을 1번만 받는 기능), Lua scripting, Redis Functions, Pub/Sub 등의 기능 지원
 * 높은 성능
 * 잘 정리된 API
 * Lua scripting 추상화 제공
@@ -143,6 +153,7 @@ redis.set("mykey", "hello", "EX", 10);
 // client = redis.createClient();
 
 // string: 가장 기본적인 형태의 key-value
+// string를 이용하여 구현한다면 set {메인 Key}:{서브 Key} value의 형태로 데이터를 저장
 client.set('key', 'value');
 client.get('key');
 
@@ -161,6 +172,7 @@ client.lrange('listName', 'startIndex', 'lastIndex' /* -1 이면 모두 */, (err
 
 
 // hash set
+// hash를 이용해 구현한다면 hset {메인 Key} {서브 Key} value의 형태로 저장. 다만 TTL 등을 사용할 수 없음
 // import Redis from 'ioredis';
 // const redis = new Redis({ port: 1234, host: 'github.com/mochang2', password: '1234' }) // options
 await redis.hset('hash table', 'key', 'value); // 단일 key-value 쌍
