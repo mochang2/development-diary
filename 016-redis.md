@@ -136,6 +136,57 @@ redis.zrange("sortedSet", 0, 2, "WITHSCORES").then((elements) => {
 redis.set("mykey", "hello", "EX", 10);
 ```
 
+아래는 redis 자료 구조에 따른 사용법이다.  
+
+```
+// import redis from 'redis';
+// client = redis.createClient();
+
+// string: 가장 기본적인 형태의 key-value
+client.set('key', 'value');
+client.get('key');
+
+// (sorted) set: 순서가 없는 문자열. 유일한 요소만 저장됨.
+client.sadd('student', '이름1');
+client.sadd('student', '이름2');
+client.smembers('student', (err, data) => {
+    // 무언가
+})
+
+// list: 중복값 허용. 순서 저장. 메모리가 허용하는 한 많이 저장
+client.lpush('listName', 'value');
+client.lrange('listName', 'startIndex', 'lastIndex' /* -1 이면 모두 */, (err, items) => {
+    // 무언가
+})
+
+
+// hash set
+// import Redis from 'ioredis';
+// const redis = new Redis({ port: 1234, host: 'github.com/mochang2', password: '1234' }) // options
+await redis.hset('hash table', 'key', 'value); // 단일 key-value 쌍
+await redis.hget('key', 'value');
+
+await redis.hmset('hash table', 'key1', 'value1', 'key2', 'value2');
+// 또는
+await redis.hmset('hash table', {
+    'key1': 'value1',
+    'key2': 'value2',
+}); // 여러 개의 key를 토대로 값을 set
+await redis.hmget('hash table', 'key1', 'key2'); // 여러 개의 key를 토대로 값을 get
+
+await redis.hget('hash table'); // key를 명시하지 않으면 모든 value를 가져옴
+
+await redis.hexists('hash table', 'key1'); // 존재하는지 확인
+
+await redis.hdel('hash table', 'key1', 'key2'...); // 삭제
+
+await redis.hincrby('hash table', 'key1', value); // hash increment by. 얼마만큼 값을 증가시킬지 명시. 음수의 value가 들어갈 수 있음
+
+await redis.hkeys('hash table'); // 모든 key를 가져옴
+
+await redis.hlen('hash table'); // key의 개수를 
+```
+
 ```
 // 실제 내가 사용한 
 ```
