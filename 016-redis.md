@@ -75,7 +75,12 @@ Linux: `sudo apt install redis-server`
 
 ##### 명령어
 자세한 명령어는 https://freeblogger.tistory.com/10 참조  
-참고사항: https://sabarada.tistory.com/135
+참고사항: https://sabarada.tistory.com/135  
+
+_cf1) redis-cli에서 `:`(콜론)은 namespace를 의미하며, redis 내에서 표현 형식이라고 생각해도 된다._  
+_cf2) 삽질한 이유1. redis는 한 번 key 값이 설정되면 다른 타입으로 바꿀 수 없다. list 타입이라고 결정되면 lpush, llen 등 해당 key에 대해서는 관련된 명령어만 쓸 수 있다._  
+_cf3) 삽질한 이유2. hget(hset)과 get(set)의 인자의 개수가 다르다. hxxx가 hash table 인자를 하나 더 받는다._  
+_cf4) 삽질한 이유3. object 타입은 json 형태 그대로 들어가는 것이 아니라 "object object" 이런 식으로 들어간다. 따라서 JSON.stringify로 변환한 후에 캐시에 저장해야 한다._
 
 ## 4. Node.js로 client 사용
 Node.js에서 가장 많이 사용하는 클라이언트는 ioredis이다.  
@@ -84,7 +89,8 @@ Node.js에서 가장 많이 사용하는 클라이언트는 ioredis이다.
 * 높은 성능
 * 잘 정리된 API
 * Lua scripting 추상화 제공
-* binary data, TLS, offline queue, ready checking, ES6 types(Map, Set), NAT mapping, auto pipelining 제공
+* binary data, TLS, offline queue, ready checking, ES6 types(Map, Set), NAT mapping, auto pipelining 제공  
+
 설치: `npm install ioredis && npm install -D @types/node(for typescript)`  
 
 ```
@@ -200,7 +206,23 @@ await redis.hlen('hash table'); // key의 개수를
 ```
 
 ```
-// 실제 내가 사용한 
+// 내가 작성한 예시
+const storeConItems = async (argvKey, list) => {
+  const redisPipe = redisClient.pipeline() // list이기 때문에 추가할 때마다 response를 받는 오버헤드를 줄이기 위해 pipeline 사용
+  for (const value of list) {
+      redisPipe.rpush(
+      `table:${argvKey}`,
+      JSON.stringify(makeJson(value)), // makeJson은 별도의 함수
+    )
+  }
+  redisPipe.expire(`table:${argvKey}`, 86400).exec() // 캐싱기간: 1일
+}
+
+user // 로그인 여부에 따라
+? await storeConItems(user.id, recommendlist.slice(0, RECOMMEND_NUMBER)) // 일정 개수만 추천
+: await storeConItems(
+  'anonymous',
+  recommendlist.slice(0, RECOMMEND_NUMBER),
+)
 ```
-작성중
 
