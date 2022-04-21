@@ -109,6 +109,7 @@ tensorflow-crawling
       const brandName = await brand
         .findElement(By.xpath("./child::*"))
         .getAttribute("text");
+      // getText()로 속성을 받아올 수 없으면 .getAttribute("text" | "textContent" | "innerHTML" | "innerText")를 사용하면 된다
       const brandId = await brand.getAttribute("id");
       console.log("브랜드 정보:", brandName, brandId);
 
