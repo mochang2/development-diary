@@ -202,7 +202,7 @@ _cf) _본인 chrome version 확인하는 방법_
 ```
 import webdriver from "selenium-webdriver";
 import chrome from 'selenium-webdriver/chrome.js';
-import { T_MEMBERSHIP_URL} from "./constant/urls/index.js";
+import { T_MEMBERSHIP_URL } from "./constant/urls/index.js";
 
 (async function () {
   try {
