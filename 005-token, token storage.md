@@ -2,7 +2,8 @@
 cms 프로젝트에서 로그인, 회원가입을 구현하기 위해 token과 token storage에 대해 정리했다.  
 어떤 것들이 절대적으로 좋거나 나쁘거나 하지 않은 것 같다.  
 상황에 따라, 그리고 목적에 따라 필요한 것을 고르면 된다.  
-이번에는 참고한 글들이 10개가 넘기 때문에 모두 기술하지는 않겠다.
+이번에는 참고한 글들이 10개가 넘기 때문에 모두 기술하지는 않겠다.  
+아래에 나오는 모든 저장소는 (크롬 브라우저 기준) 'Application' 탭에서 저장된 내용을 확인할 수 있다. 
   
 ## 1. token
 토큰은 서버에게 이 요청을 보내는 사용자가 정당한 사용자가 맞음을 알려주기 위해 요청에 추가해서 보내는 것을 말한다.  
@@ -107,4 +108,81 @@ RFC 7486을 참고하면 자세히 알 수 있다.
 쿠키를 사용하기로 다시 변경했다.  
 cookie에서 same site(strict, lax, none)라는 속성을 사용하면 CSRF에 대한 방어도 가능하며,  
 백의 코드는 거의 동일하지만 프론트의 코드가 매우 짧아지기 .  
+
+## 6. 추가사항
+토큰 저장소로 사용되지는 않지만 브라우저 저장소의 하나로 indexedDB라는 것이 있다.  
+쿠키가 문서 내부에 간단한 문자열 데이터를 저장, 로컬 저장소가 Json 데이터를 문자열로 변환하여 저장,  
+세션 저장소가 Json 데이터를 해당 탭 세션에 저장하는 것이라면,  
+indexedDB는 key를 이용해 index되는 구조화된 데이터를 저장하는 용도이다.  
+파일이나 블롭 등의 데이터를 저장할 수도 있다.
+
+##### 특징
+* key/value 저장
+* Transaction 기능 지원
+* key 범위의 쿼리와 index 지원
+* 웹 스토리지에 비해 훨씬 많은 데이터를 저장 가능
+
+##### 사용 패턴
+애플리케이션 블록을 방지하기 위해 모두 비동기로 이루어진다.  
+
+순서는 다음과 같다.  
+1. 데이터베이스를 연다.
+2. 객체 저장소(Object store)를 생성한다. 객체 저장소란 데이터를 담는 공간으로 여러 개의 key/value 값으로 형성된다. 하나의 indexedDB 안에 여러 개의 객체 저장소가 존재할 수 있지만 각각의 이름은 고유해야 한다.  
+3. transaction을 시작하고 데이터베이스 작업을 요청한다. 모든 데이터 읽기 및 쓰기는 transaction 내에서 수행된다.
+4. DOM eventListener를 사용하여 요청이 완료될 떄까지 기다리고 결과를 확인한다.
+
+##### 예시 코드
+
+```
+// 0. 브라우저가 indexedDB를 지원하는지 확인
+if (!window.indexedDB) {
+	console.log('사용 못 함');
+} else {
+	// 다음 단계
+}
+
+// 1. 데이터베이스 열기
+const request = indexedDB.open('DB 이름', version);
+// 해당 DB가 존재하지 않거나 현재 DB 버전이 원하는 버전보다 낮으면 request.onupgradeneeded가 호출되고,
+// DB 버전을 업그레이드한다. 또는 DB가 아직 존재하지 않을 때도 트리거되므로 DB 초기화를 수행할 수 있다.
+// https://stackoverflow.com/questions/34300166/why-does-indexeddb-use-a-version 여기 질문에도 나와있듯이
+// 버전에 따라 어떤 동작을 할 수 있도록 지시할 수 있다.
+// 성공적으로 DB가 열리면 request.onSuccess가, 에러가 발생하면 request.onerror가 호출된다.
+
+request.onsuccess = () => {
+	console.log('success');
+	const database = request.result;
+}
+request.onupgradeneeded = () => {
+	const database = request.result;
+}
+request.onerror = () => {
+	console.error('error');
+}
+
+
+// 2. 객체 저장소 생성
+const option = {
+	keyPath: 'id', // id를 제공하는데 필요한 인덱스 필드의 이름을 지정
+	autoIncrement: true,
+};
+const someStore = database.createObjectStore('store 이름', option);
+
+
+// 3. transaction 시작
+const transaction = database.transaction(someStore, 'transaction mode'); // 첫 번째 인자는 객체 저장소의 이름을 말함
+// 두 번째 인자는 'readonly', 'readwrite', 'versionchange' 가 가능함
+// someStore이란 objectStore에 어떠한 모드로 transaction 시작하기
+// transaction.oncomplete, transaction.onerror에 대해 콜백함수를 실행할 수 있음
+
+const transaction = database.transaction('object store', 'readwrite').objectStore('object store');
+// 위에서 한 행위에 대해 추가적으로 'object store'이란 테이블 선택
+transaction.add(entry); // 테이블을 선택한 뒤에 데이터 추가
+transaction.put(entry);
+transaction.get(key);
+transaction.getAll();
+transaction.delete(key);
+
+return transaction.complete; // DB에 변화가 생겼다면 이걸 return해야 됨
+```
 
