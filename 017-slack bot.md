@@ -97,17 +97,24 @@ app.event('app_mention', async ({ event, client, logger }) => {
 import { appAddedChannels } from '../memory'  // let으로 선언된 object 타입
 
 const appMention = async (event, client) => {
-  const { channels } = await client.conversations.list({ // web api 사용 방법. 인자로 json 타입을 주면 됨
-    token: process.env.SLACK_BOT_TOKEN,
-    limit: 1000,
-    exclude_archived: true,
-    types: 'public_channel', // private 채널에 대해서도 가져오고 싶다면 'public_channel,private_channel'로 선언
-  })
+  if (event.channel_type !== 'channel') return // public channel이 아니면
+  if (!Object.keys(appAddedChannels).includes(event.channel)) {
+    // 이미 파악된 채널이 아니면
+    const { channels } = await client.conversations.list({
+      token: process.env.SLACK_BOT_TOKEN,
+      limit: 1000,
+      exclude_archived: true,
+      types: 'public_channel',
+    })
+    const mutex = new Mutex()
 
-  for (const channel of channels) {
-    if (channel.id === event.channel) {
-      appAddedChannels[event.channel] = channel.name
-      break
+    for (const channel of channels) {
+      if (channel.id === event.channel) {
+        await mutex.runExclusive(async () => {
+          appAddedChannels[event.channel] = channel.name
+        })
+        break
+      }
     }
   }
 }
@@ -117,6 +124,9 @@ export default appMention
 
 결과적으로 나온 화면은 아래다.  
 <img width="1100" alt="Screen Shot 2022-04-28 at 20 20 37" src="https://user-images.githubusercontent.com/63287638/165741224-3ec364ce-0969-4c6e-8f12-33c3358f1441.png">
+  
+++) 수정사항: 멘션 이벤트를 바꿨다. 앱이 멘션이 되면 사용법을 채널에 띄우고, 앱이 포함된 채널에서 채팅이 발생하면 위에 선언한 `appMention` 에서 했던 동작을 수행하게끔 바꿨다.  
+앱이 포함된 채널에서 채팅을 하게끔 만드는 web api는 https://api.slack.com/methods/chat.postMessage 에서 확인할 수 있다.
 
 ##### about 탭
 코드로 구현하는 것이 아니라 slack app 관리 화면에서 'basic information' 탭을 수정하면 자동으로 바뀐다(다만 시간이 좀 걸릴 수 있으니 그냥 기다리면 해결된다).  
@@ -124,7 +134,28 @@ export default appMention
 <img width="1097" alt="Screen Shot 2022-04-28 at 20 20 43" src="https://user-images.githubusercontent.com/63287638/165741329-e8a108c6-5014-4554-8715-0fe924d33018.png">
 
 
-## 4. DB 테이블
+## 4. 삽질3 - typescript
+
+```
+import { GenericMessageEvent, MessageEvent } from '@slack/bolt'
+
+const messageChannel = async (event: MessageEvent, client) => {
+  // ...
+  const messageEvent = event as GenericMessageEvent
+}
+```
+
+`@slack/bolt` 파일을 타고 들어가면 다음과 같이 선언되어 있다.
+
+```
+export declare type MessageEvent = GenericMessageEvent | BotMessageEvent | ChannelArchiveMessageEvent | ChannelJoinMessageEvent | ChannelLeaveMessageEvent | ChannelNameMessageEvent | ChannelPostingPermissionsMessageEvent | ChannelPurposeMessageEvent | ChannelTopicMessageEvent | ChannelUnarchiveMessageEvent | EKMAccessDeniedMessageEvent | FileShareMessageEvent | MeMessageEvent | MessageChangedEvent | MessageDeletedEvent | MessageRepliedEvent | ThreadBroadcastMessageEvent;
+```
+
+`MessageEvent` 타입을 사용하려면 뒤에 선언된 이벤트가 가진 모든 property를 142번째 줄에서 선언한 변수인 `event`가 가지고 있어야 한다.  
+일반적으로 그런 경우가 존재하지 않기 때문에 강제적으로 `as`로 타입을 바꾸는 게 최선이라고 한다.  
+
+
+## 5. DB 테이블
 기능이 복잡하지 않기 때문에 되게 단순하다.
 
 (작성중)
