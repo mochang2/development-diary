@@ -35,9 +35,9 @@ bolt로 slack app을 만들 때는 slack 공식문서를 참조하면 안 된다
 
 ```
 import { App } from '@slack/bolt'
-import Home from './views/Home'
+import Home from 'where'
 
-const APP_PORT = Number(process.env.port) || 3000
+const APP_PORT = Number(process.env.port)
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN, // dotenv 모듈 사용
   signingSecret: process.env.SLACK_SIGNING_SECRET,
@@ -47,6 +47,7 @@ const app = new App({
 })
 
 app.event('app_home_opened', async ({ event, client, logger }) => {
+  // async 없으면 모듈에서 일치하는 함수를 찾지 못해 에러 발생
   try {
     await client.views.publish(Home(event))
   } catch (err) {
@@ -75,7 +76,7 @@ web api 메소드는 https://api.slack.com/methods 이 문서에서 확인할 �
 ```
 // main app.ts
 ...
-import appMention from './events/app-mention' // 
+import appMention from 'where' // 
 
 const app = new App({
   // ...
@@ -94,32 +95,19 @@ app.event('app_mention', async ({ event, client, logger }) => {
 
 
 // appMention.ts
-import { appAddedChannels } from '../memory'  // let으로 선언된 object 타입
+...
+import { appAddedChannels } from 'where'
 
 const appMention = async (event, client) => {
   if (event.channel_type !== 'channel') return // public channel이 아니면
   if (!Object.keys(appAddedChannels).includes(event.channel)) {
     // 이미 파악된 채널이 아니면
-    const { channels } = await client.conversations.list({
-      token: process.env.SLACK_BOT_TOKEN,
-      limit: 1000,
-      exclude_archived: true,
-      types: 'public_channel',
-    })
-    const mutex = new Mutex()
-
-    for (const channel of channels) {
-      if (channel.id === event.channel) {
-        await mutex.runExclusive(async () => {
-          appAddedChannels[event.channel] = channel.name
-        })
-        break
-      }
-    }
+    // 현재 슬랙의 모든 채널을 가져와서
+    // 같은 id를 가진 애를 변수(메모리)에 저장
+    // 해당 변수는 다른 곳에서도 접근해야 되므로 mutex 등 필요.
   }
 }
-
-export default appMention
+...
 ```
 
 결과적으로 나온 화면은 아래다.  
@@ -151,7 +139,7 @@ const messageChannel = async (event: MessageEvent, client) => {
 export declare type MessageEvent = GenericMessageEvent | BotMessageEvent | ChannelArchiveMessageEvent | ChannelJoinMessageEvent | ChannelLeaveMessageEvent | ChannelNameMessageEvent | ChannelPostingPermissionsMessageEvent | ChannelPurposeMessageEvent | ChannelTopicMessageEvent | ChannelUnarchiveMessageEvent | EKMAccessDeniedMessageEvent | FileShareMessageEvent | MeMessageEvent | MessageChangedEvent | MessageDeletedEvent | MessageRepliedEvent | ThreadBroadcastMessageEvent;
 ```
 
-`MessageEvent` 타입을 사용하려면 뒤에 선언된 이벤트가 가진 모든 property를 142번째 줄에서 선언한 변수인 `event`가 가지고 있어야 한다.  
+`MessageEvent` 타입을 사용하려면 뒤에 선언된 이벤트가 가진 모든 property를 139번째 줄에서 선언한 변수인 `event`가 가지고 있어야 한다.  
 일반적으로 그런 경우가 존재하지 않기 때문에 강제적으로 `as`로 타입을 바꾸는 게 최선이라고 한다.  
 
 
