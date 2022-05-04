@@ -200,24 +200,31 @@ _cf) _본인 chrome version 확인하는 방법_
 3\) 기본 설정 코드
 
 ```
-import webdriver from "selenium-webdriver";
+import webdriver, { WebDriver } from "selenium-webdriver";
 import chrome from 'selenium-webdriver/chrome.js';
 import { T_MEMBERSHIP_URL } from "./constant/urls/index.js";
 
 (async function () {
+  let driver: WebDriver | null = null  // finally 구문에서 typescript 컴파일 에러가 나지 않게 하기 위해
+  
   try {
-    // chorme driver 경로 입력
+    // chorme driver 경로 입력. 이 코드가 없어도 크롬브라우저만 node가 찾을 수 있는 위치에 잘 설치되어 있다면 에러가 나지 않음
     const service = new chrome.ServiceBuilder('./chromedriver').build();
     chrome.setDefaultService(service)
 
     // chrome 브라우저 빌드
-    const driver = await new webdriver.Builder().forBrowser('chrome').build();
+    // docker에서 돌리기 위해서는
+    // const driverOption = new chrome.Options()
+    // driverOption.addArguments('--headless')
+    // await new new webdriver.Builder().forBrowser('chrome').setChromeOptions(driverOption).build()
+    driver = await new webdriver.Builder().forBrowser('chrome').build(); 
 
     // 사이트 열기
     await driver.get(`${T_MEMBERSHIP_URL}0`) // 크롬 브라우저가 guest 권한을 실행
-
   } catch (err) {
     console.error(err);
+  } finally {
+    if (driver) driver.quit() // 중간에 에러가 나면 드라이버가 종료가 되지 않으므로
   }
 })();
 ```
@@ -250,5 +257,14 @@ DoS로 고소를 안 먹으면 다행이지만, 그냥 IP 차단을 당할 수�
 다만 node는 비동기 기반의 sleep 함수이기 때문에 setTimeout 등을 동기적으로 처리할 로직이 필요하다.  
 처음에는 여러 사이트에 대해 순차적으로 반복문을 돌리려고 했는데, 반복문에 대해서도 비동기적으로 동작해서 동기적 sleep을 할 수 있는 방법을 찾아봤다.  
 그 결과, `sleep-synchronously` 모듈을 사용하면 반복문 중간에도 sleep을 할 수 있다는 것을 알았다.  
+  
+또는 
 
+```
+const delay = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+```
+
+선언 후 `await delay(1000)` 이런 식으로 사용해도 동기 sleep이 가능하다.
 
