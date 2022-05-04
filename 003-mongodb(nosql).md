@@ -248,3 +248,51 @@ mongoDB는 document라는 방식을 사용하기 때문에 모델링을 해야 �
 RDBMS와 NoSQL은 나온 배경이 다르다.  
 NoSQL은 빅데이터와 클라우드 등이 대두되는 현재, 최대한 단순하면서 많은 데이터를 다루기 위해 나타났다.  
 반면 RDBMS는 기존 정적인 데이터를 처리하기 위해 사용되었으며, 복잡하면서 무결성이 중요한 데이터에 적합하다.
+
+## 6. mongoose code example
+시퀄라이즈에 비해 공식 문서가 훨씬 잘 되어 있는 편이지만 혹시 모를 나중을 위해 모델 정의 관련된 코드만 정리한다.  
+~쿼리문은 공식 문서가 잘 되어 있으니 패스~
+참고로 몽구스는 objectId라고 document마다 고유한 값을 가진 값을 자동으로 만들어준다.  
+`timestamp: true` 로 설정하면 createdAt과 updatedAt 값이 자동으로 할당되며, 서버 시간에 맞춰서 반영된다.  
+
+```
+import { model, Schema } from 'mongoose'
+
+export interface someInterface {
+  id: string
+  name: string
+  property: number
+  key: string
+}
+
+const someSchema = new Schema<someInterface>(
+  {
+    id: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    property: {
+      type: Number,
+      required: true,
+    },
+    key: {
+      type: String,
+      required: true,
+    },
+  },
+  {timestamps: true},
+)
+conItemIdentifierSchema.index({id: 1, name: 1, property: 1})
+
+const SomeModel = model<someInterface>(
+  'Some',
+  someSchema,
+)
+
+export default SomeModel
+```
+
