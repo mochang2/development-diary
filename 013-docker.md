@@ -109,7 +109,10 @@ RUN : Shell Script 또는 명령을 실행
 CMD : 컨테이너가 실행되었을 때 명령이 실행
 LABEL : 라벨 작성 (docker inspect 명령으로 label 확인 가능)
 EXPOSE : 호스트와 연결할 포트 번호를 설정
-ENV : 환경변수 설정
+ENV : 환경변수 설정 
+# 사용 예시. ENV LC_ALL=C.UTF-8
+# 베이스 이미지로 node:10를 사용해야 됐는데 (os는 gnu linux) 컨테이너 내부에서 한글 인식이 되지 않았다.
+# 해당 문제를 해결하기 위해 위와 같이 사용해서 해결했다.
 ADD : 파일 / 디렉터리 추가
 COPY : 파일 복사
 ENTRYPOINT : 컨테이너가 시작되었을 때 스크립트 실행
