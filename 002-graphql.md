@@ -49,3 +49,117 @@ api가 바뀌면 명세를 동시에 바꿔주는 기능이 없기 때문에 시
 gql의 인트로스펙션은 서버 자체에서 현재 서버에 정의된 스키마의 실시간 정보를 공유를 할 수 있게 한다.  
 이 스키마 정보만 알고 있으면 클라이언트 사이드에서는 따로 연동규격서를 요청 할 필요가 없다.  
 클라이언트 사이드에서는 실시간으로 현재 서버에서 정의하고 있는 스키마를 의심 할 필요 없이 받아들이고, 그에 맞게 쿼리문을 작성하면 된다.
+
+
+## 3. code example
+~다른 것보다 enum 사용이 너무 답답해서 추가했다~  
+포스트맨으로 테스트할 때 엄청 삽질했던 것 중에 하나가 graphql은 enum 값을 명시하지 않았을 때 0부터 숫자가 들어가는 것이 아니라  
+enum 의 key값이 string으로 들어간다.  
+공식 문서에도 명확히 안 써 있어서 수많은 삽질 끝에 터득했다.  
+추가적으로 포스트맨에서 graphql enum 선언은 ... (스샷 추가 예정) 이렇게 선언해서 (스샷 추가 예정)  가져다 쓴다.
+
+```
+// // BE 
+// function => 일반적으로 express를 사용하면 router(resolver)에서 이 함수를 불러서 사용
+// db connection 관련 import
+
+export enum option {
+  EXCLUDED = 'EXCLUDED',
+  REQUIRED = 'REQUIRED',
+}
+
+export const Func = async (_, {option, Id1, Id2}) => {
+  try {
+    const collection = someModel // mongoose model
+    const result = await collection.find({'조건 명시'}).select('key1 key2')
+
+    return result
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+// resolver
+import { Func } from 'where'
+
+export const resolvers = { // Apollo server 생성시 인자로 넣어줌
+  Query: {
+    Func,
+    ...
+  },
+  Mutation: { }
+}
+
+// 진입점
+const server = new ApolloServer({
+  typeDefs: ,
+  resolvers: resolvers,
+  schemaDirectives: {}, 
+  context: callback func,
+  plugins: [],
+  engine: {},
+  formatError: callback func,
+})
+
+"""
+~~.graphql. 모든 graphql 형태 선언
+"""
+type Query {
+  Func(option: someOption, Id1: Int!, Id2: Int!): [someType!] 
+  """
+  !은 non nullable을 의미
+  : 뒤는 타입을 명시
+  
+  Func는 someOption 타입의 option 인자와, non-nullable한 Int 타입의 Id1, Id2를 인자로 받으면,
+  non-nullable인 someType을 array 형태로 response를 줌
+  """
+  ...
+}
+
+"""
+graphql에서 enum
+"""
+enum someOption {
+  EXCLUDED
+  REQUIRED
+}
+
+
+
+// // FE 부분
+"""
+쿼리 선언
+"""
+query queryName($option: someOption, $Id1: Int!, $Id2: Int!) { // 변수 이름: 타입
+  aiWords( // BE에 전달하는 내용
+    option: $option
+    Id1: $Id1
+    Id2: $Id2
+  ) { // BE에게 받는 내용
+    key1
+    key2
+  }
+}
+
+// component.tsx, component.jsx, component.vue 등에서. enum을 위한 변수 선언
+buttons: [
+  {caption: '제외', option: 'EXCLUDED'},
+  {caption: '필수', option: 'REQUIRED'},
+],
+
+// 쿼리 사용하는 함수 선언
+async fetchSome() {
+  const res = await this.$apollo.query({
+    query: queryName,
+    variables: {
+      option: this.buttons[index].option,
+      Id1: Number(Id1),
+      Id2: Number(Id2),
+    },
+    fetchPolicy: 'network-only',
+  })
+  const {Funcs} = res.data
+},
+```
+
+
