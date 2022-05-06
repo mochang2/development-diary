@@ -143,10 +143,73 @@ export declare type MessageEvent = GenericMessageEvent | BotMessageEvent | Chann
 일반적으로 그런 경우가 존재하지 않기 때문에 강제적으로 `as`로 타입을 바꾸는 게 최선이라고 한다.  
 
 
-## 5. DB 테이블
-기능이 복잡하지 않기 때문에 되게 단순하다.
+## 5. 삽질4 - 앱 유저 구분
+기획 의도대로라면 칭찬 프로그램을 만들 때 `@강냉이 칭찬해~ :corn:` (봇 이름이자 앱 유저 이름이 강냉이였다)라고 해도 칭찬 프로그램이 반응하지 않아야 했다.  
+따라서 앱 유저 이름과 일반 유저 이름을 멘션할 때의 경우를 구분할 필요가 있었다.  
+[삽질2](https://github.com/mochang2/development-diary/edit/main/017-slack%20bot.md#3-%EC%82%BD%EC%A7%882---%EC%95%B1%EC%9D%B4-%EC%B1%84%EB%84%90%EC%97%90-%EC%84%A4%EC%B9%98%EB%90%A0-%EB%95%8C-%ED%95%B4%EB%8B%B9-%EC%B1%84%EB%84%90-%ED%8C%8C%EC%95%85%ED%95%98%EA%B8%B0)에서 말했듯이 앱은 초대된 채널에 대해서만 이벤트가 동작할 수 있다.  
+다만 이 때 앱은 한 명의 유저로서 채널에 초대되지만 슬랙으로 직접 채널 구성원을 살펴보면 나오지 않는다.  
 
+![화면 캡처 2022-05-06 235207](https://user-images.githubusercontent.com/63287638/167157937-6bae5ca2-14d9-4a69-9821-4b27ae87733a.png)  
+<br/>
+
+하지만 api로 [slack web api](https://api.slack.com/methods)에서 살펴볼 수 있듯이 `conversations.members`을 통해 구성원을 받아오면 슬랙에서 볼 때에 비해 한 명 더 존재한다.  
+
+```
+// 결과
+"members": ["U023BECGF", "U061F7AUR"]
+```
+
+하지만 이렇게 가져오는 정보 외에 앱 유저를 구분하는 방법이 존재하지 않아서(아니면 내가 못 찾은 걸 수도 있다) 결국 앱 유저 id를 코드 일부에 하드코딩 한 뒤에 가져다가 사용했다.  
+
+
+## 7. 삽질6 - 모달 띄우기
+작성중(코드  필요)
+
+
+## 8. 삽질7 - 개인 DM 보내기
+이거는 사실 삽질이라기 보다는 약간 자주 쓰지 않는 코드도 섞여 있어서 시간을 잡아먹었다.  
+개인 DM은 두 가지 이벤트 시에 발생한다.  
+첫 번째는 `:corn:`을 주고받을 때 '누가' '누구에게' '어느 채널에서' '몇 개의' `:corn:`을 보냈는지 알림을 띄울 때 
+두 번째는 [삽질6]()에서 모달을 띄운 뒤 'csv 다운로드' 버튼을 클릭했을 때이다.
+
+##### `:corn:` 알림을 띄울 때   
+https://api.slack.com/surfaces/tabs/events 를 보면 앱이 사용자에게 메시지 탭을 통해 개인 DM을 보내기 위한 방법은 총 세가지가 있다.  
+
+* The user and channel IDs found in the app_home_opened event can be used as the channel parameter when calling the chat.postMessage Web API method to publish a message.
+* An incoming webhook can be created for the Messages tab conversation.
+* Message responses can be created when a valid request_url is received.
+
+코드가 조금 지저분하지만 첫 번째 방식에서 영감을 얻었다.  
+두 번째는 리소스가 많이 드는 방식이었고, 세 번째는 요청을 받을 url이 따로 존재해야 개발을 할 수가 있다.  
+  
+slack api 중 [users.conversations](https://api.slack.com/methods/users.conversations)을 이용해 `types: im`을 설정하면 개인 DM 채널 id를 얻을 수 있다.  
+모든 사용자는 해당 타입의 채널이 1개이기 때문에 ~(수 천, 수 만을 테스트해본 것은 아니기 때문에 아닐 수도 있다)~ 그 채널이 바로 앱과 유저가 직접 소통하는 채널이다.  
+이 채널에 [chat.postMessage](https://api.slack.com/methods/chat.postMessage) api를 사용해서 칭찬 내역을 보낼 수 있다.
+
+##### 'csv 다운로드' 버튼을 클릭했을 때
+작성중
+
+
+## 8. DB
+기능이 복잡하지 않기 때문에 되게 단순하다.  
+유저를 구분할 수 있는 id, 오늘 남은 칭찬 횟수, 기간 동안 총 받은 칭찬 개수, 기간 동안 총 준 칭찬 개수 정도만 저장하면 됐다.  
+DB에 이러한 데이터를 저장하면 편했던 점이 [삽질2](https://github.com/mochang2/development-diary/edit/main/017-slack%20bot.md#3-%EC%82%BD%EC%A7%882---%EC%95%B1%EC%9D%B4-%EC%B1%84%EB%84%90%EC%97%90-%EC%84%A4%EC%B9%98%EB%90%A0-%EB%95%8C-%ED%95%B4%EB%8B%B9-%EC%B1%84%EB%84%90-%ED%8C%8C%EC%95%85%ED%95%98%EA%B8%B0)와 달리 concurrency에 대한 관리를 하지 않아도 됐다.  
+처음에 DB 테이블을 초기화하는 방법에 대해서 고민을 했다. 후보군은 다음과 같았다.  
+
+1. 앱 유저가 채널에 추가될 때마다 해당 채널의 모든 유저를 가져오고, DB에 없는 유저라면 새롭게 데이터를 만든다. 만약 채널에 새로운 유저가 들어오거나 나가면 해당 내용을 DB에 업데이트한다.
+2. `/invite` 명령어로 앱 유저를 채널에 추가한 뒤 무조건 `@강냉이`를 부름으로써 이벤트를 발생시킨다. 단 이때, 구성원 간의 사용 규칙을 명시해야 한다.
+3. 채널에 앱 유저가 초대되든, 추방되든, 채널에 일반 유저가 초대되든, 추방되든 신경쓰지 않는다. 오직 신경쓰는 거는 앱이 초대된 채널에서 message를 보내는 이벤트가 발생했는지 여부이다. 해당 message가 '칭찬 규칙'에 맞는 칭찬 text를 가지고 있으면, 파싱한 뒤 규칙에 맞게 DB를 업데이트한다. 만약 이 때 DB에 없는 유저라면 새롭게 만들고, 그렇지 않다면 바로 업데이트를 진행한다.
+
+결과적으로 선택한 것은 3번이다.  
+1번은 너무 경우의 수가 다양해서 전부 커버하기가 힘들었다.  
+2번도 규칙이 잘 지켜진다면 괜찮았지만, '앱 멘션' 이벤트를 다른 방식으로 사용할 수 있으며, 굳이 규칙을 세우지 않아도 괜찮은 3번을 선택했다.  
+
+
+## 9. cronjob
+가장 안 해본 분야의 개발이었기 때문에 난해하고 복잡했다.  
+~아마 k8s를 이용한 cronjob이 익숙한 사람들한테 이보다 쉬운 일은 없을 것 같다~  
 (작성중)
+
 
 ## 최종 코드
 깃헙 url
