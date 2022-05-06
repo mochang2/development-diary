@@ -213,10 +213,6 @@ import { T_MEMBERSHIP_URL } from "./constant/urls/index.js";
     chrome.setDefaultService(service)
 
     // chrome 브라우저 빌드
-    // docker에서 돌리기 위해서는
-    // const driverOption = new chrome.Options()
-    // driverOption.addArguments('--headless')
-    // await new new webdriver.Builder().forBrowser('chrome').setChromeOptions(driverOption).build()
     driver = await new webdriver.Builder().forBrowser('chrome').build(); 
 
     // 사이트 열기
@@ -267,4 +263,71 @@ const delay = (ms: number) => {
 ```
 
 선언 후 `await delay(1000)` 이런 식으로 사용해도 동기 sleep이 가능하다.
+
+
+## 5. docker
+크롤링을 한 번만 하고 끝내지 않을 것이라면 주기적으로 돌릴 필요가 있다.  
+현재 회사에서는 k8s cronjob을 쓰기 때문에 gui가 아닌 cli에서 headless로 돌릴 방법이 필요했다.  
+아래는 driver에 headless 옵션을 추가하기 위한 방법이다.  
+
+```
+const driverOption = new chrome.Options()
+driverOption.addArguments('--headless')
+const driver = await new webdriver.Builder().forBrowser('chrome').setChromeOptions(driverOption).build()
+```
+
+아래는 도커파일 예시다.  
+
+```
+FROM selenium/standalone-chrome
+# 셀레니움을 돌리기 위한 driver들이 설치되어 있는 gnu/linux 이미지
+
+# seluser 기본 유저로 로그인이 되기 때문에 거의 모든 명령어에 sudo가 필요함
+ENV TZ=Asia/Seoul
+RUN sudo chmod o+w /etc/timezone \
+  && sudo ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+  && sudo echo $TZ > /etc/timezone
+
+ARG GITHUB_PAT=
+
+WORKDIR /
+
+RUN sudo apt update \
+  && sudo apt install curl -y \
+  && cd ~ \
+  && curl -sL https://deb.nodesource.com/setup_17.x -o nodesource_setup.sh \
+  && sudo bash nodesource_setup.sh \
+  && sudo apt install nodejs -y \
+  && sudo apt install build-essential -y \
+  && sudo npm install -g yarn
+
+WORKDIR /${project_name}
+
+COPY . .
+
+RUN sudo yarn config set 'npmScopes[""].npmRegistryServer' "https://npm.pkg.github.com" \
+  && sudo yarn config set 'npmScopes[""].npmAlwaysAuth' "true" \
+  && sudo yarn config set 'npmScopes[""].npmAuthToken' "$GITHUB_PAT" \
+  && sudo yarn install \  # os마다 npm이 달라질 수 있으므로 새롭게 설치
+  && yarn build
+
+ENTRYPOINT ["yarn","start"]
+```
+
+아래는 dockerignore 파일이다.
+
+```
+Dockerfile
+chromedriver  # hostOS 용 chrome driver 이기 때문에
+dist/
+.yarn/cache/ # yarn berry를 사용한다면
+node_modules/ # yarn berry를 사용하지 않는다면
+```
+
+이런 다음에 `docker build --tag ${image name}:1.0 .`, `docker run -d -p 4444:4444 --shm-size='2g' --name ${container name} ${image name}:1.0` 명령어로 도커 빌드 후 실행할 수 있다.  
+`--shm-size='2g'`는 컨테이너에 자원을 더 할당함으로써 셀레니움을 돌릴 때 문제가 없도록 하기 위한 옵션이다.  
+
+
+
+
 
