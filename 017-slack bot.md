@@ -162,15 +162,54 @@ export declare type MessageEvent = GenericMessageEvent | BotMessageEvent | Chann
 하지만 이렇게 가져오는 정보 외에 앱 유저를 구분하는 방법이 존재하지 않아서(아니면 내가 못 찾은 걸 수도 있다) 결국 앱 유저 id를 코드 일부에 하드코딩 한 뒤에 가져다가 사용했다.  
 
 
-## 7. 삽질6 - 모달 띄우기
-작성중(코드  필요)
+## 6. 삽질5 - 모달 띄우기
+이 부분은 참고할 코드가 있어서 덜 삽질했다.  
+view를 만들 때 blocks의 타입에는 section, header, divider, button 등이 있다.  
+그냥 button를 만들면 왼쪽 정렬이 되지만, section 내부에 accessory라는 옵션을 통해 button을 만들면  
+우측 정렬이 된다.  
+UI를 구성하는 일이다 보니 css에서 할 수 있는 기능은 전부 할 수 있을 줄 알고 기대했지만 정렬 그 이상의 이쁨을 바랄 수는 없는 것 같다.  
+아래는 예시 코드이다.  
+
+```
+const Home = async (
+  event: AppHomeOpenedEvent, // import { AppHomeOpenedEvent } from '@slack/bolt'
+): Promise<ViewsPublishArguments> => {
+  // 어떤 로직
+
+  return {
+    user_id: event.user,
+    view: {
+	...
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: '*마크다운* 문법 이런 식으로'
+            verbatim: true,
+          },
+          accessory: {
+            type: 'button',
+            action_id: 'action 이름',
+            text: {
+              type: 'plain_text',
+              text: '글글글',
+            },
+          },
+        },
+	...
+    }
+  }
+}
+```
+
+`action 이름` 이 하는 역할은 [아래](https://github.com/mochang2/development-diary/edit/main/017-slack%20bot.md#csv-%EB%8B%A4%EC%9A%B4%EB%A1%9C%EB%93%9C-%EB%B2%84%ED%8A%BC%EC%9D%84-%ED%81%B4%EB%A6%AD%ED%96%88%EC%9D%84-%EB%95%8C) 예제 코드에 나와 있다.  
 
 
-## 8. 삽질7 - 개인 DM 보내기
+## 7. 삽질6 - 개인 DM 보내기
 이거는 사실 삽질이라기 보다는 약간 자주 쓰지 않는 코드도 섞여 있어서 시간을 잡아먹었다.  
 개인 DM은 두 가지 이벤트 시에 발생한다.  
 첫 번째는 `:corn:`을 주고받을 때 '누가' '누구에게' '어느 채널에서' '몇 개의' `:corn:`을 보냈는지 알림을 띄울 때 
-두 번째는 [삽질6]()에서 모달을 띄운 뒤 'csv 다운로드' 버튼을 클릭했을 때이다.
+두 번째는 [삽질6](https://github.com/mochang2/development-diary/edit/main/017-slack%20bot.md#7-%EC%82%BD%EC%A7%886---%EA%B0%9C%EC%9D%B8-dm-%EB%B3%B4%EB%82%B4%EA%B8%B0)에서 모달을 띄운 뒤 'csv 다운로드' 버튼을 클릭했을 때이다.
 
 ##### `:corn:` 알림을 띄울 때   
 https://api.slack.com/surfaces/tabs/events 를 보면 앱이 사용자에게 메시지 탭을 통해 개인 DM을 보내기 위한 방법은 총 세가지가 있다.  
