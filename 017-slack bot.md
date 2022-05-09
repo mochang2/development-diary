@@ -187,7 +187,32 @@ slack api 중 [users.conversations](https://api.slack.com/methods/users.conversa
 이 채널에 [chat.postMessage](https://api.slack.com/methods/chat.postMessage) api를 사용해서 칭찬 내역을 보낼 수 있다.
 
 ##### 'csv 다운로드' 버튼을 클릭했을 때
-작성중
+~csv의 약어가 Comma Separated Values 인지 처음 알았다. 그래서 csv 파일을 보냈을 때 엑셀과 같은 파일이 아닌 그저 텍스트 파일이 보내졌을 때 에러인지 알고 한참 찾았다.~  
+처음에는 바로 사용자의 컴퓨터에게 csv 파일을 다운받는 방법을 생각했다.  
+하지만 그렇게 하려면 프로토콜을 하나 만들고, 클라이언트 측에서도 포트가 하나 열려 있게 만들고... 등 생각해야 할 일이 많았다.  
+생각해낸 방법은 csv 파일을 앱이 개인에게 보낼 수 있는 DM을 통해 보내는 것이었다.  
+  
+slack app view에는 button type이 있는데 해당 버튼에 action을 달 수 있다.  
+
+```
+// app.ts(또는 진입점)
+app.action('액션 이름', 실행할 함수 이름)
+
+// 실행할 함수 선언된 부분
+export const sendRankFile = async ({ client, ack, body, logger }) => {
+  await ack()
+
+  // 동작
+  // csv 파일은 json2csv 모듈을 이용했다.
+  // mongoose에서 가져온 결과값이 어차피 object[] 형태이기 때문에
+  // json2csv의 parser을 이용하면 손쉽게 가능했다.
+  const fields = ['field1', 'field2', 'field3']
+  const opts = { fields }
+  const json2csvParser = new Parser({ fields, delimiter: '\t' })
+  const tsv = json2csvParser.parse(usersInfo)
+  // 위와 같은 방식으로 사용하면 default delimiter인 ','에서 '\t'로 바꿀 수 있다.
+}
+```
 
 
 ## 8. DB
