@@ -270,9 +270,48 @@ DB에 이러한 데이터를 저장하면 편했던 점이 [삽질2](https://git
 
 
 ## 9. cronjob
-가장 안 해본 분야의 개발이었기 때문에 난해하고 복잡했다.  
-~아마 k8s를 이용한 cronjob이 익숙한 사람들한테 이보다 쉬운 일은 없을 것 같다~  
-(작성중)
+docker가 어차피 리눅스 기반이기 때문에 크론잡의 문법도 동일했다.  
+`분 시 일 월 요일`이며 `*`은 모든 분, 모든 시, 모든 일, 모든 월, 모든 요일 등을 가리킨다.  
+즉 `* * * * *`는 매일 매시 매분을 의미한다.  
+동작시키고 싶은 기능은 `yarn program`에 등록했다.  
+commander의 자세한 설명은 [공식문서](https://www.npmjs.com/package/commander)에 있다.
+
+```
+// package.json
+...
+  "scripts": {
+    ...
+    "program": "NODE_ENV=development ts-node-dev -r dotenv/config ./src/program.ts" //  이렇게 하면 build 없이 실행 가능하다
+  },
+...
+
+// program.ts
+import { Command } from 'commander'
+
+const program = new Command()
+
+program.version('0.0.1')
+
+program.command('cron-daily').action(async () => {
+  try {
+    // db에 연결하는 등 실행 시킬 함수.
+
+    process.exit()
+  } catch (err) {
+    console.log(err)
+  }
+})
+
+program.parse(process.argv)
+
+// cronjob.yaml
+apiVersion: 버전 0.1.0 등
+kind: CronJob
+metadata:
+  name: 크론잡 이름
+spec:
+   // 이후는 배포에 맞는 스펙
+```
 
 
 ## 최종 코드
