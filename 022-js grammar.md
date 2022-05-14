@@ -91,6 +91,70 @@ template literals라고 해서 아래와 같은 식으로도 변수를 연결할
 
 human이 가리키는 객체에 대해서는 변경이 불가능하지만, human.name이나 human.age는 변경이 가능함.
 
+###### shallow copy vs deep copy
+shallow copy는 객체의 주소값만 참조하는 것을 말하고, deep copy는 완전히 새로운 객체를 생성하는 것을 말한다.  
+어느 포스팅된 글의 표현을 빌리자면 얕은 복사는 한 단계까지만 복사하고, 깊은 복사는 객체에 중첩된 객체까지 모두 복사한다.  
+당연히 속도는 deep copy가 훨씬 느리다.  
+파이썬을 예시로 들자면 아래와 같다.  
+
+```
+a = [1,2,3]
+b = a # shallow copy
+b[0] = 100
+
+print(a) # [100,2,3]
+
+-------
+from copy import deepcopy
+
+a = [1,2,3]
+b = deepcopy(a) # deep copy
+b[0] = 100
+
+print(a) # [1,2,3]
+```
+
+js에서 원시값(primitive)은 변경 불가능한 불변의 값을 말한다.  
+원시값에는 String, Number, undefined, Boolean, Symbol, BigInt 6종류가 존재하고 이것들은 기본적으로 할당만 해도 deep copy가 된다.  
+
+```
+let a = 1;
+let b = a;
+b = 2
+console.log(a) // 1
+```
+
+하지만 object, array 등의 객체는 기본적으로 shallow copy를 한다.  
+이것들을 deepcopy하기 위한 방법은 크게 3가지가 있다.  
+[1](https://roseline.oopy.io/dev/javascript-back-to-the-basic/shallow-copy-deep-copy)과 [2](https://leonkong.cc/posts/js-deep-copy.html)를 참고했다.  
+
+```
+// 1. JSON 사용. 속도가 가장 느림.
+const obj1 = {...}
+const obj2 = JSON.parse(JSON.stringify(obj1));
+
+
+// 2. 커스텀 재귀 함수 사용
+function cloneObject(obj) {
+  let result = {};
+  for (let key in obj) {
+    typeof obj[key] == "object" && obj[key] != null
+      ? clone[key] = cloneObject(obj[key])
+      :clone[key] = obj[key]
+  }
+
+  return result;
+}
+
+
+// 3. lodash의 cloneDeep() 사용
+import cloneDeep from lodash/cloneDeep;
+
+const originalObj = {...};
+const copiedObj = originalObj;
+```
+
+
 4. Dynamic type(c, java: starting typed language)
 
 		let text = 'hello';
@@ -165,6 +229,43 @@ human이 가리키는 객체에 대해서는 변경이 불가능하지만, human
 		}
 
 		printAll('dream', 'coding', 'ellie');  // 세 개 모두 출력.
+
+_cf forEach 내부에서 await 사용시 조심할 점_
+forEach는 async/await으로 선언된 비동기 처리 구문을 기다려주지 않는다.
+
+```
+const wantedGenres = ['로맨스', '판타지'];
+let genres = [];
+wantedGenres.forEach(async (value, index) => {
+    const g = await Genre.findOne({ name: value }); // MongoDB에서 오브젝트 조회
+    genres.push(g);
+    console.log(`Push ${index}: ${genres}`);
+});
+console.log(`Done: ` + genres);
+
+// 예상 결과
+// Push 0: [{...name: '로맨스'...}]
+// Push 1: [{...name: '로맨스'...}, {...name: '판타지'...}]
+// Done: [{...name: '로맨스'...}, {...name: '판타지'...}]
+
+// 실행 결과
+// Done:
+// Push 0: [{...name: '로맨스'...}]
+// Push 1: [{...name: '로맨스'...}, {...name: '판타지'...}]
+
+
+// 해결방법 1. for (const/let variable of, in iterableObject) 사용
+
+
+// 해결방법 2. Promise.all() 사용
+let genres = [];
+const promises = wantedGenres.map(async (value, index) => {
+    const g = await Genre.findOne({ name: value });
+    genres.push(g);
+});
+await Promise.all(promises);
+```
+
 
 2. return  
 return 을 명시하지 않으면 모든 함수 끝에는 return undefined가 있는 것과 마찬가지. python과 마찬가지로 함수 앞에 어떤 type을 return할 것인지 함수 선언에서 명시하지 않음.
