@@ -304,6 +304,7 @@ program.command('cron-daily').action(async () => {
 
 program.parse(process.argv)
 
+
 // cronjob.yaml
 apiVersion: 버전 0.1.0 등
 kind: CronJob
@@ -315,6 +316,6 @@ spec:
 
 
 ## 최종 코드
-~회사 자산이라 개인 깃헙에 못 올리는게 너무 맘이 아프다... 열심히 만들었는데~
-
+~회사 자산이라 개인 깃헙에 못 올리는게 너무 맘이 아프다... 열심히 만들었는데~  
+이외에도 유저가 채널에서 사라질 때 해당 유저에 대한 데이터도 DB에서 지우거나, csv 파일을 Drive에 올리거나, 슬랙 워크 스페이스에서 관리자만 사용할 수 있는 기능을 추가하는 등이 있었지만, 위에 제시했던 slack api method나 slack event subscription만 잘 찾아보면 구현이 가능해서 더 자세히 적지는 않겠다.  
 
