@@ -33,7 +33,7 @@ bolt로 slack app을 만들 때는 slack 공식문서를 참조하면 안 된다
 위에 적은 공식 문서를 따라하면서 socket mode 설정이나, bot auth, Oauth & Permissions만 잘 설정하면 문제 없이 동작한다.  
 설정을 완료한 후 아래와 같은 코드를 작성하면 정상적으로 동작한다.
 
-```
+```typescript
 import { App } from '@slack/bolt'
 import Home from 'where'
 
@@ -73,7 +73,7 @@ web api 메소드는 https://api.slack.com/methods 이 문서에서 확인할 �
 그래서 이것을 위해서 따로 DB를 파는 것은 아깝다고 생각하고, 데이터도 크지 않기 때문에 메모리에 저장하기로 결정했다.  
 코드는 아래와 같다.
 
-```
+```typescript
 // main app.ts
 ...
 import appMention from 'where' // 
@@ -124,7 +124,7 @@ const appMention = async (event, client) => {
 
 ## 4. 삽질3 - typescript
 
-```
+```typescript
 import { GenericMessageEvent, MessageEvent } from '@slack/bolt'
 
 const messageChannel = async (event: MessageEvent, client) => {
@@ -170,7 +170,7 @@ view를 만들 때 blocks의 타입에는 section, header, divider, button 등�
 UI를 구성하는 일이다 보니 css에서 할 수 있는 기능은 전부 할 수 있을 줄 알고 기대했지만 정렬 그 이상의 이쁨을 바랄 수는 없는 것 같다.  
 아래는 예시 코드이다.  
 
-```
+```typescript
 const Home = async (
   event: AppHomeOpenedEvent, // import { AppHomeOpenedEvent } from '@slack/bolt'
 ): Promise<ViewsPublishArguments> => {
@@ -233,7 +233,7 @@ slack api 중 [users.conversations](https://api.slack.com/methods/users.conversa
   
 slack app view에는 button type이 있는데 해당 버튼에 action을 달 수 있다.  
 
-```
+```typescript
 // app.ts(또는 진입점)
 app.action('액션 이름', 실행할 함수 이름)
 
