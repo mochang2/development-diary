@@ -45,7 +45,7 @@ __cheerio__ : Fast, flexible & lean implementation of core jQuery designed speci
 
 * 명령어 예시
 
-```
+```javascript
 // 간단히 test를 위한 용도이므로 익명 함수로 선언해서 node `${파일이름.js}로 실행
 // 일반적으로 axios API 요청을 위한 용도로 사용하면 전역변수로 선언하지만, 크롤링을 한다면 url이 매번 바뀌기 때문에 그러지 않음
 // children은 > 등을 통한 자식에 대한 select를 못하므로 좀 억지스럽지만 아래처럼 사용함
@@ -81,7 +81,7 @@ tensorflow-crawling
 */
 ```
 
-```
+```javascript
 // 실제 크롤링 코드
 (async function () {
   try {
@@ -199,7 +199,7 @@ _cf) _본인 chrome version 확인하는 방법_
 
 3\) 기본 설정 코드
 
-```
+```javascript
 import webdriver, { WebDriver } from "selenium-webdriver";
 import chrome from 'selenium-webdriver/chrome.js';
 import { T_MEMBERSHIP_URL } from "./constant/urls/index.js";
@@ -229,7 +229,7 @@ import { T_MEMBERSHIP_URL } from "./constant/urls/index.js";
 
 4\) DOM element
 
-```
+```javascript
 // usage
 // ~~
 import { By } from 'selenium-webdriver';
@@ -256,7 +256,7 @@ DoS로 고소를 안 먹으면 다행이지만, 그냥 IP 차단을 당할 수�
   
 또는 
 
-```
+```javascript
 const delay = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
@@ -270,7 +270,7 @@ const delay = (ms: number) => {
 현재 회사에서는 k8s cronjob을 쓰기 때문에 gui가 아닌 cli에서 headless로 돌릴 방법이 필요했다.  
 아래는 driver에 headless 옵션을 추가하기 위한 방법이다.  
 
-```
+```javascript
 const driverOption = new chrome.Options()
 driverOption.addArguments('--headless')
 const driver = await new webdriver.Builder().forBrowser('chrome').setChromeOptions(driverOption).build()
@@ -278,7 +278,7 @@ const driver = await new webdriver.Builder().forBrowser('chrome').setChromeOptio
 
 아래는 도커파일 예시다.  
 
-```
+```dockerfile
 FROM selenium/standalone-chrome
 # 셀레니움을 돌리기 위한 driver들이 설치되어 있는 gnu/linux 이미지
 
