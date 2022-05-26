@@ -82,7 +82,8 @@ global 옵션을 줘서 npx로 실행할 수도 있지만 일반적으로는 이
 ```
 
 ##### test
-```
+
+```typescript
 test('description), () => {
 	expect(어떤 행위).toBe(기댓값)
 })
@@ -94,7 +95,7 @@ test('description), () => {
 여러 테스트들을 하나의 그룹으로 묶는데 사용한다.  
 아래는 그 예시다.
 
-```
+```typescript
 describe('/', () => {
   test('/readiness :GET', async () => {
     const { status } = await request.get('/healthz/readiness')
@@ -118,7 +119,7 @@ describe로 묶인 각각의 테스트 후에
 실행하고자 있는 것이 있을 때 사용한다.  
 아래와 같이 사용할 수 있다.
 
-```
+```typescript
 beforeEach(() => {
 	console.log('123')
 })
@@ -181,7 +182,7 @@ module.exports = {
 
 * index.ts(app.ts에서 짠 기본 설명 미들웨어들을 거치고 난 후의 app을 실행하는 코드)
 
-```
+```typescript
 const port = ~~
 const app = initApp()
 
