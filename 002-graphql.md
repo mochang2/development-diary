@@ -58,7 +58,7 @@ enum 의 key값이 string으로 들어간다.
 공식 문서에도 명확히 안 써 있어서 수많은 삽질 끝에 터득했다.  
 추가적으로 포스트맨에서 graphql enum 선언은 ... (스샷 추가 예정) 이렇게 선언해서 (스샷 추가 예정)  가져다 쓴다.
 
-```
+```typescript
 // // BE 
 // function => 일반적으로 express를 사용하면 router(resolver)에서 이 함수를 불러서 사용
 // db connection 관련 import
