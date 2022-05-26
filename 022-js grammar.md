@@ -97,7 +97,7 @@ shallow copy는 객체의 주소값만 참조하는 것을 말하고, deep copy�
 당연히 속도는 deep copy가 훨씬 느리다.  
 파이썬을 예시로 들자면 아래와 같다.  
 
-```
+```javascript
 a = [1,2,3]
 b = a # shallow copy
 b[0] = 100
@@ -117,7 +117,7 @@ print(a) # [1,2,3]
 js에서 원시값(primitive)은 변경 불가능한 불변의 값을 말한다.  
 원시값에는 String, Number, undefined, Boolean, Symbol, BigInt 6종류가 존재하고 이것들은 기본적으로 할당만 해도 deep copy가 된다.  
 
-```
+```javascript
 let a = 1;
 let b = a;
 b = 2
@@ -128,7 +128,7 @@ console.log(a) // 1
 이것들을 deepcopy하기 위한 방법은 크게 3가지가 있다.  
 [1](https://roseline.oopy.io/dev/javascript-back-to-the-basic/shallow-copy-deep-copy)과 [2](https://leonkong.cc/posts/js-deep-copy.html)를 참고했다.  
 
-```
+```javascript
 // 1. JSON 사용. 속도가 가장 느림.
 const obj1 = {...}
 const obj2 = JSON.parse(JSON.stringify(obj1));
@@ -233,7 +233,7 @@ const copiedObj = originalObj;
 _cf forEach 내부에서 await 사용시 조심할 점_
 forEach는 async/await으로 선언된 비동기 처리 구문을 기다려주지 않는다.
 
-```
+```javascript
 const wantedGenres = ['로맨스', '판타지'];
 let genres = [];
 wantedGenres.forEach(async (value, index) => {
