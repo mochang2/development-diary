@@ -255,7 +255,7 @@ NoSQL은 빅데이터와 클라우드 등이 대두되는 현재, 최대한 단�
 참고로 몽구스는 objectId라고 document마다 고유한 값을 가진 값을 자동으로 만들어준다.  
 `timestamp: true` 로 설정하면 createdAt과 updatedAt 값이 자동으로 할당되며, 서버 시간에 맞춰서 반영된다.  
 
-```
+```typescript
 import { model, Schema } from 'mongoose'
 
 export interface someInterface {
