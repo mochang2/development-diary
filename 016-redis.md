@@ -93,7 +93,7 @@ Node.js에서 가장 많이 사용하는 클라이언트는 ioredis이다.
 
 설치: `npm install ioredis && npm install -D @types/node(for typescript)`  
 
-```
+```javascript
 ////// 간단한 사용법(공식 문서의 코드)
 //// connection
 new Redis(); // Connect to 127.0.0.1:6379
@@ -154,7 +154,7 @@ redis.set("mykey", "hello", "EX", 10);
 
 아래는 redis 자료 구조에 따른 사용법이다.  
 
-```
+```javascript
 // import redis from 'redis';
 // client = redis.createClient();
 
@@ -205,7 +205,7 @@ await redis.hkeys('hash table'); // 모든 key를 가져옴
 await redis.hlen('hash table'); // key의 개수를 
 ```
 
-```
+```typescript
 // 내가 작성한 예시
 const storeConItems = async (argvKey, list) => {
   const redisPipe = redisClient.pipeline() // list이기 때문에 추가할 때마다 response를 받는 오버헤드를 줄이기 위해 pipeline 사용
