@@ -15,7 +15,7 @@ node.js에서 로깅을 위해 자주 사용하는 모듈은 winston과 morgan�
 사용을 위해 반드시 필요한 모듈은 'winston, winston-daily-rotate-file, app-root-path'이다.  
 아래 코드와 이름만 봐도 간단한 사용법과 어떤 일을 하는지 알 수 있을 것이다.  
 
-```
+```typescript
 import winston from 'winston'
 import winstonDaily from 'winston-daily-rotate-file'
 import appRoot from 'app-root-path'
