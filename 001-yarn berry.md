@@ -43,6 +43,7 @@ package.json에 명시하지 않은 라이브러리를 조용히 사용할 수 �
 
 ## 2. yarn berry의 등장
 위의 문제를 해결하기 위해 yarn berry는 pnp(Plug n Play) 전략을 사용한다. 아래 terminal 명령어를 통해 yarn berry를 사용할 수 있다.
+
 ```
 npm install -g yarn
 cd ../path/to/some-package
