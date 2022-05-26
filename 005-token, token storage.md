@@ -133,7 +133,7 @@ indexedDB는 key를 이용해 index되는 구조화된 데이터를 저장하는
 
 ##### 예시 코드
 
-```
+```javascript
 // 0. 브라우저가 indexedDB를 지원하는지 확인
 if (!window.indexedDB) {
 	console.log('사용 못 함');
