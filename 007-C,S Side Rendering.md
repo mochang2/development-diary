@@ -125,7 +125,7 @@ build time에 HTML을 만드는 메소드로, 한 번 만들어진 뒤에는 매
 루트 디렉터리 안에는 component, pages, global 등의 디렉터리가 위치된다.  
 해당 디렉터리 안에 들어가지 않는 파일에는 index.ts, \_app.ts, \_document.ts가 있다.  
 다만 index.ts가 반드시 존재하는 것은 아니다.  
-index.ts는 domain:\[port\]/ 와 같이 루트 페이지에 접근할 때, 상황에 따라(로그인 여부 등) 화면을 보여주거나 redirect 시키는 등의 기능을 주로 넣어두는 .  
+index.ts는 domain:\[port\]/ 와 같이 루트 페이지에 접근할 때, 상황에 따라(로그인 여부 등) 화면을 보여주거나 redirect 시키는 등의 기능을 주로 넣어두는 파일이다.  
 
 ```typescript
 // _app.ts 예시
@@ -305,7 +305,7 @@ export default MyApp;
 ```
 
 __2. getInitialProps는 서버에서 실행된다__
-브라우저 api(setTimeout, window.~, document.~)는 해당 함수 내에서 실행되지 않는다.  
+브라우저 api(setTimeout, window.\~, document.\~)는 해당 함수 내에서 실행되지 않는다.  
   
 
 __getStaticProps__  
