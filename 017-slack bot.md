@@ -253,6 +253,8 @@ export const sendRankFile = async ({ client, ack, body, logger }) => {
 }
 ```
 
+++) 수정사항: 기존 방식에서 DM 채널을 찾는 방법이 정상적으로 기능하지 않을 때가 있었다. 그래서 개인에게 DM을 보낼 수 있는 채널을 찾는 방법을 바꿨다. `client.conversations.open` api를 사용한다면 오류없이 동작시킬 수 있다.
+
 
 ## 8. DB
 기능이 복잡하지 않기 때문에 되게 단순하다.  
