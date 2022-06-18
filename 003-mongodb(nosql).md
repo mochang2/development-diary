@@ -286,7 +286,7 @@ const someSchema = new Schema<someInterface>(
   },
   {timestamps: true},
 )
-conItemIdentifierSchema.index({id: 1, name: 1, property: 1})
+someSchema.index({id: 1, name: 1, property: 1})
 
 const SomeModel = model<someInterface>(
   'Some',
