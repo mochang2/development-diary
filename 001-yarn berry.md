@@ -4,12 +4,12 @@ node modules로 관리할 때의 단점을 많이 커버할 수 있다고 한다
 참고한 블로그는 https://toss.tech/article/node-modules-and-yarn-berry 이다.
   
 ## 1. node_modules의 단점
-비효율적인 것은 잘 몰랐으나 node modules를 사용하다 보면 패키지가 깨지는 경우가 많다.  
+비효율적인 것은 잘 몰랐으나 node modules를 사용하다 보면 패키지가 깨지는 경우가 많았다.  
 비효율성과 패키지 관리를 위해 yarn v2에 출시되었다고 한다.  
 
 ##### 단점 1) 비효율적인 의존성 검색
 npm은 파일 시스템을 이용하여 의존성을 관리한다. 이 때 의존성 검색은 비효율적으로 동작한다.  
-node의 'require.resolve.path()' 함수를 사용하면 npm이 검색하는 디렉토리의 목록을 x반환하는데, 이 명령어를 통해 볼 수 있듯이 npm은 패키지를 찾기 위해서 계속 상위 디렉토리의 node_modules 폴더를 탐색한다.  
+node의 'require.resolve.path()' 함수를 사용하면 npm이 검색하는 디렉토리의 목록을 반환하는데, 이 명령어를 통해 볼 수 있듯이 npm은 패키지를 찾기 위해서 계속 상위 디렉토리의 node_modules 폴더를 탐색한다.  
 아래 결과는 'require.resolve.path()'를 사용한 내용이다.  
 ```
 [
@@ -50,8 +50,7 @@ cd ../path/to/some-package
 yarn set version berry
 // yarn set version berry가 안되면 yarn policies set-version을 사용
 ```
-
-Yarn Berry는 node_modules를 생성하지 않는다.  
+yarn berry는 node_modules 디렉토리를 생성하지 않는다.  
 대신 .yarn/cache 폴더에 의존성의 정보가 저장되고, .pnp.cjs 파일에 의존성을 찾을 수 있는 정보가 기록된다.  
 .pnp.cjs를 이용하면 디스크 I/O 없이 어떤 패키지가 어떤 라이브러리에 의존하는지, 각 라이브러리는 어디에 위치하는지를 바로 알 수 있다.  
 
@@ -73,12 +72,11 @@ hoisting을 사용하지 않기 때문에, 예기치 못한 버그를 쉽게 일
 zip 파일을 이용해 패키지를 관리하기 대문에 빠진 의존성을 찾거나 의존성 파일이 변경되었음을 찾기 쉽다.
   
 ## 3. 추가사항: zero-install
-(이 부분은 크게 와닿지 않는다. 큰 플젝을 관리해보지 않아서 그런 것 같다)
 의존성도 git을 이용해 버전관리를 한다는 개념이다.  
 yarn pnp는 의존성을 압축 파일로 관리하기 때문에 의존성의 용량이 작다.  
 이 때문에 의존성도 git으로 관리할 수 있다.  
 
-##### 장점 1) 새로 저장소를 복제하거나 브랜치를 바꾸었다고 해서 yarn install을 실행하지 않아도 된다.
+##### 장점 1) 새로 저장소를 복제하거나 브랜치를 바꾸었다고 해서 yarn (install)을 실행하지 않아도 된다.
 ##### 장점 2) CI에서 의존성 설치하는 시간을 크게 절약할 수 있다.
 
 ## 4. 사용법
