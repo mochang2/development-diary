@@ -100,24 +100,25 @@ const server = new ApolloServer({
   formatError: callback func,
 })
 
-"""
+/*
 ~~.graphql. 모든 graphql 형태 선언
-"""
+*/
 type Query {
   Func(option: someOption, Id1: Int!, Id2: Int!): [someType!] 
-  """
+  /*
   !은 non nullable을 의미
   : 뒤는 타입을 명시
   
   Func는 someOption 타입의 option 인자와, non-nullable한 Int 타입의 Id1, Id2를 인자로 받으면,
   non-nullable인 someType을 array 형태로 response를 줌
-  """
+  
   ...
+  */
 }
 
-"""
+/*
 graphql에서 enum
-"""
+*/
 enum someOption {
   EXCLUDED
   REQUIRED
@@ -126,9 +127,9 @@ enum someOption {
 
 
 // // FE 부분
-"""
+/*
 쿼리 선언
-"""
+*/
 query queryName($option: someOption, $Id1: Int!, $Id2: Int!) { // 변수 이름: 타입
   aiWords( // BE에 전달하는 내용
     option: $option
