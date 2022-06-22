@@ -143,7 +143,7 @@ mongoDB는 document라는 방식을 사용하기 때문에 모델링을 해야 �
 ##### Model Tree Structure
 일반적인 tree를 생각하면 된다.  
 기본적인 tree를 그릴 때 항상 문제가 되는 것은 부모를 어떻게 찾냐는 것이다.  
-이러한 문제에 따라 refrence하는 법을 다르게 해 tree를 짤 수 있다.  
+이러한 문제에 따라 reference하는 법을 다르게 해 tree를 짤 수 있다.  
 
 * Parent References
   * 부모 document를 바로 찾아야 할 경우 적합하다.
@@ -201,11 +201,11 @@ mongoDB는 document라는 방식을 사용하기 때문에 모델링을 해야 �
 ```
 [
   { _id: "Books", path: null },
-  { _id: "Programming", path: ",Books," },
-  { _id: "Databases", path: ",Books,Programming," },
-  { _id: "Languages", path: ",Books,Programming," },
-  { _id: "MongoDB", path: ",Books,Programming,Databases," },
-  { _id: "dbm", path: ",Books,Programming,Databases," }
+  { _id: "Programming", path: "Books" },
+  { _id: "Databases", path: "Books,Programming" },
+  { _id: "Languages", path: "Books,Programming" },
+  { _id: "MongoDB", path: "Books,Programming,Databases" },
+  { _id: "dbm", path: "Books,Programming,Databases" }
 ]
 ```
 
