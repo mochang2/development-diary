@@ -2,7 +2,7 @@
 BoB할 때 AWS lambda에 대해 배우고 사용도 해봤지만 여전히 무슨 어떤 때 사용하는 것인지 와닿지 않는다.  
 내가 인턴하는 곳에서 lambda를 사용한다고 하니 이참에 개념 정도는 정리해둬야 서비스를 이해하는데 도움이 될 거라고 판단이 된다.  
 클라우드 엔지니어링 보다 깊게 알지는 못하겠지만 최소한 그들이 얘기하는 것을 이해하는 정도까지는 공부하고자 했다.  
-https://usefultoknow.tistory.com/entry/AWS-Lambda%EB%9E%80-%EB%AC%B4%EC%97%87%EC%9D%BC%EA%B9%8C 와 https://www.44bits.io/ko/keyword/aws-lambda를 참고했다.
+https://usefultoknow.tistory.com/entry/AWS-Lambda%EB%9E%80-%EB%AC%B4%EC%97%87%EC%9D%BC%EA%B9%8C 와 https://www.44bits.io/ko/keyword/aws-lambda 를 참고했다.
   
 ## 1. 개념
 서버를 프로비저닝하거나 관리하지 않고도 코드를 실행할 수 있는 컴퓨팅 서비스이다.  
