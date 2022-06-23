@@ -207,6 +207,7 @@ await redis.hlen('hash table'); // key의 개수를
 
 ```typescript
 // 내가 작성한 예시
+// https://pjc0247.tistory.com/45 참고. string으로 저장 vs hash로 저장
 const workFunc = async (argvKey, list) => {
   const redisPipe = redisClient.pipeline() // list이기 때문에 추가할 때마다 response를 받는 오버헤드를 줄이기 위해 pipeline 사용
   for (const value of list) {
