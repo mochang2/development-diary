@@ -210,10 +210,3 @@ export default app // 테스트 코드에서 이 app 변수를 import 하기 위
 // https://stackoverflow.com/questions/33986863/mocha-api-testing-getting-typeerror-app-address-is-not-a-function 참고
 ```
 
-테스트 코드를 짠 후에
-
-```
-yarn build && yarn test
-```
-
-명령어를 치면 테스트가 실행된다.
