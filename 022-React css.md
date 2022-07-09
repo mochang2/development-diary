@@ -355,13 +355,46 @@ const divStyle = css`
 `
 
 export default function component() {
-  return <div css={divStyle}>content</div>
+  return <div css={divStyle}>content</div> // css props를 넘겨주지 않고 styled component처럼 사용할 수도 있다
 }
 ```
 
-예제코드에서 알 수 있듯이 styled component와 매우 비슷하지만, 더 좋은 점은 컴포넌트 하나하나가 정확히 어떤 html 태그인지 알 수 있다는 것이다.  
-또한 css modules나 styled components와 같이 className을 임의로 생성해줌으로써 class name이 겹칠 일이 없다.  
+예제코드에서 알 수 있듯이 컴포넌트 하나하나가 정확히 어떤 html 태그인지 알 수 있다.  
+styled component도 babel 설정을 바꾸면 이를 지원해준다고 한다.  
+다만 개인적인 생각이지만 html 태그를 정확히 알지 못해도 props를 덜 전달하는 것이 코드가 깔끔해질 것 같다.  
+emotion의 또다른 장점은 css modules나 styled components와 같이 className을 임의로 생성해줌으로써 class name이 겹칠 일이 없다.  
 임의로 생성되는 이름을 바꾸고 싶다면 `.babelrc` 안에 설정을 바꾸면 된다(자세한 내용은 위에 적어놓은 블로그를 통해).
 
  
+ #### 추가사항. styled component vs emotion
+ https://velog.io/@bepyan/styled-components-%EA%B3%BC-emotion-%EB%8F%84%EB%8C%80%EC%B2%B4-%EC%B0%A8%EC%9D%B4%EA%B0%80-%EB%AD%94%EA%B0%80 이 velog를 참고했다.  
  
+ styled component와 emotion은 sass 문법을 사용하며, 전반적인 스타일 기능이 동일하다.  
+ 
+* Attaching Props
+* Media Queries
+* Global Styles
+* Nested Selectors
+* Server Side Rendering
+* Theming Support
+* Composition
+ 
+둘 모두 위 기능들을 제공한다.  
+ 
+##### 차이점 1. 번들 사이즈
+[번들 사이즈를 알아볼 수 있는 사이트](https://bundlephobia.com/)를 참고하면 최신 라이브러리 번들 사이즈를 알 수 있다.  
+ 
+<img src="https://user-images.githubusercontent.com/63287638/178094724-dedcd99a-e201-41e9-b521-630f3209387b.png" alt="emotion style" width="600" height="auto" />
+<br/>
+<br/>
+
+<img src="https://user-images.githubusercontent.com/63287638/178094726-3c2d5250-2edf-44fc-a096-3d4cfbe8bdea.png" alt="styled component" width="600" height="auto" />
+<br/>
+<br/>
+
+react에서 사용하면 @emotion/react 도 설치한다지만, 단순하게 styled component 패키지만을 비교해보면 @emotion/style이 훨씬 가볍다.  
+
+##### 차이점 2. 속도
+일반적으로는 근소하게 emotion이 더 빠르다고 한다.  
+다만 라이브러리 버전마다 속도 차이가 있기 때문에 항상이라고는 말할 수 없다.  
+
