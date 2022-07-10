@@ -38,11 +38,11 @@ query HeroNameAndFriends($episode: Episode) {
 위와 같은 형식으로 생겼으며 쿼리는 주로 select같은, 뮤테이션은 insert, delete, update와 같은 것이라고 생각하면 된다.  
 개념적으로 구분은 했지만 내부적으로는 크게 다르지 않다고 한다.
 
-##### 장점 1) overfetching 또는 underfetching이 발생하지 않는다.
+### 장점 1) overfetching 또는 underfetching이 발생하지 않는다.
 필요한 데이터만 달라고 한 뒤 그 데이터만 이용하면 되므로 필요 없는 데이터를 받거나, 필요한 데이터를 받지 못하는 경우가 발생하지 않는다.  
 다만 이 때문에 요청(request)가 길어지는 단점이 발생한다.
 
-##### 장점 2) introspection
+### 장점 2) introspection
 rest api를 사용하며 겪은 가장 큰 문제는 api 명세서가 실시간으로 관리가 안 된다는 점이었다.  
 api가 바뀌면 명세를 동시에 바꿔주는 기능이 없기 때문에 시차가 발생하여 명세서에 쓰인 api가 최신이라는 보장이 없다.  
 이러한 REST의 API 명세서 공유와 같은 문제를 해결하는 것이 gql의 인트로스펙션 기능이다.  
