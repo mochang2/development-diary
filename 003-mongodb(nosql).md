@@ -5,10 +5,10 @@ double nc에서 다양한 프로젝트가 있었는데 DB 중 하나로 mongoDB�
 참고한 블로그는 https://kciter.so/posts/about-mongodb 이다.
   
 ## 1. 사전지식
-##### BSON
+### BSON
 binary + json을 의미한다. mongodb에서는 bson 형태로 데이터를 저장한다.
 
-##### 샤딩(출처: https://nesoy.github.io/articles/2018-05/Database-Shard)
+### 샤딩(출처: https://nesoy.github.io/articles/2018-05/Database-Shard)
 ~강대명 멘토님 시간에 배웠는데 금방 까먹었다.~  
 
 * 같은 테이블 스키마를 가진 데이터를 다수의 데이터베이스에 분산하여 저장하는 방법을 의미한다.
@@ -30,7 +30,7 @@ binary + json을 의미한다. mongodb에서는 bson 형태로 데이터를 저�
 즉, SQL 뿐만 아니라~ 라는 뜻으로 SQL을 사용하는 RDB가 아닌 DB를 의미한다.  
 RDB로는 MySQL, Oracle, PostgreSQL 등이 있고, NoSQL에는 mongoDB, Redis, Cassandra, HBase 등이 있다.  
 
-##### vs RDBMS
+### vs RDBMS
 NoSQL의 가장 큰 특징은 _수평 확장 가능한 분산 시스템, Schema-less, 완화된 ACID_ 이다.  
 특히 SNS와 같이 간단하고 엄청나게 많은 데이터를 처리하기 위해, 그리고 기존 RDB로는 표현하기 힘든 다양한 데이터를 처리하기 위해 생겨났다.  
 자세한 차이는 아래 표를 보면 알 수 있다.  
@@ -56,7 +56,7 @@ NoSQL의 가장 큰 특징은 _수평 확장 가능한 분산 시스템, Schema-
 데이터는 document(그냥 json이라고 봐도 무방) 기반으로 구성되어 있고, ACID(산) 대신 BASE를 택하여 성능과 가용성을 우선시하며, open source라 무료이다.  
 또한 BSON으로 데이터가 쌓이기 때문에 Array 데이터나 Nested한 데이터를 쉽게 넣을 수 있다.  
 
-##### 표현
+### 표현
 |RDBMS|mongoDB|
 |------|-------|
 |Database|Database|
@@ -64,7 +64,7 @@ NoSQL의 가장 큰 특징은 _수평 확장 가능한 분산 시스템, Schema-
 |Rows|Documents|
 |Columns|Fields|
 
-##### ObjectID
+### ObjectID
 <p align="center">
 <img src="https://kciter.so/images/2021-02-25-about-mongodb/bson.png" alt="json(bson)의 형태" />
 </p>
@@ -75,7 +75,7 @@ ObjectId는 RDBMS의 Primary Key와 같이 고유한 키를 의미하는데 차�
 의아하게도 MongoDB 서버에서 알아서 ObjectId를 부여해서 저장해도 될 것 같은데 딱히 지원해주지 않는다.  
 참고로 ObjectId를 넣지않고 저장한다면 데이터가 그대로 저장된다.  
 
-##### BASE
+### BASE
 BASE는 ACID와 대립되는 개념으로 다음 세 가지로 이루어진다.  
 간단하게 정리하자면 일관성을 어느 정도 포기하고 가용성을 우선시, 즉, 일단 요청이 발생하면 데이터가 일치하지 않더라도 보내주는 것을 우선시한다는 것이다.  
 * **B**asically **A**valiable
@@ -92,7 +92,7 @@ BASE는 ACID와 대립되는 개념으로 다음 세 가지로 이루어진다.
 NoSQL이 나온 이유 중 하나는 대규모 데이터를 처리하는데 RDBMS에서는 한계가 있었기 때문이다.  
 일관성과 무결성을 조금 포기하더라도 빠른 읽기 성능과 수평 확장이 수월한 DB가 필요했다.  
 
-##### CAP 이론
+### CAP 이론
 어떤 분산 시스템도 Consistency(일관성), Availability(가용성), Partition tolerance(분할 내성)을 모두 만족할 수 없다는 이론이다.  
 * Consistency
   * 모든 노드가 같은 시간에 같은 데이터를 볼 수 있다는 의미이다.
@@ -121,7 +121,7 @@ NoSQL이 나온 이유 중 하나는 대규모 데이터를 처리하는데 RDBM
 <img src="https://kciter.so/images/2021-02-25-about-mongodb/partition-tolerance.png" alt="" />
 </p>
 
-##### PACELC 이론
+### PACELC 이론
 CAP 이론에서 P 즉, 노드끼리 통신이 원활하지 않는 경우는 100% 방지할 수 없다는 사실에서 출발하여, 네트워크 파티션 상황은 반드시 발생한다고 가정한다.  
 PACELC은 다음으로 이루어져 있다.
 
@@ -140,7 +140,7 @@ mongoDB는 PA /EC 시스템이므로 네트워크 파티션 상황일 때는 가
 아래부터는 그냥 참고용이다.  
 mongoDB는 document라는 방식을 사용하기 때문에 모델링을 해야 하며 이를 위해 패턴을 정리할 필요가 있다.  
 
-##### Model Tree Structure
+### Model Tree Structure
 일반적인 tree를 생각하면 된다.  
 기본적인 tree를 그릴 때 항상 문제가 되는 것은 부모를 어떻게 찾냐는 것이다.  
 이러한 문제에 따라 reference하는 법을 다르게 해 tree를 짤 수 있다.  
@@ -225,7 +225,7 @@ mongoDB는 document라는 방식을 사용하기 때문에 모델링을 해야 �
 ]
 ```
 
-##### 모델링 패턴
+### 모델링 패턴
 글이 너무 길기 때문에 자세한 것은 https://kciter.so/posts/about-mongodb#modeling-pattern 여기서 참조하면 된다.
 
 * Attribute
