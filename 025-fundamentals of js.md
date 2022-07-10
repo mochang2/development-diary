@@ -53,7 +53,7 @@ function f() {
 
 사용되는 메모리는 **mark** 한 뒤에 mark되지 않은 메모리들을 **sweep** 하는 알고리즘이다.  
 GC의 root(웹은 window, node는 global)를 지정한 뒤 해당 루트를 타고, 타고 내려갔을 때 참조되지 않는 메모리를 release하는 방법이다.  
-하지만 이 방법에도 문제점은 존재했다.  
+하지만 이 방법에도 문제점은 존재한다.  
 '언제' Garbage Collector가 동작해야 하는지 모른다는 것이다.  
 일반적으로 대부분의 Garbage Collector는 allocate한 뒤에 동작하는데, 만약 한번에 엄청 많은 allocation이 일어난 직후 더이상의 allocation이 일어나지 않는다면 메모리가 정리되지 않게 된다.  
 하지만 이는 극단적인 경우이므로 일반적으로 자주 발생하지는 않는다.
@@ -167,7 +167,7 @@ function removeImage() {
 ## 2. prototype
 _참고: https://www.youtube.com/watch?v=wUgmzvExL_E_  
 
-OOP에서 class에게 동일한 속성을 지정해주기 위한 방법이다 정도로 이해할 수도 있다.  
+OOP에서 class처럼 동일한 속성을 지정해주기 위한 방법이다 정도로 이해할 수도 있다.  
 다만 내부 동작 방식이 조금 다르며, ES6에 도입된 class가 있지만 (MDN에 따르면) class는 문법적인 양념일 뿐, JS는 여전히 프로토타입 기반의 언어이며 내부 동작 방식이 같지 않다.  
 
 상속 관점에서 자바스크립트의 유일한 생성자는 객체뿐이다.  
@@ -204,7 +204,7 @@ const URError = new error()
 
 console.log(imError) // error { badRequest: 400, unauthorized: 403, notFound: 404 }
 console.log(URError) // error { badRequest: 400, unauthorized: 403, notFound: 404 }
-console.log(imError.prototype) // undefined
+console.log(imError.info) // undefined
 
 error.prototype.info = "에러에러에러"
 
@@ -300,7 +300,7 @@ for (i = 0; i < 10; i++) {
 ```
 
 위에서 '정확히 말하자면 내부에 선언된 함수가 외부 함수의 지역변수를 사용했을 때만 클로저라고 선언된다'고 말했다.  
-아래와 같은 예제 때문에 그렇다.  
+아래 코드를 보면 해당 내용의 의미를 알 수 있다.  
 
 ```javascript
 function outer() {
@@ -381,7 +381,7 @@ const hello3 = new hello('789')
 ### 클로저 장점 2. 전역 변수의 사용을 줄임
 count와 같이 많이 사용할 수 있는 변수의 이름을 사용해서 전역 오염시키지 않을 수 있다.  
 
-```
+```javascript
 let count = 0
 function handleCilck(){
   count++
