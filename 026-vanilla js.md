@@ -36,12 +36,12 @@ Node.js에 대한 설치 방법 등은 [Node.js 공식 사이트](https://nodejs
 물론 그 이전에도 JS를 HTML에 독립적으로 실행할 수 있도록 만드는 시도가 있었으나 엔진(Chrome V8 JavaScript 엔진 이전) 속도 문제로 실패했었다.  
 [Node.js 공식 사이트](https://nodejs.org/)에 따르면 Node.js는
 
-  > Node.js는 Chrome V8 JavaScript 엔진으로 빌드된 JavaScript 런타임입니다.\
-  Node.js는 이벤트 기반, Non-blocking I/O 모델을 사용해 가볍고 효율적입니다.\
-  이는 (I/O를 직접 수행하지 않으므로) 사용자가 프로세스의 교착상태에 대해 걱정할 필요가 없다는 말이기도 합니다.\
-  Node.js의 패키지 생태계인 npm은 세계에서 가장 큰 오픈 소스 라이브러리 생태계이기도 합니다.\
-  Node.js는 이벤트 루프를 시작하는 호출이 없으며, 각 연결에서 콜백이 실행되는데 실행할 작업이 없다면 Node.js는 대기합니다.
-  Node.js는 스레드를 사용하지 않도록 설계되었지만 멀티 코어 환경의 장점을 얻지 못하는 것은 아닙니다. 'child_process.fork()' API를 사용해 자식 프로세스를 생성할 수 있습니다.
+> Node.js는 Chrome V8 JavaScript 엔진으로 빌드된 JavaScript 런타임입니다.\
+Node.js는 이벤트 기반, Non-blocking I/O 모델을 사용해 가볍고 효율적입니다.\
+이는 (I/O를 직접 수행하지 않으므로) 사용자가 프로세스의 교착상태에 대해 걱정할 필요가 없다는 말이기도 합니다.\
+Node.js의 패키지 생태계인 npm은 세계에서 가장 큰 오픈 소스 라이브러리 생태계이기도 합니다.\
+Node.js는 이벤트 루프를 시작하는 호출이 없으며, 각 연결에서 콜백이 실행되는데 실행할 작업이 없다면 Node.js는 대기합니다.
+Node.js는 스레드를 사용하지 않도록 설계되었지만 멀티 코어 환경의 장점을 얻지 못하는 것은 아닙니다. 'child_process.fork()' API를 사용해 자식 프로세스를 생성할 수 있습니다.
   
 _cf) 런타임: 특정 언어로 만든 프로그램들을 실행할 수 있게 해주는 가상 머신의 상태. 다른 런타임으로는 웹 브라우저(크롬, 사파리 등)이 있음._
   
@@ -61,7 +61,7 @@ Node.js의 버전을 관리하는 도구이다.
 파이썬으로 개발할 때 virtualenv를 사용하는 이유와 같다.  
 
 Node.js를 PC에 설치하면 `node -v`로 버전을 확인할 수 있다.  
-필요한 버전이 맞지 않으면 [NVM Github](https://github.com/coreybutler/nvm-windows/)에 가서 설치할 수 있다.  
+지금 사용중인 Node.js 버전이 필요한 버전과 맞지 않으면 [NVM Github](https://github.com/coreybutler/nvm-windows/)에 가서 설치할 수 있다.  
 
 이후 `nvm install <버전>`으로 원하는 버전을 설치할 수 있다.  
 `nvm list`를 입력하면 설치되어 사용할 수 있는 Node.js 버전이 조회되며  
@@ -70,15 +70,67 @@ Node.js를 PC에 설치하면 `node -v`로 버전을 확인할 수 있다.
 
 
 ### 2) NPM(Node Pacakge Module)
-npm은 개발자들이 Node.js 기반의 JS로 개발된 오픈 소스를 올려놓은 곳이다.  
+세상에서 가장 큰 소프트웨어 레포지토리이다.  
+jQuery, react, vue 등의 다양한 오픈 소스들도 올라가 있고, 사설 모듈을 올려서 회사 내에서만 사용할 수도 있다.  
 
+[NPM 공식문서](https://docs.npmjs.com/about-npm)에 따르면 다음과 같은 특징이 있다.  
+
+> Use the website to discover packages, set up profiles, and manage other aspects of your npm experience. For example, you can set up organizations to manage access to public or private packages.  
+The CLI runs from a terminal, and is how most developers interact with npm.  
+The registry is a large public database of JavaScript software and the meta-information surrounding it.
 
 ##### package.json
+npm을 통해 설치된 패키지 목록을 관리하고 프로젝트의 정보 및 기타 실행 스크립트를 작성하는 파일이다.  
+프로젝트를 처음 시작할 때, `npm init` 명령어를 통해 설치할 수도 있고, 직접 editor에서 생성해서 작성할 수도 있다.  
+이후 `npm install` 또는 `npm install package.json` 또는 `yarn` 또는 `yarn install` 등으로 관련 모듈들을 설치할 수 있다.  
+package.json은 다음과 같이 구성되어 있다.  
 
-package-lock.json(yarn-lock.json)
+```json
+{
+  "name": "project",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cookie-parser": "~1.4.4",
+    "react": "0.10.0",
+  },
+  "devDependencies": {
+    "supertest": "^4.0.2"
+  }
+}
+```
 
+devDependencies는 `-D` 옵션을 추가해서 설치한다.  
+또한 개발할 때만 사용되는 모듈들이고 배포할 때는 포함되지 않는다.  
 
+참고로 모듈 버전은 일반적으로 "x.x.x"로 구성되는데, 첫 번째 자리 수는 대대적인 변화가 있을 경우, 두 번째 자리 수는 버그 픽스 등 적당한 변화가 있을 경우, 세 번째 자리 수는 아주 미묘한 변화가 있을 경우 1씩 올려서 사용한다.  
+모듈 버전을 관리할 때 "x.x.x"는 세 자리 수 모두 똑같은 버전을 설치하라는 의미이다.  
+`~`는 두 자리 자리 수까지 똑같은 버전을 설치하라는 의미이다. 예를 들어 `~0.0.1`은 `>=0.0.1 <0.1.0`을 의미한다.  
+`^`은 첫 번재 자리 수까지 똑같은 버전을 설치하라는 의미이다. 예를 들어 `^1.0.2`은 `>=1.0.2 <2.0`을 의미한다.
 
+##### package.json vs package-lock.json(yarn.lock)
+_참고: https://velog.io/@songyouhyun/Package.json%EA%B3%BC-Package-lock.json%EC%9D%98-%EC%B0%A8%EC%9D%B4_  
+
+[geeks for geeks](https://www.geeksforgeeks.org/difference-between-package-json-and-package-lock-json-files/)에 나온 내용을 먼저 표로 정리해보면 다음과 같다.  
+
+| package.json                                                 | pacakge-lock.json                                                 |
+| ---------------------------------------------------------- | ---------------------------------------------------------- |
+| It contains basic information about the project.       | It describes the exact tree that was generated to allow subsequent installs to have the identical tree.                                   |
+| It is mandatory for every project.                    | It is automatically generated for those operations where npm modifies either node_modules tree or package.json(install or up 등이 발생할 때).                                     |
+| It records important metadata about the project.                 | It allows future devs to install the same dependencies in the project.                              |
+| It contains information such as name, description, author, script, and dependencies.                          | It contains the name, dependencies, and locked version of the project.               |
+
+위 표에서 나온 것처럼 package-lock.json은 모듈의 '정확한 버전 정보'를 가지고 있기 때문에 package-lock.json이 존재하면 `npm install(yarn)`은 package.json을 이용해서 node_modules를 생성하지 않고 package-lock.json을 이용해서 node_modules를 생성한다.  
+
+처음부터 정확한 정보를 package.json에 명시하면 되지 않겠냐고 생각하겠지만,  
+package-lock.json을 별도로 사용하면 프로젝트의 패키지의 중요한 버그 수정이 이루어질 때마다 프로젝트의 package.json에 적혀 있는 버전을 항상 수정하지 않고 version range(^나 `)로 해결할 수 있다.  
 
 ### 3) Chrome v8 engine
 이벤트 루프
