@@ -29,8 +29,6 @@ yarn berry는 node_modules 디렉토리를 생성하지 않는다.
 
 
 ## 3. Node.js
-Node.js에 대한 설치 방법 등은 [Node.js 공식 사이트](https://nodejs.org/)에서 제공해주므로 다루지 않겠다.
-
 기존의 JS는 HTML에 독립적으로 실행할 수 없는 프로그래밍 언어였다(`<script>` 태그).  
 하지만 Node.js가 등장하면서 JS를 HTML에 독립적으로 실행할 수 있게 됐다.  
 물론 그 이전에도 JS를 HTML에 독립적으로 실행할 수 있도록 만드는 시도가 있었으나 엔진(Chrome V8 JavaScript 엔진 이전) 속도 문제로 실패했었다.  
