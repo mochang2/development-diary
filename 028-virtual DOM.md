@@ -1,4 +1,3 @@
-
 vanilla js로 virtual DOM 만들기
 virtual DOM이란?
 
