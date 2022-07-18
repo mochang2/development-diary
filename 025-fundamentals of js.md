@@ -2,6 +2,16 @@
 
 면접으로 자주 나온다는 js에 관한 질문들을 단순히 답만 외우는 게 아니라 자세히 정리하고 싶어졌다.
 
+### 목차
+
+[GC](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#1-gcgarbage-collection)
+[prototype](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#2-prototype)
+[closure](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#3-closure)
+[this](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#4-this)
+[event bubbling](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#5-event-bubbling)
+[async vs defer](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#6-async-vs-defer)
+[event loop](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#7-event-loop)
+
 ## 1. GC(garbage collection)
 
 _출처: https://blog.sessionstack.com/how-javascript-works-memory-management-how-to-handle-4-common-memory-leaks-3f28b94cfbec , https://developer.mozilla.org/ko/docs/Web/JavaScript/Memory_Management_
