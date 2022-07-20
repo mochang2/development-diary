@@ -192,7 +192,7 @@ libuv는 c++로 작성된 비동기 I/O 라이브러리로, 운영체제의 커�
 
 Node.js로 어떠한 JS 파일을 실행할 때의 과정은 다음과 같다.
 
-1. Node.js는 우선 이벤틀 루프를 만든다.
+1. Node.js는 우선 이벤트 루프를 만든다.
 2. 이벤트 루프 바깥에서 해당 JS 파일을 처음부터 끝까지 실행한다.
 3. 실행이 끝난 뒤에 (I/O 처리에 대한 콜백이 있는)이벤트 루프를 확인하여 이벤트 루프의 작업을 처리한다.
 4. 처리할 작업이 없거나 처리가 전부 끝나면 `process.on('exit, callback)`을 실행하고 이벤트 루프를 종료한다.
@@ -252,7 +252,7 @@ watcher_queue 내부에 파일 읽기의 응답 콜백, HTTP 응답 콜백 등�
 만약 아니라면 그대로 이벤트 루프는 종료된다.  
 하지만 만약 더 수행해야할 작업들이 남아 있다면 이벤트 루프는 다음 순회를 돌기 시작하고 다시 `Timer Phase`부터 시작하게 된다.
 
-#### NextTickQueue, micorTaskQueue
+#### NextTickQueue, microTaskQueue
 
 Node.js의 버전에 따라 동작 방식이 달라지지만 아래 설명하는 방식은 v11 이후의 동작 방식이다.
 
@@ -327,7 +327,7 @@ fs.readFile('test.txt', () => {
 
 위 결과는 반드시 `immediate`가 먼저 출력된다.  
 파일 읽기는 OS 커널에서 비동기 API를 제공하지 않으므로 스레드 풀에 작업을 이양한다.  
-작업이 완료되면 이벤트 루프는 `Pending Callbacks Phase`의 큐에 작업의 콜백을 등록한다.  
+작업이 완료되면 이벤트 루프는 `Pending Callbacks Phase`의 큐에 작업의 콜백을 등록한다(내가 볼 때는 `Polling Phase`가 맞는 것 같지만 참고 자료에 따르면...).  
 이벤트 루프가 `Pending Callbacks Phase`를 지날 때 해당 콜백을 실행하는데, `setTimeout`은 `Timer Phase`의 큐에 등록되며, `setImmediate`는 `Check Phase`의 큐에 등록된다.  
 따라서 이벤트 루프의 순서에 따라 `Check Phase`에 있는 `setImmediate`가 먼저 실행된다.
 
