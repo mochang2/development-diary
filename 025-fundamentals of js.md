@@ -4,13 +4,13 @@
 
 ### 목차
 
-[GC](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#1-gcgarbage-collection)
-[prototype](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#2-prototype)
-[closure](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#3-closure)
-[this](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#4-this)
-[event bubbling](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#5-event-bubbling)
-[async vs defer](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#6-async-vs-defer)
-[event loop](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#7-event-loop)
+- [GC](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#1-gcgarbage-collection)
+- [prototype](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#2-prototype)
+- [closure](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#3-closure)
+- [this](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#4-this)
+- [event bubbling](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#5-event-bubbling)
+- [async vs defer](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#6-async-vs-defer)
+- [event loop](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#7-event-loop)
 
 ## 1. GC(garbage collection)
 
@@ -219,7 +219,7 @@ error.prototype.info = '에러에러에러'
 
 console.log(imError) // error { badRequest: 400, unauthorized: 403, notFound: 404 }
 console.log(urError) // error { badRequest: 400, unauthorized: 403, notFound: 404 }
-console.log(imError.info) // 에러에러에러. prototype chaining. imError2은 info가 없으나 error는 info가 있음.
+console.log(imError.info) // 에러에러에러. prototype chaining. imError은 info가 없으나 error는 info가 있음.
 console.log(urError.info) // 에러에러에러
 ```
 
@@ -328,7 +328,7 @@ function outer() {
 }
 
 const aa = outer()
-console.dir(aa) // [[Scopes]] 내부에 closure가 없다
+console.dir(aa) // [[Scopes]] 내부에 closure가 없음
 ```
 
 ```javascript
@@ -525,11 +525,11 @@ foo.call(ken, 1, 2, 3) // 35
 
 [MDN](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Functions/Arrow_functions)에 따르면 arrow function은 일반 function과 비교했을 때 다음과 같은 특성이 있다.
 
-- this나 super에 대한 바인딩이 없고, methods 로 사용될 수 없습니다.
-- new.target키워드가 없습니다.
-- 일반적으로 스코프를 지정할 때 사용하는 call, apply, bind methods를 이용할 수 없습니다.
-- 생성자(Constructor)로 사용할 수 없습니다.
-- yield를 화살표 함수 내부에서 사용할 수 없습니다
+> - this나 super에 대한 바인딩이 없고, methods 로 사용될 수 없습니다.
+> - new.target 키워드가 없습니다.
+> - 일반적으로 스코프를 지정할 때 사용하는 call, apply, bind methods를 이용할 수 없습니다.
+> - 생성자(Constructor)로 사용할 수 없습니다.
+> - yield를 화살표 함수 내부에서 사용할 수 없습니다
 
 여기서 주목할 것은 첫 번째 속성으로, arrow function은 this에 대한 binding이 위에 예시로 제시한 함수들처럼 동적으로 진행되지 않는다.  
 즉, 어떤 환경에서 해당 함수가 불리느냐에 따라 결정되지 않는다는 것이다.  
@@ -731,8 +731,8 @@ li.appendChild(label)
 itemList.appendChild(li)
 ```
 
-위에 코드까지는 새로운 TODO가 생기지 않다면 잘 동작할 것이다.  
-하지만 새로운 TODO가 추가될 경우 원하는 click 이벤트가 잘 동작하지 않는다.  
+위에 코드(`addEventListener` 코드)까지는 새로운 TODO가 생기지 않다면 잘 동작할 것이다.  
+하지만 새로운 TODO가 추가될 경우(`addEventListener` 아래 코드) 원하는 click 이벤트가 잘 동작하지 않는다.  
 이럴 때 event delegation을 이용할 수 있는데, `.itemList` 자체에 이벤트를 다는 것이다.
 
 ```javascript
@@ -837,8 +837,8 @@ async처럼 script 다운을 HTML을 파싱할 때 진행하지만, 다른 점�
 
 _참고: https://medium.com/sjk5766/javascript-%EB%B9%84%EB%8F%99%EA%B8%B0-%ED%95%B5%EC%8B%AC-event-loop-%EC%A0%95%EB%A6%AC-422eb29231a8, https://velog.io/@thms200/Event-Loop-%EC%9D%B4%EB%B2%A4%ED%8A%B8-%EB%A3%A8%ED%94%84_
 
-JK는 싱글 스레드 기반이며 비동기적으로 동작한다.  
-싱글 스레드이기 때문에 한 순간에 하나의 작업만 가능하지만, 비동기로 동작하기 때문에 단일 스레드임에도 불구하고 동시에 많은 작업을 수행할 수 있다.
+JS는 싱글 스레드 기반이며 비동기적으로 동작한다.  
+싱글 스레드이기 때문에 한 순간에 하나의 작업만 가능하지만, 비동기로 동작하기 때문에 단일 스레드임에도 불구하고 짧은 시간 동안 많은 작업을 수행할 수 있다.
 
 다만, JS 자체가 비동기 동작을 지원하는 것이 아닌, **브라우저** 가 가진 요소(node에서는 libuv 라이브러리)를 이용해서 비동기 동작을 처리한다.  
 이 부분이 Event Loop이다.
