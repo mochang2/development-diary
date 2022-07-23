@@ -3,7 +3,6 @@
 cms 프로젝트에서 로그인, 회원가입을 구현하기 위해 token과 token storage에 대해 정리했다.  
 어떤 것들이 절대적으로 좋거나 나쁘거나 하지 않은 것 같다.  
 상황에 따라, 그리고 목적에 따라 필요한 것을 고르면 된다.  
-이번에는 참고한 글들이 10개가 넘기 때문에 모두 기술하지는 않겠다.  
 아래에 나오는 모든 저장소는 (크롬 브라우저 기준) 'Application' 탭에서 저장된 내용을 확인할 수 있다.
 
 ## 1. token
@@ -31,8 +30,7 @@ http의 cookie header를 이용하여 통신하지만 사용자의 정보가 직
 
 Json Web Token의 약자이다.  
 JWT는 '.'을 기준으로 header, payload, signature로 구성되어 있다.  
-header에는 알고리즘과 타입을, payload에는 토큰 발급자, 토큰 제목, 토큰의 만료 기간 등이 포함되며, signature은 header와 payload의 값을 각각 인코딩하고,  
-인코딩한 값을 서버의 키를 이용해 해싱한다.  
+header에는 알고리즘과 타입을, payload에는 토큰 발급자, 토큰 제목, 토큰의 만료 기간 등이 포함되며, signature은 header와 payload의 값을 각각 인코딩하고, 인코딩한 값을 서버의 키를 이용해 해싱한다.  
 사용자의 요청에서 받은 signature 값과, 서버가 새로 계산한 signature 값이 다르면 사용자 인증이 실패하게 된다.  
 JWT의 장점은 구현이 쉽다는 것과 서버에 키 외에 저장할 공간이 별도로 필요하지 않다는 것이다.  
 덕분에 세션이나 후술할 JWT with refresh token과 달리 db에 기록하지 않아도 된다.  
@@ -52,8 +50,6 @@ JWT의 장점은 세션 및 쿠키, JWT의 단점을 커버한 것이라고 생�
 다만 가장 큰 단점을 구현이 어렵다는 것이다.  
 다음 링크는 refresh token을 구현한 코드이다. https://cotak.tistory.com/102
 
-결국 나는 우리 프로젝트에서 빠른 구현과 적당한 보안을 위해 JWT 방식을 채택했다.
-
 ## 2. token storage
 
 사용자가 받은 토큰을 클라이언트는 어디에 저장하는 게 나을까?라는 고민을 하게 된다.  
@@ -63,7 +59,7 @@ JWT의 장점은 세션 및 쿠키, JWT의 단점을 커버한 것이라고 생�
 ### 웹 스토리지
 
 공통적으로 5~10MB의 크기를 갖는다.  
-XSS에는 취약하지만 CSRF에는 쿠키보다 강하다.
+XSS에는 취약하지만 CSRF에는 쿠키보다 강하다(라고 하지만 Authorization 헤더에 항상 담겨서 같이 넘어가기 때문에 CSRF에 강하다고는 말 못 할 거 같다).
 
 - 로컬 스토리지
   - 서버에서 접근할 수 없고 persistent cookie와 비슷하다.
@@ -72,8 +68,6 @@ XSS에는 취약하지만 CSRF에는 쿠키보다 강하다.
 - 세션 스토리지
   - 서버에서 접근할 수 없고 session cookie와 비슷하다.
   - 브라우저 종료시에 사라진다.
-
-다만 서버도 인증을 위해서 확인이 필요할 때 axios 등의 요청에 포함해서 보내면, 서버에서도 확인할 수 있다.
 
 ### 쿠키
 
@@ -157,13 +151,13 @@ indexedDB는 key를 이용해 index되는 구조화된 데이터를 저장하는
 ```javascript
 // 0. 브라우저가 indexedDB를 지원하는지 확인
 if (!window.indexedDB) {
-  console.log("사용 못 함");
+  console.log('사용 못 함')
 } else {
   // 다음 단계
 }
 
 // 1. 데이터베이스 열기
-const request = indexedDB.open("DB 이름", version);
+const request = indexedDB.open('DB 이름', version)
 // 해당 DB가 존재하지 않거나 현재 DB 버전이 원하는 버전보다 낮으면 request.onupgradeneeded가 호출되고,
 // DB 버전을 업그레이드한다. 또는 DB가 아직 존재하지 않을 때도 트리거되므로 DB 초기화를 수행할 수 있다.
 // https://stackoverflow.com/questions/34300166/why-does-indexeddb-use-a-version 여기 질문에도 나와있듯이
@@ -171,38 +165,38 @@ const request = indexedDB.open("DB 이름", version);
 // 성공적으로 DB가 열리면 request.onSuccess가, 에러가 발생하면 request.onerror가 호출된다.
 
 request.onsuccess = () => {
-  console.log("success");
-  const database = request.result;
-};
+  console.log('success')
+  const database = request.result
+}
 request.onupgradeneeded = () => {
-  const database = request.result;
-};
+  const database = request.result
+}
 request.onerror = () => {
-  console.error("error");
-};
+  console.error('error')
+}
 
 // 2. 객체 저장소 생성
 const option = {
-  keyPath: "id", // id를 제공하는데 필요한 인덱스 필드의 이름을 지정
+  keyPath: 'id', // id를 제공하는데 필요한 인덱스 필드의 이름을 지정
   autoIncrement: true,
-};
-const someStore = database.createObjectStore("store 이름", option);
+}
+const someStore = database.createObjectStore('store 이름', option)
 
 // 3. transaction 시작
-const transaction = database.transaction(someStore, "transaction mode"); // 첫 번째 인자는 객체 저장소의 이름을 말함
+const transaction = database.transaction(someStore, 'transaction mode') // 첫 번째 인자는 객체 저장소의 이름을 말함
 // 두 번째 인자는 'readonly', 'readwrite', 'versionchange' 가 가능함
 // someStore이란 objectStore에 어떠한 모드로 transaction 시작하기
 // transaction.oncomplete, transaction.onerror에 대해 콜백함수를 실행할 수 있음
 
 const transaction = database
-  .transaction("object store", "readwrite")
-  .objectStore("object store");
+  .transaction('object store', 'readwrite')
+  .objectStore('object store')
 // 위에서 한 행위에 대해 추가적으로 'object store'이란 테이블 선택
-transaction.add(entry); // 테이블을 선택한 뒤에 데이터 추가
-transaction.put(entry);
-transaction.get(key);
-transaction.getAll();
-transaction.delete(key);
+transaction.add(entry) // 테이블을 선택한 뒤에 데이터 추가
+transaction.put(entry)
+transaction.get(key)
+transaction.getAll()
+transaction.delete(key)
 
-return transaction.complete; // DB에 변화가 생겼다면 이걸 return해야 됨
+return transaction.complete // DB에 변화가 생겼다면 이걸 return해야 됨
 ```

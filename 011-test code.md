@@ -78,7 +78,7 @@ FIRST는 Fast, Isolated, Repeatable, Self-validating, Timely의 약자이다.
 배포할 때는 필요없는 패키지이므로 개발용으로 설치한다.  
 이에 예외는 없을 것 같다.
 
-```
+```sh
 npm install -D jest
 ```
 
@@ -88,7 +88,7 @@ package.json에 "test"를 "jest"로 수정한다.
 npm test로 jest를 실행할 수 있다.  
 global 옵션을 줘서 npx로 실행할 수도 있지만 일반적으로는 이렇게 많이 실행한다.
 
-```
+```json
 "scripts: {
 	"test": "jest"
 }
@@ -110,19 +110,19 @@ test('description), () => {
 아래는 그 예시다.
 
 ```typescript
-describe("/", () => {
-  test("/readiness :GET", async () => {
-    const { status } = await request.get("/healthz/readiness");
+describe('/', () => {
+  test('/readiness :GET', async () => {
+    const { status } = await request.get('/healthz/readiness')
 
-    expect(status).toEqual(200);
-  });
+    expect(status).toEqual(200)
+  })
 
-  test("/liveness :GET", async () => {
-    const { status } = await request.get("/healthz/liveness");
+  test('/liveness :GET', async () => {
+    const { status } = await request.get('/healthz/liveness')
 
-    expect(status).toEqual(200);
-  });
-});
+    expect(status).toEqual(200)
+  })
+})
 ```
 
 ### beforeAll, afterAll, beforeEach, afterEach
@@ -159,7 +159,7 @@ afterAll(() => {
 
 0. 내가 진행했던 프로젝트는 express + typescript + yarn berry로 이루어져 있다.
 1. winston 로그를 남기기 위해 app-root-path라는 모듈을 사용했었는데, jest랑 같이 사용하려다 보니 계속 오류가 났다. yarn berry로 모듈을 관리하면서 지정된 path를 제대로 읽어오지 못하는 것 같았다. 그래서 app-root-path라는 모듈을 지우고 rootDir(상대경로)를 하드 코딩하여 해결했다.
-2. ts-jest가 필요없다. ES6 문법인 import를 인식하지 못해서 검색해보니 require을 사용하거나 babel 관련 모듈을 다운받으라고 했다. require로 바꾸면 프로젝트 전체 문법을 바꿔야 하니 포기했고 babel을 사용해도 해결이 되지 않았다. (지금 생각해보니 1번 문제였는데 babel 문제로 착각했던 것 같다).
+2. ts-jest가 필요없다. ES6 문법인 `import`를 인식하지 못해서 검색해보니 `require`을 사용하거나 babel 관련 모듈을 다운받으라고 했다. `require`로 바꾸면 프로젝트 전체 문법을 바꿔야 하니 포기했고 babel을 사용해도 해결이 되지 않았다. (지금 생각해보니 1번 문제였는데 babel 문제로 착각했던 것 같다).
 3. jest, jest-extended 모듈을 받고 빌드 후 테스트를 진행했다. 빌드하는 시간까지 포함돼서 테스트 시간이 조금 더 걸렸지만 무사히 jest 모듈을 이용해 테스트를 진행할 수 있었다.
 
 ### 설정 파일
@@ -168,7 +168,7 @@ afterAll(() => {
 
 설정에 대한 설명은 https://www.typescriptlang.org/ko/docs/handbook/tsconfig-json.html 에 자세히 나와 있다.
 
-```
+```json
 {
   "compilerOptions": {
     "target": "es2021",
@@ -191,7 +191,7 @@ afterAll(() => {
 
 - jest.config.ts
 
-```
+```typescript
 module.exports = {
   testEnvironment: 'node',
   testMatch: ['**/__tests__/*.test.js'],

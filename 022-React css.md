@@ -15,23 +15,23 @@ export default function App() {
   return (
     <section
       style={{
-        fontFamily: "-apple-system",
-        fontSize: "1rem",
+        fontFamily: '-apple-system',
+        fontSize: '1rem',
         fontWeight: 1.5,
         lineHeight: 1.5,
-        color: "#292b2c",
-        backgroundColor: "#fff",
-        padding: "0 2em",
+        color: '#292b2c',
+        backgroundColor: '#fff',
+        padding: '0 2em',
       }}
     >
       <div
         style={{
-          textAlign: "center",
-          maxWidth: "950px",
-          margin: "0 auto",
-          border: "1px solid #e6e6e6",
-          padding: "40px 25px",
-          marginTop: "50px",
+          textAlign: 'center',
+          maxWidth: '950px',
+          margin: '0 auto',
+          border: '1px solid #e6e6e6',
+          padding: '40px 25px',
+          marginTop: '50px',
         }}
       >
         <div>
@@ -39,8 +39,8 @@ export default function App() {
             style={{
               lineHeight: 1.5,
               fontWeight: 300,
-              marginBottom: "25px",
-              fontSize: "1.375rem",
+              marginBottom: '25px',
+              fontSize: '1.375rem',
             }}
           >
             contents
@@ -48,16 +48,16 @@ export default function App() {
         </div>
         <p
           style={{
-            marginBottom: "0",
+            marginBottom: '0',
             fontWeight: 600,
-            fontSize: "1rem",
+            fontSize: '1rem',
           }}
         >
           contents
         </p>
       </div>
     </section>
-  );
+  )
 }
 ```
 
@@ -67,29 +67,29 @@ export default function App() {
 ```jsx
 const styles = {
   section: {
-    fontFamily: "-apple-system",
-    fontSize: "1rem",
+    fontFamily: '-apple-system',
+    fontSize: '1rem',
     fontWeight: 1.5,
     lineHeight: 1.5,
-    color: "#292b2c",
-    backgroundColor: "#fff",
-    padding: "0 2em",
+    color: '#292b2c',
+    backgroundColor: '#fff',
+    padding: '0 2em',
   },
   wrapper: {
-    textAlign: "center",
-    maxWidth: "950px",
-    margin: "0 auto",
-    border: "1px solid #e6e6e6",
-    padding: "40px 25px",
-    marginTop: "50px",
+    textAlign: 'center',
+    maxWidth: '950px',
+    margin: '0 auto',
+    border: '1px solid #e6e6e6',
+    padding: '40px 25px',
+    marginTop: '50px',
   },
   quote: {
     lineHeight: 1.5,
     fontWeight: 300,
-    marginBottom: "25px",
-    fontSize: "1.375rem",
+    marginBottom: '25px',
+    fontSize: '1.375rem',
   },
-};
+}
 
 export default function App() {
   return (
@@ -100,7 +100,7 @@ export default function App() {
         </div>
       </div>
     </section>
-  );
+  )
 }
 ```
 
@@ -122,7 +122,7 @@ class나 id name을 지정해줘서 스타일을 적용한다.
 scss에 보다 자세한 내용은 [여기](https://github.com/mochang2/development-diary/blob/main/021-styled%20sheet.md)에 정리했다.
 
 ```jsx
-import "./styles.css";
+import './styles.css'
 
 export default function App() {
   return (
@@ -133,7 +133,7 @@ export default function App() {
         </div>
       </div>
     </section>
-  );
+  )
 }
 ```
 
@@ -155,8 +155,8 @@ CRA로 react 앱을 시작하면 기본적으로 사용할 수 있는 방법이�
 
 ```css
 body {
-  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
   margin: 0;
   font-size: 1rem;
   font-weight: 1.5;
@@ -173,18 +173,18 @@ body {
 ```
 
 ```jsx
-import styles from "./styles.module.css";
+import styles from './styles.module.css'
 
 export default function App() {
   return (
     <section className={styles.testimonial}>
-      <div className={styles["testimonial-wrapper"]}>
+      <div className={styles['testimonial-wrapper']}>
         <div>
-          <p className={styles["testimonial-quote"]}>content</p>
+          <p className={styles['testimonial-quote']}>content</p>
         </div>
       </div>
     </section>
-  );
+  )
 }
 ```
 
@@ -211,7 +211,8 @@ export default function App() {
   - third-party js library를 추가적으로 설치해야 해서 프로젝트가 무거워질 수 있다.
 
 다양한 방법으로 구현이 가능하지만 많이 사용되는 tailwind css / styled component / emotion 3가지에 관해 간단한 차이점 위주로 정리해보고자 한다.  
-추가적으로 전부 dependency에 설치할 줄 알았지만 tailwind css는 dev dependency에 설치하라고 공식문서에 나와 있었다 ~공식문서 잘 보자~.
+추가적으로 전부 dev dependency에 설치할 줄 알았지만 tailwind css는 dependency에 설치하라고 공식문서에 나와 있었다.
+~공식문서 잘 보자~.
 
 #### tailwind css
 
@@ -244,8 +245,8 @@ const Navbar = () => {
         </li>
       </ul>
     </nav>
-  );
-};
+  )
+}
 ```
 
 보다시피 가독성이 굉장히 좋지 않다.  
@@ -259,16 +260,16 @@ styled-components의 장점과 같이 섞어서 사용하는 방법도 있다.
 아래는 예제코드이다.
 
 ```jsx
-import styled from "styled-components";
+import styled from 'styled-components'
 
 const GridContent = styled.div`
   display: flex;
   justify-content: space-between;
   background-color: ${({ active }) =>
     active
-      ? "black"
-      : "#f1f1f1"}; // styled component 안에 props를 넘겨줘서 가변 스타일링이 가능
-`;
+      ? 'black'
+      : '#f1f1f1'}; // styled component 안에 props를 넘겨줘서 가변 스타일링이 가능
+`
 
 const Title = styled.div`
   color: #202020;
@@ -277,40 +278,40 @@ const Title = styled.div`
     display: inline-block;
     margin-left: 15px;
   }
-`;
+`
 
 const NewsAgency = styled(GridContent)`
   // 기본적인 html 태그뿐만 아니라 본인이 만든 component도 styled 안에 인자로 들어갈 수 있음
   flex-direction: column;
   padding: 10px 0;
-`;
+`
 
 const NonNewsAgency = styled(GridContent)`
   padding: 20px 16px;
-`;
+`
 
 export default function component() {
-  const active = true;
+  const active = true
 
   return (
     <>
       <Title>제목</Title>
       <NewsAgency active={active}>
-        {" "}
+        {' '}
         // props로 active를 넘겨줌
         {/* some jsx code */}
       </NewsAgency>
       <NonNewsAgency active={active}>{/* some jsx code */}</NonNewsAgency>
     </>
-  );
+  )
 }
 ```
 
-주의할 것은 styled component의 변수명이 **pascal case** 가 아니면 리액트에서 인식을 못 한다.  
+주의할 것은 styled component의 변수명이 **PascalCase** 가 아니면 리액트에서 인식을 못 한다.  
 아래는 가변 스타일링으로 여러 css 속성을 변경하고 싶다면 사용할 수 있는 방법이다.
 
 ```jsx
-import styled, { css } from "styled-components";
+import styled, { css } from 'styled-components'
 
 const CustomButton = styled.button`
   line-height: 120%;
@@ -323,10 +324,10 @@ const CustomButton = styled.button`
       background: navy;
       border-color: navy;
     `}
-`;
+`
 
 export default function component(props) {
-  return <CustomButton {...props}>content</CustomButton>; // 넘겨야 할 props가 많다면 spread operator 사용할 수 있음
+  return <CustomButton {...props}>content</CustomButton> // 넘겨야 할 props가 많다면 spread operator 사용할 수 있음
 }
 ```
 
@@ -340,7 +341,7 @@ emotion은 **framework agnostic**(프레임워크를 사용하지 않는 것)과
 
 ```jsx
 /** @jsxImportSource @emotion/react */ // 이 주석이 없으면 에러가 난다고 한다
-import { css, jsx } from "@emotion/react";
+import { css, jsx } from '@emotion/react'
 
 const divStyle = css`
   background-color: hotpink;
@@ -351,16 +352,16 @@ const divStyle = css`
   &:hover {
     color: white;
   }
-`;
+`
 
 export default function component() {
-  return <div css={divStyle}>content</div>; // css props를 넘겨주지 않고 styled component처럼 사용할 수도 있다
+  return <div css={divStyle}>content</div> // css props를 넘겨주지 않고 styled component처럼 사용할 수도 있다
 }
 ```
 
 예제코드에서 알 수 있듯이 컴포넌트 하나하나가 정확히 어떤 html 태그인지 알 수 있다.  
 styled component도 babel 설정을 바꾸면 이를 지원해준다고 한다.  
-다만 개인적인 생각이지만 html 태그를 정확히 알지 못해도 props를 덜 전달하는 것이 코드가 깔끔해질 것 같다.  
+개인적인 생각이지만 html 태그를 정확히 알지 못해도 props를 덜 전달하는 것이 코드가 깔끔해질 것 같다.  
 emotion의 또다른 장점은 css modules나 styled components와 같이 className을 임의로 생성해줌으로써 class name이 겹칠 일이 없다.  
 임의로 생성되는 이름을 바꾸고 싶다면 `.babelrc` 안에 설정을 바꾸면 된다(자세한 내용은 위에 적어놓은 블로그를 통해).
 

@@ -55,7 +55,7 @@ control plane이 worker node들을 관리하는 구조를 말한다.
 - kubelet: 컨테이너를 조작해주고 마스터와 통신하기 위한 데몬. static pod을 동작시킴
 - kubectl: 클러스터를 조작하기 위한 cli util
 
-```
+```sh
 kubeadm init # master node에서 실행시, API, controller, scheduler, etcd 등의 컴포넌트가 생성됨.
 # 해당 결과 이후에 나오는 token을 통해 worker node가 join할 수 있음.
 ```
@@ -74,7 +74,7 @@ control plane의 API에서 컨테이너 동작을 명령할 수 없다. 대신 p
 pause container는 pod에 대한 인프라(IP, hostname 등)을 관리하는 컨테이너이다.  
 pod에는 하나 또는 여러 개의 컨테이너가 포함될 수 있지만 IP는 pod에게만 부여된다.
 
-```
+```yaml
 // yaml 예시
 apiVersion: v1
 kind: Pod
@@ -140,7 +140,7 @@ command에는 자원(object)에 실행할 명령인 create, get, delete, edit, r
 type에는 자원의 타입인 node, pod, service, replicationcontrollers 등이 들어간다.  
 name은 사용자가 만든 자원의 이름이 들어간다.
 
-```
+```sh
 kubectl get namespaces # namespace들을 볼 수 있음.
 
 kubectl api-resource # api resource에 대한 약어 정보 등을 볼 수 있음.
@@ -184,7 +184,7 @@ controller의 종류에는 daemon set, **replica set**, statefule sets, cronjob,
 API, etcd, Scheduler와 함께 Pod의 개수를 보장한다.  
 요구하는 pod의 개수가 부족하면 template을 이용해 pod를 추가하며 요구하는 pod 수 보다 많으면 최근에 생성된 pod을 삭제함으로써 동작한다.
 
-```
+```yaml
 // yaml
 apiVersion: v1
 kind: ReplicationController
@@ -208,7 +208,7 @@ replication controller와 같은 역할을 하지만 보다 풍부한 selector�
 `matchLabels` 는 replication controller의 selector와 같은 역할을 한다.  
 `matchExpressions`는 아래와 같이 사용된다.
 
-```
+```yaml
 selector:
   matchExpressions:
   - {key: tier, operator: In, values: [cache]}
@@ -222,7 +222,7 @@ rolling update / rolling back을 위해 자주 사용되며 replica set을 컨�
 `kubectl set image deploy <deploy 이름> <container 이름>=<container 이미지>:<이미지 버전> --record` 명령어를 통해 rolling update를 진행할 수 있다.  
 `kubelctl rollout undo deployment <deploy 이름>` 명령어를 통해 rolling back을 진행할 수 있다.
 
-```
+```yaml
 // yaml 예시. replica set과 비교할  kind만 제외하고 똑같이 사용할 수 있다.
 apiVersion: apps/v1
 kind: Deployment
@@ -259,7 +259,7 @@ pod의 상태는 pod의 이름, pod의 볼륨을 말한다.
 하지만 stateful set 설정을 해주면 0부터 차례대로 붙고, scale out을 하면 순차적으로 숫자가 증가한다.  
 반대로 하나씩 지우게 되면 가장 큰 숫자부터 사라지게 된다.
 
-```
+```yaml
 // yaml 예시
 apiVersion: apps/v1
 kind: StatefulSet
@@ -293,7 +293,7 @@ deployment 등으로 하나의 서비스를 실행할 때 같은 동작을 하�
 이때 각각의 서비스들은 다른 IP를 갖게 되는데, label 설정을 통해 하나의 IP(Virtual IP)로 묶어서 관리할 수 있다.  
 이 IP는 LB IP처럼 사용되며, control plane의 etcd에 기록된다.
 
-```
+```yaml
 // yaml 예시
 apiVersion: v1
 kind: Service
@@ -346,7 +346,7 @@ ingress controller를 이용하면 가능하다.
 출처: https://www.youtube.com/watch?v=y5-u4jtflic&list=PLApuRlvrZKohaBHvXAOhUD-RxD0uQ3z0c&index=28
 <br/>
 
-```
+```yaml
 // yaml(ingress rule) 예시
 apiVersion: extensions/v1
 kind: Ingress
@@ -372,7 +372,7 @@ label과 동일하게 key-value를 통해 리소스의 특성을 기록하는 �
 k8s에게 특정 정보 전달할 용도로 사용된다.  
 예를 들어 Deployment의 rolling update 정보를 기록하고 한다면
 
-```
+```yaml
 annotations:
   kubernetes.io/change-cause: version 1.15
 ```
@@ -381,11 +381,11 @@ annotations:
 
 또는 아래와 같이 관리를 위해 필요한 정보를 기록할 용도로 사용할 수도 있다.
 
-```
+```yaml
 annotations:
-  builder: "누가"
-  buildDate: "언제"
-  imageRegistry: "docker hub"
+  builder: '누가'
+  buildDate: '언제'
+  imageRegistry: 'docker hub'
 ```
 
 ## 11. config map
@@ -396,7 +396,7 @@ config map은 컨테이너 구성 정보를 한 곳에 모아서 관리하는 �
 `kubectl create configmap <이름> [--from-file=source] [--from-literal=key1=value1]` 과 같은 식으로 사용 가능하며 파일에서 읽어올 수 있다.  
 여기서 value는 1Mi를 넘지만 않는 어떠한 형식(json, nginx.conf 등)이든 들어갈 수 있다.
 
-```
+```yaml
 // yaml 예시(선언)
 apiVersion: v1
 data:
@@ -409,7 +409,7 @@ metadata:
 
 이후 yaml 형식으로 config map을 적용할 수 있다.
 
-```
+```yaml
 // yaml 예시(적용)
 ~~
 spec:

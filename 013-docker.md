@@ -1,7 +1,6 @@
 ## 0. 배우게 된 계기
 
 bob에서도 배웠었지만 사용할 계기가 없어서 잘 정리하지 못 했다.  
-더블앤씨에서 ai와 관련된 기능을 추가하기 위해서 도커를 배워야 될 일이 생겼다.  
 이번에는 특별히 개념보다는 명령어 위주의 기록이 많다.  
 아마 자세히 배우자면 끝도 없을 것이고 k8s까지 추가하면 턱도 없는 지식일테니 여기에서는 딱 도커에 대해서만 다룰 예정이다.
 
@@ -48,7 +47,7 @@ run은 pull + create + start를 합친 명령어로 이미 받은 이미지의 �
 commit은 컨테이너에서 변경된 사항을 이미지로 저장할 수 있게 만들어준다.  
 rmi는 이미지를 지우며, rm은 컨테이너를 지운다.
 
-## 3. docker image Layer
+## 3. docker image layer
 
 도커는 이미지의 계층구조로 이루어져 있다.  
 그 각각의 계층을 레이어(layer)라고 표현하며, 레이어는 도커 이미지가 빌드할 때 dockerfile에 정의된 명령문을 순서대로 실행하면서 만들어진다.  
@@ -66,7 +65,7 @@ ubuntu 이미지를 활용하고, apt 명령어로 python을 설치하며, ... �
 ~docker 설치는 구글링해보면 금방 나오므로 사용하는 OS 별로 검색하면 될 것 같다.~  
 https://captcha.tistory.com/49 를 참조했다.
 
-```
+```sh
 docker search <이미지> # docker hub로부터 사용 가능한 image를 찾는 명령어
 
 docker pull <이미지[:버전]> # docker hub로부터 image를 다운받는 명령어
@@ -81,7 +80,7 @@ docker run [옵션] <이미지> [실행할 파일] # pull + create + start를 �
 # 자주 사용하는 옵션으로는
 ## -d: 백그라운드에서 실행
 ## -i: interactive. 사용자가 입출력을 할 수 있는 상태로 실행
-## -t: 가상 터미널 환경을 애뮬리이트
+## -t: 가상 터미널 환경을 애뮬레이트
 ## -p: 포트 포워딩. host port:container port로 사용
 ## -v: 볼륨 마운드. host location:container location으로 사용
 ## -e: 환경 설정
@@ -102,16 +101,16 @@ docker stop <컨테이너> # 동작중인 컨테이너 종료
 docker rm <컨테이너> # 컨테이너 삭제
 ```
 
-## 5. dockerfile
+## 5. `dockerfile`
 
 docker image를 생성하기 위한 스크립트이다.  
 나열된 명령어를 차례대로 수행한 뒤 docker image를 생성해준다.  
-이미지가 어떻게 만들어졌는지 기록하여 어떠한 이미지를 배포할 때 이미지 파일 자체를 배포할 필요없이 dockerfile만을 배포하면 되므로 배포가 간단해진다.  
+이미지가 어떻게 만들어졌는지 기록하여 어떠한 이미지를 배포할 때 이미지 파일 자체를 배포할 필요없이 `dockerfile`만을 배포하면 되므로 배포가 간단해진다.  
 또한 이를 통해 컨테이너가 특정 행동을 수행하도록 할 수 있다.  
-기본적으로 파일의 이름은 dockerfile이어야 하며 확장자가 존재하지 않는다.  
+기본적으로 파일의 이름은 `dockerfile`이어야 하며 확장자가 존재하지 않는다.  
 아래는 사용 방법을 정리해둔 것이다.
 
-```
+```plaintext
 FROM : Docker Base Image (기반이 되는 이미지, <이미지 이름>:<태그> 형식으로 설정)
 MAINTAINER : 메인테이너 정보 (작성자 정보)
 RUN : Shell Script 또는 명령을 실행
@@ -136,22 +135,22 @@ SHELL : Default Shell 지정
 ### RUN / CMD / ENTRYPOINT
 
 https://blog.leocat.kr/notes/2017/01/08/docker-run-vs-cmd-vs-entrypoint 를 참고했다.  
-셋 모두 Shell 방식처럼 RUN? apt-get update && apt-get install apache2 -y와 같이 사용할 수 있으며, Exec 방식처럼 RUN? \["/bin/bash", "-c", "apt-get update"\] 처럼 사용할 수 있다.
+셋 모두 Shell 방식처럼 `RUN? apt update && apt install apache2 -y`와 같이 사용할 수 있으며, Exec 방식처럼 RUN? \["/bin/bash", "-c", "apt-get update"\] 처럼 사용할 수 있다.
 
 - RUN.
   - 새로운 레이어에서 명령어를 실행하고, 새로운 이미지를 생성한다.
   - 보통 패키지 설치 등에 사용된다.
-  - 주의할 점은 RUN apt-get update 한 뒤에 RUN apt-get install을 하면 update한 레이어와 install한 레이어는 다른 레이어이다.
+  - 주의할 점은 `RUN apt update` 한 뒤에 `RUN apt install`을 하면 update한 레이어와 install한 레이어는 다른 레이어이다.
 - CMD.
   - default 명령이나 파라미터를 설정한다.
-  - docker run 실행 시 실행할 커맨드를 주지 않으면 이 default 명령이 실행된다.
+  - `docker run` 실행 시 실행할 커맨드를 주지 않으면 이 default 명령이 실행된다.
   - 그리고 ENTRYPOINT의 파라미터를 설정할 수도 있다.
   - CMD의 주용도는 컨테이너를 실행할 때 사용할 default를 설정하는 것이다.
   - CMD는 여러 번 사용할 수 있지만 가장 마지막에 있는 CMD만 남게 된다(override).
 - ENTRYPOINT.
   - 컨테이너를 실행할 수 있게 설정한다.
   - dockerfile 내에 1번만 정의 가능하다.
-  - CMD와 다른 점으로, docker run으로 실행시 command를 입력하면 ENTRYPOINT의 파라미터로 인식한다.
+  - CMD와 다른 점으로, `docker run`으로 실행시 command를 입력하면 ENTRYPOINT의 파라미터로 인식한다.
 
 ## 6. NW
 
@@ -175,7 +174,7 @@ _docker0_ 브리지는 컨테이너가 통신하기 위해 사용된다.
 도커 컨테이너를 생성하면 자동으로 이 브리지를 활용하도록 설정되어 있다.  
 _docker0_ 인터페이스는 172.17.0.0/16 서브넷을 갖기 때문에 컨테이너가 생성되면 이 대역 안에서 IP를 할당받게 된다.
 
-```
+```sh
 docker network inspect bridge
 ```
 
@@ -188,23 +187,23 @@ docker network inspect bridge
 하나는 컨테이너 내부 Namespace에 할당되는 eth0 이름의 인터페이스이고, 다른 하나는 호스트 네트워크 브리지 _docker0_ 에 바인딩되는 veth~ 라는 이름의 veth(virtual eth) 인터페이스이다.  
 각 veth 인터페이스는 _docker0_ 브리지에 바인딩돼 호스트의 eth0와 같은 인터페이스와 이어진다.
 
-```
+```sh
 docker network ls
 ```
 
 위 명령어를 통해 현재 컨테이너 네트워크 목록을 확인할 수 있다.
 
-## 7. docker-compose
+## 7. `docker-compose`
 
 https://sohyun-lee.tistory.com/12 를 참고했다.  
 여러 개의 컨테이너가 하나의 애플리케이션으로 동작할 때, 이를 테스트하려면 각 컨테이너를 하나씩 생성해야 한다.  
 여러 개의 컨테이너로 구성된 애플리케이션을 구축하기 위해 `run` 명령어를 여러 번 사용할 수 있지만, 테스트 단계에서는 매번 `run` 명령어에 대한 옵션을 설정해서 진행하기 번거롭다.  
 이를 해결하기 위해 yaml 파일 설정한 뒤 `docker-compose` 명령어를 수행함으로써 여러 개의 컨테이너 실행을 하나의 프로젝트처럼 다룰 수 있다.  
-기본적으로 현재 또는 상위 디렉토리에서 docker-compose.yml 파일을 찾아 컨테이너를 생성하지만, _-f_ 옵션을 통해 위치와 이름을 지정할 수 있다.  
+기본적으로 현재 또는 상위 디렉토리에서 `docker-compose.yml` 파일을 찾아 컨테이너를 생성하지만, _-f_ 옵션을 통해 위치와 이름을 지정할 수 있다.  
 또한 `docker-compose config` 명령어를 통해 오타나 파일 포맷이 적절한지 등에 대한 검사를 할 수 있다.  
 참고로 docker와 별도로 추가적인 설치가 필요하다.
 
-### docker-compose.yml 구조
+### `docker-compose.yml` 구조
 
 버전, 서비스, 볼륨, 네트워크 이렇게 4가지 항목으로 구성된다.
 
@@ -248,7 +247,7 @@ networks:
 
 ### 명령어
 
-```
+```sh
 docker-compose up [옵션] # 컨테이너들 띄우기
 
 docker-compose down [옵션] # 컨테이너들 내리기

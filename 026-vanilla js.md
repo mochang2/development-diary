@@ -145,4 +145,4 @@ _참고: https://velog.io/@songyouhyun/Package.json%EA%B3%BC-Package-lock.json%E
 위 표에서 나온 것처럼 package-lock.json은 모듈의 '정확한 버전 정보'를 가지고 있기 때문에 package-lock.json이 존재하면 `npm install(yarn)`은 package.json을 이용해서 node_modules를 생성하지 않고 package-lock.json을 이용해서 node_modules를 생성한다.
 
 처음부터 정확한 정보를 package.json에 명시하면 되지 않겠냐고 생각하겠지만,  
-package-lock.json을 별도로 사용하면 프로젝트의 패키지의 중요한 버그 수정이 이루어질 때마다 프로젝트의 package.json에 적혀 있는 버전을 항상 수정하지 않고 version range(^ 또는 `)로 해결할 수 있다.
+package-lock.json을 별도로 사용하면 프로젝트 패키지의 중요한 버그 수정이 이루어질 때마다 프로젝트의 package.json에 적혀 있는 버전을 항상 수정하지 않고 version range(^ 또는 `)로 해결할 수 있다.

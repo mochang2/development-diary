@@ -36,26 +36,26 @@ bolt로 slack app을 만들 때는 slack 공식문서를 참조하면 안 된다
 설정을 완료한 후 아래와 같은 코드를 작성하면 정상적으로 동작한다.
 
 ```typescript
-import { App } from "@slack/bolt";
-import Home from "where";
+import { App } from '@slack/bolt'
+import Home from 'where'
 
-const APP_PORT = Number(process.env.port);
+const APP_PORT = Number(process.env.port)
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN, // dotenv 모듈 사용
   signingSecret: process.env.SLACK_SIGNING_SECRET,
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN,
   port: APP_PORT,
-});
+})
 
-app.event("app_home_opened", async ({ event, client, logger }) => {
+app.event('app_home_opened', async ({ event, client, logger }) => {
   // async 없으면 모듈에서 일치하는 함수를 찾지 못해 에러 발생
   try {
-    await client.views.publish(Home(event));
+    await client.views.publish(Home(event))
   } catch (err) {
-    logger.error(err.message);
+    logger.error(err.message)
   }
-});
+})
 ```
 
 Home(view)를 만드는 코드는 https://api.slack.com/tutorials/app-home-with-modal 와 https://api.slack.com/surfaces/tabs/using 를 참고하면 된다.  
@@ -128,12 +128,12 @@ const appMention = async (event, client) => {
 ## 4. 삽질3 - typescript
 
 ```typescript
-import { GenericMessageEvent, MessageEvent } from "@slack/bolt";
+import { GenericMessageEvent, MessageEvent } from '@slack/bolt'
 
 const messageChannel = async (event: MessageEvent, client) => {
   // ...
-  const messageEvent = event as GenericMessageEvent;
-};
+  const messageEvent = event as GenericMessageEvent
+}
 ```
 
 `@slack/bolt` 파일을 타고 들어가면 다음과 같이 선언되어 있다.
@@ -283,7 +283,7 @@ docker가 어차피 리눅스 기반이기 때문에 크론잡의 문법도 동�
 동작시키고 싶은 기능은 `yarn program`에 등록했다.  
 commander의 자세한 설명은 [공식문서](https://www.npmjs.com/package/commander)에 있다.
 
-```
+```json
 // package.json
 ...
   "scripts": {
@@ -291,7 +291,9 @@ commander의 자세한 설명은 [공식문서](https://www.npmjs.com/package/co
     "program": "NODE_ENV=development ts-node-dev -r dotenv/config ./src/program.ts" //  이렇게 하면 build 없이 실행 가능하다
   },
 ...
+```
 
+```typescript
 // program.ts
 import { Command } from 'commander'
 
@@ -310,15 +312,16 @@ program.command('cron-daily').action(async () => {
 })
 
 program.parse(process.argv)
+```
 
-
-// cronjob.yaml
+```yaml
+# cronjob.yaml
 apiVersion: 버전 0.1.0 등
 kind: CronJob
 metadata:
   name: 크론잡 이름
 spec:
-   // 이후는 배포에 맞는 스펙
+  # 이후는 배포에 맞는 스펙
 ```
 
 ## 최종 코드

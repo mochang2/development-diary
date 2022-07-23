@@ -15,49 +15,49 @@ node.js에서 로깅을 위해 자주 사용하는 모듈은 winston과 morgan�
 로그 파일 관리, 로그에 남길 메시지 관리, 로그 레벨 관리를 위한 모듈이다.  
 공식문서에 따르면 요청을 위한 미들웨어를 제공하며 에러 로깅을 하는 모듈이라고 한다.  
 요청과 응답으로부터 property를 선택하기 위해 화이트 리스트 방식을 채택하고 있다.  
-사용을 위해 반드시 필요한 모듈은 'winston, winston-daily-rotate-file, app-root-path'이다.  
+사용을 위해 반드시 필요한 모듈은 `winston`, `winston-daily-rotate-file`, `app-root-path`이다.  
 아래 코드와 이름만 봐도 간단한 사용법과 어떤 일을 하는지 알 수 있을 것이다.
 
 ```typescript
-import winston from "winston";
-import winstonDaily from "winston-daily-rotate-file";
-import appRoot from "app-root-path";
+import winston from 'winston'
+import winstonDaily from 'winston-daily-rotate-file'
+import appRoot from 'app-root-path'
 
-const logDir: string = "logs";
-const { combine, timestamp, printf } = winston.format;
+const logDir: string = 'logs'
+const { combine, timestamp, printf } = winston.format
 
 const logFormat = printf((info) => {
-  return `${info.timestamp} ${info.level}: ${info.message}`;
-});
+  return `${info.timestamp} ${info.level}: ${info.message}`
+})
 
 const logger = winston.createLogger({
   format: combine(
     timestamp({
-      format: "YYYY-MM-DD HH:mm:ss",
+      format: 'YYYY-MM-DD HH:mm:ss',
     }),
     logFormat
   ),
   transports: [
     new winstonDaily({
-      level: "info",
-      datePattern: "YYYY-MM-DD",
+      level: 'info',
+      datePattern: 'YYYY-MM-DD',
       dirname: `${appRoot}/${logDir}`,
       filename: `%DATE%.log`,
       maxFiles: 30,
       zippedArchive: true,
     }),
     new winstonDaily({
-      level: "error",
-      datePattern: "YYYY-MM-DD",
-      dirname: `${appRoot}/${logDir}` + "/error", // 파일 위치
+      level: 'error',
+      datePattern: 'YYYY-MM-DD',
+      dirname: `${appRoot}/${logDir}` + '/error', // 파일 위치
       filename: `%DATE%.error.log`, // 파일 이름
       maxFiles: 30, // 30개까지의 파일만 생성, 그 이전 파일은 지움
       zippedArchive: true,
     }),
   ],
-});
+})
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== 'production') {
   logger.add(
     new winston.transports.Console({
       format: winston.format.combine(
@@ -65,13 +65,13 @@ if (process.env.NODE_ENV !== "production") {
         winston.format.simple() // 로그를 간단히 고나리
       ),
     })
-  );
+  )
 }
 
-export default logger;
+export default logger
 ```
 
-위 모듈을 사용하고자 하는 위치에서 import logger ~를 한 뒤, logger.error, logger.info 등으로 사용할 수 있다.
+위 모듈을 사용하고자 하는 위치에서 `import logger ~`를 한 뒤, `logger.error`, `logger.info` 등으로 사용할 수 있다.
 
 ### morgan
 

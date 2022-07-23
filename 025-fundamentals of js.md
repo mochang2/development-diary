@@ -205,7 +205,9 @@ let f2 = new Func()
 
 ```javascript
 function error() {
-  ;(this.badRequest = 400), (this.unauthorized = 403), (this.notFound = 404)
+  this.badRequest = 400
+  this.unauthorized = 403
+  this.notFound = 404
 }
 
 const imError = new error()
@@ -532,17 +534,20 @@ foo.call(ken, 1, 2, 3) // 35
 > - yield를 화살표 함수 내부에서 사용할 수 없습니다
 
 여기서 주목할 것은 첫 번째 속성으로, arrow function은 this에 대한 binding이 위에 예시로 제시한 함수들처럼 동적으로 진행되지 않는다.  
-즉, 어떤 환경에서 해당 함수가 불리느냐에 따라 결정되지 않는다는 것이다.  
+즉, 해당 함수가 어떻게 선언되었냐에 따라 결정되지 않는다는 것이다.  
 arrow function을 부른 위치가 어디냐에 따라서 해당 함수 내부에서의 this가 정적으로 결정되어 있다.
 
 ```javascript
-const wrapper = {
-  key: () => {
-    return this
-  },
+function func() {
+  console.log('Inside func:', this.aa // 13
+
+  return {
+    aa: 25,
+    arrow: () => console.log('Inside aa:', this.aa), // 13
+  }
 }
 
-console.log(wrapper.key()) // {}
+func.call({ aa: 13 }).func()
 ```
 
 cf) 개인적인 생각이지만, React에서 컴포넌트를 선언할 때 일반 function보다는 arrow function을 사용하라고 한다. 아마 함수형 컴포넌트 이전에 클래스형 컴포넌트를 사용할 때 this를 많이 사용했는데, 이 this가 global 또는 window를 가리킬 수도 있어서 의도치 않게 동작할 수 있기 때문인 것 같다.
