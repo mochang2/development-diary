@@ -412,9 +412,11 @@ _출처: https://deepu.tech/memory-management-in-v8/_
 
 두 가지 종류의 데이터가 저장된다.
 
-- **primitive type**
+- **primitive type의 value**
   - number, string, null, undefined, symbol, boolean, bigint 7가지 종류가 있음.
   - primitive type에 대해서 재할당(`let`, `var`으로 선언된 변수)되면 주소가 가리키고 있는 값이 바뀌는 것이 아니라 가리키고 있는 주소 자체가 바뀌고, 이전에 주소는 참조되지 않으면 GC에 의해 메모리에서 사라짐.
+  - 변수에는 값이 저장된 콜 스택 메모리의 주소값이 저장됨.
+  - 변수 식별자 자체는 콜스택 상의 '실행 컨텍스트(Execution Context)의 렉시컬 환경(Lexical Environment)'이라는 곳에 저장됨.
 - **객체 주소**
   - 힙에 저장되는 object(함수 포함)들에 대한 참조 값.
 
