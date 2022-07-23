@@ -391,3 +391,34 @@ setTimeout(foo, 2)
 
 `nextTickQueue`는 매 Tick마다 실행되는 것이 아닌! 실행할 작업이 없다면 바로 실행된다고 앞서 이야기했다.  
 따라서 재귀 호출로 `nextTickQueue`에 들어간 모든 콜백들을 실행하고 나서야 `Timer Phase`의 콜백을 처리할 수 있기 때문에 결과는 `foo` \* 20번 뒤에 `setTimeout` \* 20번이 출력된다.
+
+## 4. 메모리 구조
+
+V8 Engine의 메모리 구조는 아래 사진과 같다.
+
+![v8 memory structure](https://user-images.githubusercontent.com/63287638/180597792-1d9feead-6d75-4b9a-bd9b-3dff72336404.png)
+_출처: https://deepu.tech/memory-management-in-v8/_
+
+### 힙
+
+다음과 같은 구성 요소를 가지고 있다.
+
+- **New Space**: 대부분의 새 object들이 존재. Scavenger라는 minor GC가 관리하는 두 개의 작은 semi space(from-space와 to-space)가 존재. 새 object에 대한 메모리를 할당하고자 할 때 메모리가 부족하면, fragmentation을 없앰으로써 새 object를 compact하고 clean하게 관리하기 위해 사용됨.
+- **Old Space**: new Space에서 오래 남아있는 object들이 옮겨짐. Mark and Sweep 알고리즘을 사용하는 major GC에 의해 관리됨. 다른 object에 대한 포인터를 가지고 있는 Old pointer space와 데이터만 가지고 있는 Old data space로 이루어짐.
+- **Large object space**: 크기가 큰 object가 저장됨.
+- **Code space**: JIT(Just In Time) compiler가 complie된 code block을 저장. V8 Engine 중에서 유일하게 실행 가능한 메모리.
+
+### 스택
+
+두 가지 종류의 데이터가 저장된다.
+
+- **primitive type**
+  - number, string, null, undefined, symbol, boolean, bigint 7가지 종류가 있음.
+  - primitive type에 대해서 재할당(`let`, `var`으로 선언된 변수)되면 주소가 가리키고 있는 값이 바뀌는 것이 아니라 가리키고 있는 주소 자체가 바뀌고, 이전에 주소는 참조되지 않으면 GC에 의해 메모리에서 사라짐.
+- **객체 주소**
+  - 힙에 저장되는 object(함수 포함)들에 대한 참조 값.
+
+아래 사진처럼 표현할 수 있다.
+
+![js stack heap](https://user-images.githubusercontent.com/63287638/180597950-4aba0533-c211-4de8-8c25-8cd9df04ff38.png)
+_출처: https://charming-kyu.tistory.com/19_
