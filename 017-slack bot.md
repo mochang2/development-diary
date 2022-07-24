@@ -138,12 +138,14 @@ const messageChannel = async (event: MessageEvent, client) => {
 
 `@slack/bolt` 파일을 타고 들어가면 다음과 같이 선언되어 있다.
 
-```
+```typescript
 export declare type MessageEvent = GenericMessageEvent | BotMessageEvent | ChannelArchiveMessageEvent | ChannelJoinMessageEvent | ChannelLeaveMessageEvent | ChannelNameMessageEvent | ChannelPostingPermissionsMessageEvent | ChannelPurposeMessageEvent | ChannelTopicMessageEvent | ChannelUnarchiveMessageEvent | EKMAccessDeniedMessageEvent | FileShareMessageEvent | MeMessageEvent | MessageChangedEvent | MessageDeletedEvent | MessageRepliedEvent | ThreadBroadcastMessageEvent;
 ```
 
 `MessageEvent` 타입을 사용하려면 뒤에 선언된 이벤트가 가진 모든 property를 139번째 줄에서 선언한 변수인 `event`가 가지고 있어야 한다.  
 일반적으로 그런 경우가 존재하지 않기 때문에 강제적으로 `as`로 타입을 바꾸는 게 최선이라고 한다.
+
++) 또는 인자의 타입이 아닌 함수의 타입을 지정해줌으로써 해결할 수 있다. 이러한 경우 인자는 동적으로 결정돼서 추론을 잘 못하지만 함수 타입을 지정하면 그렇지 않아서 문제가 없었다.
 
 ## 5. 삽질4 - 앱 유저 구분
 
