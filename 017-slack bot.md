@@ -285,14 +285,12 @@ docker가 어차피 리눅스 기반이기 때문에 크론잡의 문법도 동�
 동작시키고 싶은 기능은 `yarn program`에 등록했다.  
 commander의 자세한 설명은 [공식문서](https://www.npmjs.com/package/commander)에 있다.
 
-```json
-// package.json
+```
 ...
   "scripts": {
     ...
-    "program": "NODE_ENV=development ts-node-dev -r dotenv/config ./src/program.ts" //  이렇게 하면 build 없이 실행 가능하다
+    "program": "NODE_ENV=development ts-node-dev -r dotenv/config ./src/program.ts" #  이렇게 하면 build 없이 실행 가능하다
   },
-...
 ```
 
 ```typescript
