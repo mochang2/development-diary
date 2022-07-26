@@ -179,7 +179,7 @@ function removeImage() {
 _참고: https://www.youtube.com/watch?v=wUgmzvExL_E_
 
 OOP에서 class처럼 동일한 속성을 지정해주기 위한 방법이다 정도로 이해할 수도 있다.  
-다만 내부 동작 방식이 조금 다르며, ES6에 도입된 class가 있지만 (MDN에 따르면) class는 문법적인 양념일 뿐, JS는 여전히 프로토타입 기반의 언어이며 내부 동작 방식이 같지 않다.
+ES6에 도입된 class가 있지만 (MDN에 따르면) class는 문법적인 양념일 뿐, JS는 여전히 프로토타입 기반의 언어이며 내부 동작 방식도 prototype을 이용한다.
 
 상속 관점에서 자바스크립트의 유일한 생성자는 객체뿐이다.  
 각각의 객체는 \[Prototype\]이라는 은닉(private) 속성을 가지는데 자신의 프로토타입이 되는 다른 객체를 가리킨다.  
@@ -237,7 +237,6 @@ console.log(urError.info) // 에러에러에러
 
 ES5에 객체를 생성하는 새로운 방법이 도입됐었다.  
 Object.create를 이용해서 새로운 객체를 만들면, 생성된 객체의 프로토타입은 이 메소드의 첫 번째 인수로 지정된다.  
-다만 https://velog.io/@thms200/Object.create- 를 참고하면 알 수 있듯이 `Object.create`를 통해 부모 객체의 기능을 물려받으면 생성자 함수를 사용할 수 없기 때문에 `Rectangle.prototype = Object.create(Shape.prototype); Rectangle.prototype.constructor = Rectangle;`과 같이 생성자 property를 별도로 명시해줘야 한다.
 
 ```javascript
 const a = { a: 1 }
@@ -254,6 +253,45 @@ const d = Object.create(null)
 // d ---> null
 console.log(d.hasOwnProperty) // undefined이다. 왜냐하면 d는 Object.prototype을 상속받지 않기 때문이다.
 ```
+
+다만 https://velog.io/@thms200/Object.create- 를 참고하면 알 수 있듯이 `Object.create()`이나 `new`생성자를 통해 부모 객체의 기능을 물려받으면 생성자 함수를 사용할 수 없기 때문에 `Rectangle.prototype = Object.create(Shape.prototype); Rectangle.prototype.constructor = Rectangle;`과 같이 생성자 property를 별도로 명시해줘야 한다.
+
+```javascript
+function Animal() {
+  this.type = 'Animal'
+}
+
+function Mammal(type) {
+  this.subType = 'Mammal'
+}
+
+Mammal.prototype = new Animal()
+// Mammal.prototype.constructor = Mammal
+
+function Cat(name) {
+  this.name = name
+}
+
+Cat.prototype = new Mammal('cat')
+// Cat.prototype.constructor = Cat
+
+const siamese = new Cat('siamese')
+
+console.log(siamese)
+console.log(Object.getPrototypeOf(siamese))
+console.log(Object.getPrototypeOf(Object.getPrototypeOf(siamese)))
+console.log(
+  Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(siamese)))
+)
+
+```
+
+위에서 주석처리한 줄에 따라 아래와 같은 서로 다른 결과가 나온다.  
+![wo constructor](https://user-images.githubusercontent.com/63287638/181062303-d70b6ad4-cc5e-415a-8bc9-3e5f38f58e25.png)  
+
+![with constructor](https://user-images.githubusercontent.com/63287638/181062312-6d274056-1516-400b-bb1d-69a2aaa9e703.png)
+
+
 
 ## 3. closure
 
