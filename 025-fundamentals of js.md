@@ -266,14 +266,14 @@ function Mammal(type) {
 }
 
 Mammal.prototype = new Animal()
-// Mammal.prototype.constructor = Mammal
+// Mammal.prototype.constructor = Mammal // Mammal class의 생성자는 Mammal이다
 
 function Cat(name) {
   this.name = name
 }
 
 Cat.prototype = new Mammal('cat')
-// Cat.prototype.constructor = Cat
+// Cat.prototype.constructor = Cat // Cat class의 생성자는 Cat이다
 
 const siamese = new Cat('siamese')
 
