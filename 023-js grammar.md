@@ -124,10 +124,10 @@ js에서 원시값(primitive)은 변경 불가능한 불변의 값을 말한다.
 원시값에는 String, Number, undefined, Boolean, Symbol, BigInt 6종류가 존재하고 이것들은 기본적으로 할당만 해도 deep copy가 된다.
 
 ```javascript
-let a = 1;
-let b = a;
-b = 2;
-console.log(a); // 1
+let a = 1
+let b = a
+b = 2
+console.log(a) // 1
 ```
 
 하지만 object, array 등의 객체는 기본적으로 shallow copy를 한다.  
@@ -242,14 +242,14 @@ _cf forEach 내부에서 await 사용시 조심할 점_
 forEach는 async/await으로 선언된 비동기 처리 구문을 기다려주지 않는다.
 
 ```javascript
-const wantedGenres = ["로맨스", "판타지"];
-let genres = [];
+const wantedGenres = ['로맨스', '판타지']
+let genres = []
 wantedGenres.forEach(async (value, index) => {
-  const g = await Genre.findOne({ name: value }); // MongoDB에서 오브젝트 조회
-  genres.push(g);
-  console.log(`Push ${index}: ${genres}`);
-});
-console.log(`Done: ` + genres);
+  const g = await Genre.findOne({ name: value }) // MongoDB에서 오브젝트 조회
+  genres.push(g)
+  console.log(`Push ${index}: ${genres}`)
+})
+console.log(`Done: ` + genres)
 
 // 예상 결과
 // Push 0: [{...name: '로맨스'...}]
@@ -264,12 +264,12 @@ console.log(`Done: ` + genres);
 // 해결방법 1. for (const/let variable of, in iterableObject) 사용
 
 // 해결방법 2. Promise.all() 사용
-let genres = [];
+let genres = []
 const promises = wantedGenres.map(async (value, index) => {
-  const g = await Genre.findOne({ name: value });
-  genres.push(g);
-});
-await Promise.all(promises);
+  const g = await Genre.findOne({ name: value })
+  genres.push(g)
+})
+await Promise.all(promises)
 ```
 
 2.  return  
@@ -804,3 +804,139 @@ promise의 object. Producer와 Consumer가 있음.
     	}
 
 ---
+
+# copy
+
+JS의 object의 값은 힙에 저장되어 있고 변수는 대부분 그 힙에 저장된 주소값을 가리킨다.  
+따라서 일반적인 할당 방법으로 변수를 copy할 경우 shallow copy, 즉 얕은 복사만 된다.
+
+깊은 복사를 하는 방법에는 다음과 같은 방법이 있다.
+
+1. `Object.assign()`
+
+```javascript
+const obj = { a: 1 }
+const newObj = Object.assign({}, obj)
+
+newObj.a = 2
+
+console.log(obj) // { a: 1 }
+console.log(obj === newObj) // false
+
+// 주의. 2차원 객체는 깊은 복사가 이루어지지 않음
+const obj = {
+  a: 1,
+  b: {
+    c: 2,
+  },
+}
+
+const newObj = Object.assign({}, obj)
+
+newObj.b.c = 3
+
+console.log(obj) // { a: 1, b: { c: 3 } }
+console.log(obj.b.c === newObj.b.c) // true
+```
+
+2. spread 연산자
+
+```javascript
+const obj = { a: 1 }
+const newObj = Object.assign({}, obj)
+
+newObj.a = 2
+
+console.log(obj) // { a: 1 }
+console.log(obj === newObj) // false
+
+// 주의. 2차원 객체는 깊은 복사가 이루어지지 않음
+const obj = {
+  a: 1,
+  b: {
+    c: 2,
+  },
+}
+
+const newObj = { ...obj }
+
+newObj.b.c = 3
+
+console.log(obj) // { a: 1, b: { c: 3 } }
+console.log(obj.b.c === newObj.b.c) // true
+```
+
+아래부터는 2차원 이상의 객체도 깊은 복사가 가능하다.
+
+3. JSON 객체 이용(아래 나오는 깊은 복사 중에서 제일 느림)
+
+```javascript
+const obj = {
+  a: 1,
+  b: {
+    c: 2,
+  },
+}
+
+const newObj = JSON.parse(JSON.stringify(obj))
+
+newObj.b.c = 3
+
+console.log(obj) // { a: 1, b: { c: 2 } }
+console.log(obj.b.c === newObj.b.c) // false
+```
+
+4. 재귀 함수 이용
+
+```javascript
+function deepCopy(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  const copy = {}
+  for (const key in obj) {
+    copy[key] = deepCopy(obj[key])
+  }
+
+  return copy
+}
+
+const obj = {
+  a: 1,
+  b: {
+    c: 2,
+  },
+  func: function () {
+    return this.a
+  },
+}
+
+const newObj = deepCopy(obj)
+
+newObj.b.c = 3
+console.log(obj) // { a: 1, b: { c: 2 }, func: [Function: func] }
+console.log(obj.b.c === newObj.b.c) // false
+```
+
+5. lodash의 `cloneDeep()` 이용
+
+```javascript
+const lodash = require('lodash')
+
+const obj = {
+  a: 1,
+  b: {
+    c: 2,
+  },
+  func: function () {
+    return this.a
+  },
+}
+
+const newObj = lodash.cloneDeep(obj)
+
+newObj.b.c = 3
+console.log(obj) // { a: 1, b: { c: 2 }, func: [Function: func] }
+console.log(obj.b.c === newObj.b.c) // false
+```
