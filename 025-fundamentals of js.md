@@ -588,6 +588,34 @@ function func() {
 func.call({ aa: 13 }).func()
 ```
 
+```javascript
+// function을 이용해서 prototype을 사용할 때 
+// this, arrow function 주의
+function Parent() {
+  this.name = 'parent'
+}
+
+Parent.prototype.getName = () => {
+  return this.name // uses 'this' that is available at the time the function is evaluated. return 'aa' 와 같은 this를 사용하지 않는 것이면 잘 작동.
+}
+
+function Child() {
+  this.name = 'child'
+}
+
+Child.prototype = new Parent()
+
+Child.prototype.getName = function () {
+  return this.name
+}
+
+const p = new Parent()
+const c = new Child()
+
+console.log(p.getName()) // undefined. this는 빈 객체
+console.log(c.getName()) // 'child'
+```
+
 cf) 개인적인 생각이지만, React에서 컴포넌트를 선언할 때 일반 function보다는 arrow function을 사용하라고 한다. 아마 함수형 컴포넌트 이전에 클래스형 컴포넌트를 사용할 때 this를 많이 사용했는데, 이 this가 global 또는 window를 가리킬 수도 있어서 의도치 않게 동작할 수 있기 때문인 것 같다.
 
 ## 5. event bubbling
