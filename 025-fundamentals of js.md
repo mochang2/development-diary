@@ -236,7 +236,7 @@ console.log(urError.info) // 에러에러에러
 ### Object.create
 
 ES5에 객체를 생성하는 새로운 방법이 도입됐었다.  
-Object.create를 이용해서 새로운 객체를 만들면, 생성된 객체의 프로토타입은 이 메소드의 첫 번째 인수로 지정된다.  
+Object.create를 이용해서 새로운 객체를 만들면, 생성된 객체의 프로토타입은 이 메소드의 첫 번째 인수로 지정된다.
 
 ```javascript
 const a = { a: 1 }
@@ -283,15 +283,12 @@ console.log(Object.getPrototypeOf(Object.getPrototypeOf(siamese)))
 console.log(
   Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(siamese)))
 )
-
 ```
 
 위에서 주석처리한 줄에 따라 아래와 같은 서로 다른 결과가 나온다.  
-![wo constructor](https://user-images.githubusercontent.com/63287638/181062303-d70b6ad4-cc5e-415a-8bc9-3e5f38f58e25.png)  
+![wo constructor](https://user-images.githubusercontent.com/63287638/181062303-d70b6ad4-cc5e-415a-8bc9-3e5f38f58e25.png)
 
 ![with constructor](https://user-images.githubusercontent.com/63287638/181062312-6d274056-1516-400b-bb1d-69a2aaa9e703.png)
-
-
 
 ## 3. closure
 
@@ -577,7 +574,7 @@ arrow function을 부른 위치가 어디냐에 따라서 해당 함수 내부�
 
 ```javascript
 function func() {
-  console.log('Inside func:', this.aa // 13
+  console.log('Inside func:', this.aa) // 13
 
   return {
     aa: 25,
@@ -585,11 +582,11 @@ function func() {
   }
 }
 
-func.call({ aa: 13 }).func()
+func.call({ aa: 13 }).arrow()
 ```
 
 ```javascript
-// function을 이용해서 prototype을 사용할 때 
+// function을 이용해서 prototype을 사용할 때
 // this, arrow function 주의
 function Parent() {
   this.name = 'parent'
@@ -616,7 +613,34 @@ console.log(p.getName()) // undefined. this는 빈 객체
 console.log(c.getName()) // 'child'
 ```
 
-cf) 개인적인 생각이지만, React에서 컴포넌트를 선언할 때 일반 function보다는 arrow function을 사용하라고 한다. 아마 함수형 컴포넌트 이전에 클래스형 컴포넌트를 사용할 때 this를 많이 사용했는데, 이 this가 global 또는 window를 가리킬 수도 있어서 의도치 않게 동작할 수 있기 때문인 것 같다.
+cf) 개인적인 생각이지만, React에서 컴포넌트를 선언할 때 일반 function보다는 arrow function을 사용하라고 한다. 아마 함수형 컴포넌트 이전에 클래스형 컴포넌트를 사용할 때 this를 많이 사용했는데, 이 this가 global 또는 window를 가리킬 수도 있어서 의도치 않게 동작할 수 있기 때문인 것 같다. 다만 클래스간 상속할 때는 [arrow function이 위험한 이유](https://simsimjae.tistory.com/452)를 참고해서 arrow function이 꼭 필요한지 한 번더 생각해보자.
+
+```javascript
+class Parent {
+  getName = () => {
+    console.log('parent')
+  }
+}
+
+// 위와 같이 선언하면 아래 같이 바뀜
+/*
+class Parent {
+  constructor() {
+    this.getName = () => {
+      console.log('my name is 심재철')
+    }
+  }
+}
+*/
+
+class Child extends Parent {
+  getName() {
+    console.log('child')
+  }
+}
+
+new Child().getName() // parent
+```
 
 ## 5. event bubbling
 
