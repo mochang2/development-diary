@@ -186,7 +186,7 @@ ES6에 도입된 class가 있지만 (MDN에 따르면) class는 문법적인 양
 그 객체의 프로토타입 또한 프로토타입을 가지고 있고 이것이 반복되다, 결국 null을 프로토타입으로 가지는 오브젝트에서 끝난다.  
 null은 더 이상의 프로토타입이 없다고 정의되며, 프로토타입 체인의 종점 역할을 한다.
 
-cf) prototype.\_\_proto\_\_ 이라는 속성이 존재하는데 이는 객체가 만들어지기 위해 사용된 원형인 프로토타입 객체를 숨은 링크로 참조하는 역할을 한다. [MDN](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/proto)에 따르면 deprecated됐으며 getPrototypeOf()를 사용하기를 권장하고 있다.
+cf) prototype.\_\_proto\_\_ 이라는 속성이 존재하는데 이는 객체가 만들어지기 위해 사용된 원형인 프로토타입 객체를 숨은 링크로 참조하는 역할을 한다. [MDN](https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/proto)에 따르면 deprecated됐으며 `Object.getPrototypeOf(변수)`를 사용하기를 권장하고 있다.
 
 ### 함수와 객체의 내부 구조
 
