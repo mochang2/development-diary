@@ -18,10 +18,10 @@ webpack은 모듈 번들러이다.
 
 ### module
 
-_[js module](https://blog.bitsrc.io/javascript-require-vs-import-47827a361b77) 참고._
+_[js module](https://blog.bitsrc.io/javascript-require-vs-import-47827a361b77) 참고_
 
 webpack을 온전히 이해하기 위해서는 JS에서 module이 무엇인지 먼저 알 필요가 있다.
-module이란 여러 기능들에 관한 코드가 모여있는 하나의 파일로 다음과 같은 장점이 있다.
+**module**이란 여러 기능들에 관한 코드가 모여있는 하나의 파일로 다음과 같은 장점이 있다.
 
 - 유지보수성: 기능들이 모듈화가 잘 되어 있다면, 의존성을 그만큼 줄일 수 있기 때문에 어떤 기능을 개선하거나 수정할 때 훨씬 편하다.
 - 네임스페이스: 모듈로 분리하여 모듈만의 네임스페이스를 가지게 할 수 있다.
