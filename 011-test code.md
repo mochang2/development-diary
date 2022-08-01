@@ -75,7 +75,7 @@ FIRST는 Fast, Isolated, Repeatable, Self-validating, Timely의 약자이다.
 
 ### node.js 테스트 툴 비교
 
-![비교](https://user-images.githubusercontent.com/63287638/182154642-c447f412-c782-4027-9f91-0ee8b1ffa434.png)
+<img src="https://user-images.githubusercontent.com/63287638/182154642-c447f412-c782-4027-9f91-0ee8b1ffa434.png" alt="node.js 테스트 툴 비교" width="75%" height="auto" />
 
 ### 설치
 
