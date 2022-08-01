@@ -14,6 +14,121 @@ js 컴파일러. 소스 코드를 웹 브라우저가 처리할 수 있는 JS �
 
 ## 2. webpack
 
+webpack은 모듈 번들러이다.
+
+### module
+
+_[js module](https://blog.bitsrc.io/javascript-require-vs-import-47827a361b77) 참고._
+
+webpack을 온전히 이해하기 위해서는 JS에서 module이 무엇인지 먼저 알 필요가 있다.
+module이란 여러 기능들에 관한 코드가 모여있는 하나의 파일로 다음과 같은 장점이 있다.
+
+- 유지보수성: 기능들이 모듈화가 잘 되어 있다면, 의존성을 그만큼 줄일 수 있기 때문에 어떤 기능을 개선하거나 수정할 때 훨씬 편하다.
+- 네임스페이스: 모듈로 분리하여 모듈만의 네임스페이스를 가지게 할 수 있다.
+- 재사용성: 똑같은 코드를 반복하지 않고 모듈을 분리시켜서 필요할 때마다 사용할 수 있다.
+
+JS에서 모듈의 개념이 나오기 전에는 아래와 같은 방식으로 사용했다.
+
+```html
+<script src="jquery.js"></script>
+<script src="tweenmax.js"></script>
+<!-- 그걸 사용해 내 코드 작성-->
+<script>
+  window.$
+  window.TweenMax
+</script>
+```
+
+위와 같은 방식을 사용하면 변수명이 겹칠 경우 오류가 발생하며, 필요가 없는 코드들도 전부 가져오게 되는 문제가 있었다.  
+이러한 문제를 해결하기 위해 나온 방식이 4가지가 있다.
+
+#### 1) commonJS
+
+Node.js에서 채택한 방식으로 지금도 node.js를 사용하면 바벨 없이는 `require()`과 `module.exports`를 사용해야 한다.  
+동기적으로 모듈을 불러오기 때문에 보통 서버사이트에서 사용한다.  
+사용하는 문법은 아래와 같다.
+
+```javascript
+// 내보내는 부분
+function a() {
+  console.log('Hello Wolrd')
+}
+
+module.exports = {
+  a,
+}
+// 또는
+module.exports = a
+
+// 사용하는 부분
+const { a } = require('./xxx')
+// 또는
+const a = require('./xxx')
+```
+
+#### 2) AMD(Asynchronous Module Definition)
+
+FE에서 모듈 개념을 친숙하게 만들기 위해 도입된 개념이다.  
+위에 나온 commonJs처럼 동기적으로 모듈을 가져오면 필요한 모듈을 전부 다운로드할 때까지 아무것도 할 수 없는 상태가 되기 때문에 생긴 개념이다(commmonJS와 함께 논의하다 합의점을 이루지 못하고 독립한 그룹으로, commonJS가 JS를 브라우저 밖으로 꺼낸 개념이라면, AMD는 브라우저에 중점을 뒀음).  
+AMD는 bundler가 필요 없으며 모든 dependency가 동적으로 resolve된다.  
+사용하는 문법은 아래와 같다.
+
+```javascript
+// 내보내는 부분
+// 종속성을 갖는 모듈인 'package/lib'를 모듈 선언부의 첫 번째 파라미터에 넣으면, 'package/lib'은 콜백 함수의 lib 파라미터 안에 담긴다
+define(['package/lib'], function (lib) {
+  // 로드된 종속 모듈을 아래와 같이 사용할 수 있다
+  function foo() {
+    lib.log('lib')
+  }
+
+  return {
+    foobar: foo,
+  }
+})
+
+// 사용하는 부분
+require(['package/myModule'], function (myModule) {
+  myModule.foobar()
+})
+```
+
+#### 3) UMD(Universal Module Definition)
+
+commonJS와 AMD로 나뉜 모듈 구현방식을 하나로 합치기 위한 패턴이다.  
+사실 그래서 UMD는 모듈 사용 방식이라기 보다는 디자인 패턴에 가깝다고 한다.  
+[공식 UMD 소스코드](https://github.com/umdjs/umd/blob/master/templates/returnExports.js)를 보면 아래와 같이 IIFE를 사용한다.
+
+```javascript
+;(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define([], factory)
+  } else if (typeof module === 'object' && module.exports) {
+    // Node. Does not work with strict CommonJS, but
+    // only CommonJS-like environments that support module.exports,
+    // like Node.
+    module.exports = factory()
+  } else {
+    // Browser globals (root is window)
+    root.returnExports = factory()
+  }
+})(typeof self !== 'undefined' ? self : this, function () {
+  // Just return a value to define the module export.
+  // This example returns an object, but the module
+  // can return a function as the exported value.
+  return {}
+})
+```
+
+#### 4) ECMAScript2015(ES6)
+
+JS 공식 모듈 시스템이다.  
+HTML에서 JS코드를 사용할 때 이 문법을 사용하면 `<script type="module" src="index.mjs">` 식으로 가져올 수 있다.  
+`import`와 `export`라는 키워드를 사용한다.  
+가장 큰 장점은 모듈을 비동기적으로 불러오는 반면 빌드 타임에 정적 분석을 가능하게 한다.  
+모든 브라우저가 지원하는 것은 아니며 ~(RIP IE...)~ Node.js에서도 아직 commonJS가 공식적으로 사용되기 때문에 Babel의 `@babel/plugin-transform-modules-commonjs`를 통해 변환시켜야 한다.
+
 모듈 번들러. 주요 목적은 브라우저에서 사용할 수 있도록 JavaScript 파일을 번들로 묶는 것이지만, 리소스나 애셋(Image, Font 등)을 변환하고 번들링 또는 패키징할 때도 사용됨.
 여러 개의 모듈(js, css, html, image 등)을 하나의 js로 묶어주는 모듈 번들러.
 jsx를 해석해주는 babel을 적용할 수 있고(jsx -> React.createElement), 코드 최적화 수행, console.log()와 같이 실제 서비스에서는 필요 없는 코드를 자동으로 제거하는 등의 기능.
