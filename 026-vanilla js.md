@@ -6,23 +6,63 @@ React? Vue? 아무리 개발을 해봐도 근본을 모르면 말짱 도루묵�
 
 ## 1. babel
 
+ES6에서 JS 표준 모듈 문법이 정의되었음에도 ES6 문법을 구형 브라우저에서 사용하지 못해 SystemJS 같은 또 다른 라이브러리에 의존했어야 함.  
+트랜스파일러, 즉 한 번 컴파일하면 구형 브라우저에서도 동작하는 JS 코드가 나오게 만드는 도구가 필요했음.
+
 js 컴파일러. 소스 코드를 웹 브라우저가 처리할 수 있는 JS 버전으로 변환. 새로운 ESNext 문법을 사용하여 개발할 때, 지원하지 않는 브라우저에서 오류가 나지 않도록 하기 위해.
 .babelrc
 
 - polyfill
   => 개발자가 특정 기능이 지원되지 않는 브라우저를 위해 사용할 수 있는 코드 조각이나 플러그인.
 
-## 2. webpack
+### 궁금했던 점
 
-webpack은 모듈 번들러이다.
+**Q. React.createchild vs jsx**
+
+_참고: https://www.daleseo.com/react-jsx/_
+
+먼저 간단히 jsx가 무엇인지 정리하자면 Javascript XML의 약자로 HTML이 아니고, JS를 확장하여 XML처럼 사용할 수 있도록 도와주는 문법이다.  
+단순히 템플릿 언어(A templating language basically is a language which allows defining placeholders that should later on be replaced for the purpose of implementing designs)라고 생각할 수 있지만 jsx는 JS의 모든 기능이 포함되어 있다.
+React element를 생성하는데 사용되며 vue나 svelte에서도 사용할 수 있다.
+
+[공식문서](https://ko.reactjs.org/docs/jsx-in-depth.html)에 따르면 jsx는 사실 `React.createElement`의 syntax sugar일 뿐이다.
+
+```jsx
+<MyButton color="blue" shadowSize={2}>
+  Click Me
+</MyButton>
+```
+
+위 코드는 아래와 같이 컴파일된다.
+
+```javascript
+React.createElement(MyButton, { color: 'blue', shadowSize: 2 }, 'Click Me')
+// 참고로 컴포넌트 이름은 반드시 대문자로 시작해야 함
+// 이후 `ReactDOM.render(변수명, 배치할 곳)`을 통해 화면에 렌더링 됨
+```
+
+이 모든 과정을 도와주는 것이 babel이다.  
+그리고 아래와 같이 컴포넌트 내부에서 `React`를 사용하지 않는데도 굳이 import해야 하는 이유가 jsx 변환을 위해서이다.
+
+```jsx
+import React from 'react'
+
+const Box = () => {
+  return <div>i'm box</div>
+}
+```
+
+## 2. Webpack
+
+Webpack은 module bundler이다.
 
 ### module
 
-_[js module](https://blog.bitsrc.io/javascript-require-vs-import-47827a361b77) 참고_
+_참고: [js module](https://blog.bitsrc.io/javascript-require-vs-import-47827a361b77)_
 
-webpack을 온전히 이해하기 위해서는 JS에서 module이 무엇인지 먼저 알 필요가 있다.  
-(참고로 JS는 모듈이 없는 상태로 세상에 나타났고, 모듈 개념은 node가 만들어지고 서버에서 JS를 사용할 수 있게 되면서 나온 개념이다)
-**module**이란 여러 기능들에 관한 코드가 모여있는 하나의 파일로 다음과 같은 장점이 있다.
+Webpack을 온전히 이해하기 위해서는 JS에서 module이 무엇인지 먼저 알 필요가 있다.  
+참고로 JS는 모듈이 없는 상태로 세상에 나타났고(해봐야 `<script>` 태그 이용), 모듈 개념은 node.js가 만들어지고 서버에서 JS를 사용할 수 있게 되면서 나온 개념이다.  
+**module**이란 프로그램을 구성하는 내부의 코드가 기능별로 나뉘어져 있는 형태로 다음과 같은 장점이 있다.
 
 - 유지보수성: 기능들이 모듈화가 잘 되어 있다면, 의존성을 그만큼 줄일 수 있기 때문에 어떤 기능을 개선하거나 수정할 때 훨씬 편하다.
 - 네임스페이스: 모듈로 분리하여 모듈만의 네임스페이스를 가지게 할 수 있다.
@@ -41,12 +81,13 @@ JS에서 모듈의 개념이 나오기 전에는 아래와 같은 방식으로 �
 ```
 
 위와 같은 방식을 사용하면 변수명이 겹칠 경우 오류가 발생하며, 필요가 없는 코드들도 전부 가져오게 되는 문제가 있었다.  
+만약 `jquery.js`와 `tweenmax.js`에서 `a`라는 변수를 각각 사용하고 있었다면, 나중에 로드된 모듈이 먼저 로드된 모듈의 변수를 재정의했다.  
 이러한 문제를 해결하기 위해 나온 방식이 4가지가 있다.
 
 #### 1) commonJS
 
 Node.js에서 채택한 방식으로 지금도 node.js를 사용하면 바벨 없이는 `require()`과 `module.exports`를 사용해야 한다.  
-동기적으로 모듈을 불러오기 때문에 보통 서버사이트에서 사용한다.  
+동기적으로 모듈을 불러오기 때문에 보통 서버사이드에서 사용한다.  
 사용하는 문법은 아래와 같다.
 
 ```javascript
@@ -70,7 +111,9 @@ const a = require('./xxx')
 #### 2) AMD(Asynchronous Module Definition)
 
 FE에서 모듈 개념을 친숙하게 만들기 위해 도입된 개념이다.  
-위에 나온 commonJs처럼 동기적으로 모듈을 가져오면 필요한 모듈을 전부 다운로드할 때까지 아무것도 할 수 없는 상태가 되기 때문에 생긴 개념이다(commmonJS와 함께 논의하다 합의점을 이루지 못하고 독립한 그룹으로, commonJS가 JS를 브라우저 밖으로 꺼낸 개념이라면, AMD는 브라우저에 중점을 뒀음).  
+서버 프로그래밍의 특성상 commonJS는 파일에서 코드를 동적으로 불러오면 용량의 제한과 방식의 제한이 없는 반면 브라우저는 JS 파일을 저장하지 못하고 매번 불러와야 했기 때문에 로딩과 비동기를 고려해야 했다.  
+commonJS처럼 동기적으로 모듈을 가져오면 필요한 모듈을 전부 다운로드할 때까지 아무것도 할 수 없는 상태가 되기 때문에 생긴 개념이다(commmonJS와 함께 논의하다 합의점을 이루지 못하고 독립한 그룹으로, commonJS가 JS를 브라우저 밖으로 꺼낸 개념이라면, AMD는 브라우저에 중점을 뒀음).  
+또한 commonJS는 tree shaking(import 되었지만 실제로 사용되지 않은 코드를 분석하고 삭제하는 코드 최적화 기술)이 어려운 데다 순환 참조에 취약했다.  
 AMD는 bundler가 필요 없으며 모든 dependency가 동적으로 resolve된다.  
 사용하는 문법은 아래와 같다.
 
@@ -96,9 +139,10 @@ require(['package/myModule'], function (myModule) {
 
 #### 3) UMD(Universal Module Definition)
 
-commonJS와 AMD로 나뉜 모듈 구현방식을 하나로 합치기 위한 패턴이다.  
+commonJS와 AMD로 나뉜 모듈 구현방식을 하나로 합치기 위한 방식이다.  
 사실 그래서 UMD는 모듈 사용 방식이라기 보다는 디자인 패턴에 가깝다고 한다.  
-[공식 UMD 소스코드](https://github.com/umdjs/umd/blob/master/templates/returnExports.js)를 보면 아래와 같이 IIFE를 사용한다.
+Webpack이나 RollUp같은 몇몇 JS 번들러들은 ES6 방식으로 모듈 로드에 실패했을 때 대안책으로 UMD 패턴으로 로드하는 방식을 사용한다.  
+UMD는 [공식 UMD 소스코드](https://github.com/umdjs/umd/blob/master/templates/returnExports.js)를 보면 아래와 같이 IIFE를 사용한다.
 
 ```javascript
 ;(function (root, factory) {
@@ -127,15 +171,105 @@ commonJS와 AMD로 나뉜 모듈 구현방식을 하나로 합치기 위한 패�
 JS 공식 모듈 시스템이다.  
 HTML에서 JS코드를 사용할 때 이 문법을 사용하면 `<script type="module" src="index.mjs">` 식으로 가져올 수 있다.  
 `import`와 `export`라는 키워드를 사용한다.  
-가장 큰 장점은 모듈을 비동기적으로 불러오는 반면 빌드 타임에 정적 분석을 가능하게 한다.  
+가장 큰 장점은 모듈을 비동기적으로 불러오며 빌드 타임에 정적 분석이 가능하여 tree shaking이 쉽다.  
+또한 commonJS와는 다르게 실제 객체/함수를 바인딩하기 때문에 순환 참조 관리도 편하다.  
 모든 브라우저가 지원하는 것은 아니며 ~(RIP IE...)~ Node.js에서도 아직 commonJS가 공식적으로 사용되기 때문에 Babel의 `@babel/plugin-transform-modules-commonjs`를 통해 변환시켜야 한다.
 
-모듈 번들러. 주요 목적은 브라우저에서 사용할 수 있도록 JavaScript 파일을 번들로 묶는 것이지만, 리소스나 애셋(Image, Font 등)을 변환하고 번들링 또는 패키징할 때도 사용됨.
-여러 개의 모듈(js, css, html, image 등)을 하나의 js로 묶어주는 모듈 번들러.
-jsx를 해석해주는 babel을 적용할 수 있고(jsx -> React.createElement), 코드 최적화 수행, console.log()와 같이 실제 서비스에서는 필요 없는 코드를 자동으로 제거하는 등의 기능.
-https://joshua1988.github.io/webpack-guide/webpack/what-is-webpack.html#%EC%9B%B9%ED%8C%A9%EC%97%90%EC%84%9C%EC%9D%98-%EB%AA%A8%EB%93%88
+### bundle
 
-react.createchild
+_참고: https://www.freecodecamp.org/news/javascript-modules-part-2-module-bundling-5020383cf306/ , https://snipcart.com/blog/javascript-module-bundler_
+
+module을 사용하는 것까지는 좋았으나 브라우저 특성상 JS 파일을 동시에 여러 개 호출하면 속도 문제가 발생하거나 특정 JS 파일의 로딩이 지연되면 전체가 늦어지는 문제가 있었다.  
+이러한 문제를 해결하기 위해 등장한 것이 bundle이다.
+
+> As a result, each of those files has to be included in your main HTML file in a `<script>` tag, which is then loaded by the browser when a user visits your home page. Having separate `<script>` tags for each file means that the browser has to load each file individually: one… by… one.
+
+module이 기능에 관한 코드가 모여있는 각각의 파일이었다면 bundle은 모듈들의 의존성을 안전하게 유지시키면서 하나의 파일로 만드는 과정이다.  
+즉, 서로 참조관계를 가지고 있는 모듈들을 모아서 하나의 파일로 묶는 것이라고 할 수 있다.  
+이게 바로 모듈 번들러의 탄생 배경이다.  
+모듈 번들러란 JS 모듈을 브라우저에서 실행할 수 있는 단일 JS 파일로 번들링하는데 사용되는 프론트엔드 개발 도구이다.  
+_모듈 로더(JS 모듈을 런타임에 로드할 수 있게 하는 구현체로 RequireJS나 네이티브 브라우저 등이 포함)와 유사한 부분이 있지만, 모듈 번들러(컴파일 시간에 빌드 산출물을 만들어서 하나의 js파일을 산축)는 코드를 프로덕션 환경에서 사용할 수 있도록 준비하는 데 더 큰 목적이 있음._
+
+번들링 과정은 두 가지 과정(**dependency graph generation, eventual bundling**)으로 진행된다.
+
+1. dependency graph generation은 모듈 간의 관계 지도를 만드는 것이다. 이 과정을 위해서는 `index.js`와 같은 entry file이 필요하며 이 entry file을 바탕으로 각각의 파일에 unique ID를 부여한 뒤 dependency order를 만든다. 이 과정을 통해 naming conflict을 해결하며 사용되지 않은 파일을 찾아 제거한다.
+2. 이후 bundler는 브라우저가 처리할 수 있는 static asset을 만든다. 이 과정을 *Packing*이라 하며, bundler는 dependency graph를 활용하여 여러 코드 파일을 통합하고 필요한 함수 및 `module.exports` 개체를 삽입하고 브라우저가 성공적으로 로드할 수 있는 단일 실행 파일 bundle을 반환한다.
+
+bundler마다 약간의 차이가 있을 수는 있지만, 이러한 과정을 통해 bundling을 진행하면 다음과 같은 장점이 있다.
+
+1. 모든 모듈을 로드하기 위해 검색하는 시간을 단축 가능하다.
+2. 사용하지 않는 코드(공백, 주석, 줄바꿈 문자 등)와 파일을 제거함으로써 브라우저가 리소스를 더 빠르게 불러올 수 있도록 도와준다. 렌더 트리를 그리기 위해 파싱하는 시점도 빨라질 수 있다.
+
+### 그래서 webpack이 뭔데, 뭐가 좋은데
+
+- 많은 서드 파티를 필요로 하는 복잡한 애플리케이션이라면 Webpack이 가장 적합하다고 한다.
+
+1. **code splitting**
+
+특정 상황에서만 필요한 코드 블록이 있는 web application의 경우 전체 코드 베이스를 하나의 대용량 번들 파일에 넣는 것은 효율적이지 않다.  
+이 경우 code splitting은 요청 시에만 로드할 수 있는 bundle chunk로 코드를 쪼갬으로써 'big up-front payload' 문제를 방지할 수 있다.  
+(RollUp이나 Parcel도 code splitting을 지원하며 더 빠르지만 안정성 측면에서는 Webpack이 더 좋다고 함)
+
+2. **리소스 및 애셋**
+
+리소스(CSS)나 애셋(Image, Font 등)들도 JS 코드로 변환하고 이를 분석해서 bundling하는 방식을 제공한다. 다만 이 때문에 다른 bundler에 비해 설정할 게 많고 복잡하다.
+
+3. **HMR(Hot Module Replacement)**
+
+새로고침 없이 런타임에 브라우저의 모듈을 업데이트할 수 있는 기능이다. 개발할 때 코드를 저장하면 화면이 깜빡이면서 화면 전체가 reloading되는 것을 방지한다는 말이다. Webpack은 기본적으로 해당 옵션이 활성화된 `webpack-dev-server`(Webpack 자체 웹 서버)만 설치하면 되지만, RollUp과 Parcel을 별도의 dependency와 설정을 추가해주거나 특정 상황에서는 잘 동작하지 않는 경우를 보인다고 한다.
+
+### 다른 모듈 번들러와 비교
+
+_참고: https://betterprogramming.pub/the-battle-of-bundlers-6333a4e3eda9_
+
+**Browserify**
+
+commonJS 즉, Node.js와 똑같은 방식의 module bundler이다.  
+Webpack은 모든 기능을 포함해 구현하고 최적화하는 반면 Browerify는 핵심적 요소만 충실히 구현하고 다른 기능이 필요할 땐 외부에서 구현한 모듈을 조합해 사용하므로 속도 측면에서 우수하다.
+
+**RequireJS**
+
+AMD API 명세를 구현한 구현체이다.  
+[사용할 일은 없을 듯](https://d2.naver.com/helloworld/591319)
+
+**RollUp**
+
+- 최소한의 서드파티로 라이브러리를 만들고 싶을 때 가장 적합하다고 한다.
+
+Webpack가 가장 큰 차이점이자 장점은 ES6 모듈 형식으로 빌드 결과물을 출력한다는 것이다. 로더가 ES6 모듈을 따르기 때문인데, 이를 라이브러리나 패키지 개발에 활용할 수 있다.  
+이 때문에 code splitting에서 entry point가 달라서 중복해서 번들될 수 있는 부분을 알아내고 독립된 모듈로 분리할 수 있다.
+
+**Parcel**
+
+- 복잡한 설정을 피하고 비교적 간단한 애플리케이션을 만들 때 적합하다고 한다.
+
+별도의 설정이 없이 동작 가능하다는 *zero config*가 가장 두드러진 특징이다. 설치만 하면 설정 파일 없이 빌드 명령어를 입력해서 사용할 수 있다. Webpack과 달리 JS 엔트리 포인트를 지정해주는 것이 아니라 애플리케이션 진입을 위한 HTML 파일을 자체적으로 읽을 수 있다.
+RollUp, Webpack과 비교했을 때 Dead code elimination(==tree shaking) 면에서 가장 우수하다.  
+Module transformation(JS 외의 파일을 만나면 dependency graph에 추가하고 bundle 작업하는 것)이 가장 똑똑하다. RollUp이나 Webpack은 파일 타입을 명시한 뒤 변환하고 설치하고 설정(`specify file types to transform, install and configure`)해야 하지만 Parcel은 built-in support가 된다.
+
+### bundler 단점
+
+_참고: https://yozm.wishket.com/magazine/detail/1261/_
+
+번들러가 기존 모듈 방식의 문제점을 해결할 수 있었지만, 속도가 문제로 제기됐다.  
+기존에는 그냥 js를 작성하면 바로 브라우저에서 실행할 수 있었지만, 이제 모든 파일을 하나로 만드는 작업이 선행되어야 한다.  
+즉, 수정할 때마다 매번 새롭게 빌드가 필요했고 심지어 빌드 속도가 느렸다.  
+이러한 문제를 해결하며 나온 것이 esbuild라는 빌드 도구가 나왔다.  
+esbuild는 편의성 문제로 사용되지는 않았으나 2020년 snowpack이 나오면서, 그리고 조금더 개선한 vite가 나오면서 안정적으로 사용되고 있다.
+
+~아직 사용해보지 않았으니 나중에 사용하게 되면 추가해보자~
+
+### 궁금했던 점
+
+**Q. ES6 문법은 자동으로 번들링 해주는건가?**
+
+이게 무슨 궁금증인가 싶을텐데, React를 사용할 때 bundler 설정을 따로 해준 적이 없는데 자동으로 chunk된 JS들이 로딩되는 것을 크롬 network 탭에서 목격했다.  
+[공식문서](https://reactjs.org/docs/create-a-new-react-app.html)에 따르면
+
+> Under the hood, it(Create React App) uses Babel and webpack, but you don’t need to know anything about them.
+
+이란다.  
+자동으로 생성되는 것을 막거나 override 하고 싶다면 [여기](https://blog.devgenius.io/how-to-create-a-react-app-without-using-create-react-app-c004a62b52fc)나 [여기](https://marmelab.com/blog/2021/07/22/cra-webpack-no-eject.html)를 참고하면 될 듯 싶다.
 
 ## 3. Node.js
 
