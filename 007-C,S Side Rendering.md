@@ -65,7 +65,7 @@ Remix, Next.js, Gatsby 세 개 다 써보지 않아서 정확한 비교는 내�
 CSR, SSR에 대한 것만 정리하자면 세 가지 프레임워크 모두 React의 CSR을 극복할 수 있다.  
 Remix는 SSR만 제공하는 것 같다.  
 Next.js는 CSR, SSR을 모두 제공할 수 있다.  
-Gatsby는 서버 없이, 오로지 정적 사이트 생성을 위해 사용하는 프레임워크이다.
+Gatsby는 정적 사이트 생성(SSG)을 위해 사용하는 프레임워크로 SSR, CSR, lazy loading 등의 기능도 지원한다. 작은 서비스에 좋은 수단이 될 수 있다.
 
 ## 3. Next
 
