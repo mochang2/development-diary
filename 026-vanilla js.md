@@ -271,6 +271,10 @@ esbuild는 편의성 문제로 사용되지는 않았으나 2020년 snowpack이 
 이란다.  
 자동으로 생성되는 것을 막거나 override 하고 싶다면 [여기](https://blog.devgenius.io/how-to-create-a-react-app-without-using-create-react-app-c004a62b52fc)나 [여기](https://marmelab.com/blog/2021/07/22/cra-webpack-no-eject.html)를 참고하면 될 듯 싶다.
 
+아래 사진은 CRA로 생성했던 내 프로젝트의 build 산출물이다(따로 웹팩을 건든적이 없다)
+
+![cra 프로젝트 build 산출물](https://user-images.githubusercontent.com/63287638/183119085-0ddc744b-66fb-4d94-9a45-94be6a548f3a.png)
+
 ## 3. Node.js
 
 기존의 JS는 HTML에 독립적으로 실행할 수 없는 프로그래밍 언어였다(`<script>` 태그 사용했어야 함).  
