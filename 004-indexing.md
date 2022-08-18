@@ -157,3 +157,25 @@ _사진 출처: https://docs.mongodb.com/manual/indexes/_
 
 > db.orders.find( { field1: "what1", field2: { $ne: "what2" } } )
 ```
+
+## 4. Clustered Index vs Non-Clustered Index
+
+**clustered index**는(인덱스와 데이터와 군집됨) 데이터가 테이블에 물리적으로 저장되는 순서를 정의한다.  
+만약 id에 인덱싱이 걸려 있고, id가 1~4까지의 데이터가 있다고 하자.  
+이때 id가 2인 데이터를 추가하고자 한다면 기존의 2~4까지의 데이터가 한 칸씩 밀린다.  
+즉, insert에 시간이 많이 소모된다.
+따라서 테이블이 자주 업데이트 되지 않으며 항상 정렬된 방식으로 데이터를 반환해야 되는 경우 사용된다.  
+참고로 clustered index는 pk값과는 별개로 생성할 수 있으며 테이블 하나당 하나만 생성할 수 있다.
+
+다음과 같은 구조를 가지고 있다.
+
+![clustered index](https://user-images.githubusercontent.com/63287638/185512418-f3a7791c-0c54-4887-9e36-832b54f858e2.png)
+
+반대로 **non-clustered index**는 책의 목차와 같이 index를 별도의 장소에 저장한다.  
+`where`절이나 `join` 절과 같이 조건문을 활용하여 테이블을 필터링 하고자 할 때나 데이터가 자주 업데이트될 때, 특정 컬럼이 쿼리에서 자주 사용될 때 사용된다.  
+하나의 테이블당 여러 개의 index를 가질 수 있다.
+
+다음과 같은 구조를 가지고 있기 때문에 저장되는 별도의 공간이 필요하다.  
+아래 사진의 예시로는 `1번은 201에 가면 그 주소를 알 수 있다, 102번의 1번째가 ‘한국’이란 데이터이다.`로 표현할 수 있다.
+
+![non-clustered index](https://user-images.githubusercontent.com/63287638/185512414-f79df8ec-ef99-4193-8f7e-e2bb9d28c7d1.png)
