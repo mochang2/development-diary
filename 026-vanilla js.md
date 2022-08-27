@@ -431,3 +431,112 @@ _참고: https://velog.io/@songyouhyun/Package.json%EA%B3%BC-Package-lock.json%E
 
 세 번재 조건에 대한 부연 설명이다.  
 직접 수동으로 `node_modules/foo/lib/bar.js`라는 파일을 추가하면 `node_modules/foo`의 수정된 시간이 이 변경 사항을 반영하지 않으므로 `node_modules/.package-lock.json`에서 파일을 삭제해야 된다는 말이다.
+
+## 4. DOM
+
+### innerHTML
+
+참고: https://velog.io/@1106laura/insertAdjacentHTML
+
+DOM 요소 내부의 내용을 변경하는데 사용된다.
+
+`innerHTML`은 요소 내에 포함된 HTML을 가져오고, 문자열처럼 '='이나 '+=' 연산자로 해당 내용을 추가하거나 변경할 수 있도록 해준다.  
+`innerHTML`이 실행되면 해당 요소 내의 DOM Tree가 초기화되고 대입해준 값으로 대체된다.
+
+아래와 같은 방법으로 사용된다.
+
+```javascript
+const body = document.querySelector('body')
+body.innerHTML = ''
+```
+
+다만 *변경*이 아닌 *삽입*만 필요한 상황이라면 아래의 `insertAdjacentHTML`이 더 효율적이다.
+
+```javascript
+const foodArray = ['김밥', '방어', '사과', '오렌지']
+const FOOD_TEMPLATE = (food) => '<div class="list_food">' + food + '</div>'
+foodArray.forEach((food) => (body.innerHTML += FOOD_TEMPLATE(food)))
+```
+
+위 코드를 실행되면 아래와 같은 html 결과가 생성될 것이다.
+
+```html
+<div class="list_food">김밥</div>
+<div class="list_food">방어</div>
+<div class="list_food">사과</div>
+<div class="list_food">오렌지</div>
+```
+
+다만 이는 효율적인 코드가 아니다.  
+아래와 같은 연산이 반복되어 일어나며 반복적으로 리렌더링 되기 때문이다.
+
+```javascript
+body.innerHTML = '<div class="list_food">김밥</div>'
+body.innerHTML =
+  '<div class="list_food">김밥</div><div class="list_food">방어</div>'
+body.innerHTML =
+  '<div class="list_food">김밥</div><div class="list_food">방어</div><div class="list_food">사과</div>'
+body.innerHTML =
+  '<div class="list_food">김밥</div><div class="list_food">방어</div><div class="list_food">사과</div><div class="list_food">오렌지</div>'
+```
+
+위 방법을 보완하기 위해 `forEach` 대신 `reduce`를 사용할 수 있지만 그럼에도 더 빠른 아래 방법이 있다.
+
+### insertAdjacentHTML
+
+DOM 요소를 삽입할 때 쓰인다.  
+[MDN](https://developer.mozilla.org/ko/docs/Web/API/Element/insertAdjacentHTML)과 https://dev.to/jeannienguyen/insertadjacenthtml-vs-innerhtml-4epd 에 따르면
+
+> `insertAdjacentHTML` 메서드는 HTML or XML 같은 특정 텍스트를 파싱하고, 특정 위치에 DOM tree 안에 원하는 node들을 추가 한다. 이미 사용중인 element 는 다시 파싱하지 않는다. 그러므로 element 안에 존재하는 element를 건드리지 않는다. `innerHtml`보다 작업이 덜 드므로 빠르다.
+
+> `insertAdjacentHTML` 메서드는 호출된 element를 reparse하지 않으므로 요소를 손상시키지 않는다. `insertAdjacentHTML`는 element를 연속적으로 serialize하고 reparse하지 않기 때문에 콘텐츠가 많을 때마다 추가 속도가 느려지는 `innerHtml`보다 훨씬 빠르다.
+
+`$element.insertAdjacentHTML(position, text)`와 같은 방식으로 사용된다.
+position은 `beforebegin`, `afterbegin`, `beforeend`, `afterend`만 가능하다.
+text는 HTML 또는 XML 형태의 문자열을 의미한다.
+
+```html
+<!-- beforebegin 형제 요소로, 앞에 -->
+<body>
+  <!-- afterbegin 자식 요소로, 맨앞에 -->
+  <!-- insert here something -->
+  <!-- beforeend 자식 요소로, 맨뒤에-->
+</body>
+<!-- afterend 형제 요소로 뒤에-->
+```
+
+위 body 안에 무언가 element를 삽입하고 싶다면 아래와 같이 사용하면 된다.
+
+```javascript
+const foodArray = ['김밥', '방어', '사과', '오렌지']
+const FOOD_TEMPLATE = (food) => '<div class="list_food">' + food + '</div>'
+foodArray.forEach((food) =>
+  body.insertAdjacentHTML('afterbegin', FOOD_TEMPLATE(food))
+) // 또는 'beforeend'
+```
+
+### cloneNode
+
+`Node.cloneNode()` 메서드는 이 메서드를 호출한 Node의 복제된 Node를 반환한다.
+
+`const dupNode = node.cloneNode(option)`과 같은 문법으로 사용된다.
+
+- node: 복제되어야 할 node
+- dupNode: 복제된 새로운 node
+- option?: node의 children까지 복제할지, 해당 node만 복제할지 여부. default: false
+
+```javascript
+const test = document.getElementById('cloneTest')
+// test 변수에 복제 할 노드를 지정
+
+const testClone1 = test.cloneNode()
+const testClone2 = test.cloneNode()
+const testClone3 = test.cloneNode()
+// 복사할 개수만큼 복제변수를 생성
+
+body.appendChild(testClone1)
+body.appendChild(testClone1)
+body.appendChild(testClone1)
+```
+
+이 메서드를 사용할 때 주의할 점은 duplicated element ID를 생성할 수 있다는 점이므로, `id` property를 부여한 node라면 지양하는 게 좋을 거 같다.

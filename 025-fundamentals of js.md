@@ -11,6 +11,7 @@
 - [event bubbling](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#5-event-bubbling)
 - [async vs defer](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#6-async-vs-defer)
 - [event loop](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#7-event-loop)
+- [immutability](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#8-immutability)
 
 ## 1. GC(garbage collection)
 
@@ -173,6 +174,70 @@ function removeImage() {
 
 위 예시는 극단적인 예시같지만, 만약 어떠한 변수가 html 테이블에서 td를 참조하고 있다고 가정할 때는 문제가 심각해진다.  
 만약 테이블 자체를 삭제해도 td를 참조하고 있는 변수가 GC에 의해 release되지 않으면 테이블 전체가 메모리에 남아있게 된다.
+
+### WeakRef
+
+참고: https://blog.shiren.dev/2021-08-30/
+
+ECMAScript 2021에 나온 최신 문법이다.  
+[MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakRef)에 따르면
+
+> WeakRef 개체에는 대상 또는 참조라고 하는 개체에 대한 약한 참조가 포함되어 있습니다.
+> 개체에 대한 약한 참조는 개체가 가비지 수집기에 의해 회수되는 것을 막지 않는 참조입니다. 반대로 일반(또는 강력한) 참조는 객체를 메모리에 보관합니다.
+> 개체가 더 이상 강력한 참조를 갖지 않으면 JavaScript 엔진의 가비지 컬렉터가 개체를 삭제하고 해당 메모리를 회수할 수 있습니다.
+> 그렇게 되면 더 이상 약한 참조에서 객체를 얻을 수 없습니다.
+
+기존에 JS는 강한 참조밖에 없었기 때문에, 아무리 메모리를 많이 잡아먹어도 어떤 객체나 데이터가 참조되고 있었다면 해당 객체나 데이터는 GC의 대상이 되지 않았다.  
+그리고 이러한 현상이 메모리 누수로 이어졌다.  
+`WeakRef`는 새로운 참조 방식으로 '알고 있지만 GC의 대상이 되는' 참조이다.  
+**객체가 약한 참조로만 참조되고 있다면 아무도 모르는 것과 동일하게 언젠가 사라질 수 있다**
+
+```javascript
+const map = new Map()
+
+const obj = { data: new Array(10000).join('*') }
+
+map.set('someData', obj)
+
+setInterval(() => {
+  console.log(map.get('someData').data)
+}, 1000)
+```
+
+위 코드에서 `obj`가 `map`에 저장되어 있고, `setInterval`에 의해 `map`이 지속적으로 불리기 때문에 콜백이 실행될 때마다 데이터의 존재가 보장된다.  
+반면 `WeakRef`를 사용하는 아래 코드는 그렇지 않다.
+
+```javascript
+const map = new Map()
+
+const obj = { data: new Array(10000).join('*') }
+
+map.set('someData', new WeakRef(obj))
+
+setInterval(() => {
+  console.log(map.get('someData').deref().data) // 참조하는 대상이 GC에 의해 회수됐다면 deref()는 undefined를 반환
+}, 1000)
+```
+
+일정 시간이 지나면 GC에 의해 `obj`의 메모리가 회수된다.  
+따라서 `sestInterval`의 콜백은 객체의 존재를 보장받지 못하기 때문에 콜백에서 에러가 발생한다.
+
+### Finalizers
+
+`WeakRef`에서 *있을 수도 있고, 없을 수도 있음*이라는 개념을 사용하기 위해서는 해당 객체가 언제 없어졌는지도 알 필요가 있다.  
+`Finalizers`는 이벤트 기반으로 옵저버 패턴 또는 구독 패턴과 비슷한 패턴을 사용하고 있다.
+
+```javascript
+const weakObj = {}
+const gcCallback = (value) => console.log(value)
+
+const finalizer = new FinalizationRegistry(gcCallback)
+finalizer.register(weakObj, 'GC 당한 weakObj', weakObj)
+// 인자: 관심 객체, GC 되었을 때 해야할 작업 callback, 관심 객체에 대해 더이상 관심이 없어질 때 finalizer에 전달할 토큰(일반적으로 해당 객체 그 자체)
+
+// 세 번째 인자인 토큰을 통해 unregister 가능
+finalizer.unregister(weakObj)
+```
 
 ## 2. prototype
 
@@ -1098,3 +1163,79 @@ requestAnimationFrame API가 실행되면 콜백이 Animation Frames으로 담�
 크롬 기준으로 Microtask Queue > Animation Frames > Callback Queue(Task Queue) 순으로 실행된다.
 
 ~requestAnimationFrame API를 사용해본 것이 아니라 정확하지 않을 수 있다. 추후에 사용하는 일이 있다면 자세히 알아봐야겠다~
+
+## 8. immutability
+
+JS에서는 객체 관리를 '불변'하게 한다.  
+이 말 뜻은 객체가 생성된 이후 그 상태를 변경할 수 없다는 것이다.  
+여기서 상태를 변경한다는 것과 값을 재할당하는 것은 다른 의미이다.
+
+https://sustainable-dev.tistory.com/156 의 말을 빌려보자면 불변성은
+
+> 불변성을 지켜 명시적으로 작성된 코드는 다른 개발자가 코드를 보았을 때도 내가 모르는 어딘가에서 데이터가 변화했을거야! 라는 불필요한 의심없이 코드를 읽는 그대로 흐름을 따라가면서 이해할 수 있도록 돕는다.
+> 따라서 불변성을 지키면서 데이터를 변화시킨다면, 예상가능하고 신뢰할 수 있는 코드가 될 수 있다.
+> 애초에 불변성을 지켜야 한다는 것은 리액트가 만들어낸 새로운 컨셉이 아니라 불변성이라는 개념을 지켜가면서 state와 props를 이용할 수 있도록 하는 아이디어를 리액트에 녹여낸 것이다.
+
+JS에서 primitive type들, 즉 Boolean, String, Number, Null, Undefined, Symbol이 불변하는 타입들이다.
+이 값들은 메모리 영역 안에서 변경이 불가능하며 변수에 할당할 때 완전히 새로운 값이 만들어져서 할당된다.
+
+```javascript
+let str = 'str'
+let newStr = str
+str = 'str2'
+
+console.log(str) // 'str2'
+console.log(newStr) // 'str'
+```
+
+1. 'str'라는 string 타입의 값이 메모리에 생성되고, `str`은 'str' 메모리 값을 가리킨다.
+2. `newStr`은 `str`이 가리키고 있는 주소 'str'을 가리킨다.
+3. 'str2'라는 string 타입의 값이 메모리에 생성되고, `str`은 'str2' 메모리 값을 가리킨다.
+
+최종적으로 `newStr`은 여전히 'str'를 가리키고 있으며 `str`은 'str2'를 가리키고 있다.
+
+![불변성](https://user-images.githubusercontent.com/63287638/187007654-1747df62-9714-42f1-8b31-7b2df0c57120.png)
+
+### const
+
+`let`과 달리 `const`는 재선언 및 재할당이 불가능하다.  
+다만, `const`는 선언한 변수 값이 불변하다는 의미가 아니라, `const`는 값에 대한 '참조'가 한 번 변수에 할당되고 나면 변할 수 없음을 의미하는 것이다.  
+`const` 변수가 참조하고 있는 '값'이 불변한다는 것을 의미하지 않는다.
+
+위 예시에서 `let` 대신에 `const`를 선언하면 `str = 'str2'` 구문에서 에러가 발생한다.
+
+### 객체의 불변성?
+
+위에서 말한 primitive type을 제외한 모든 object들은 mutable하다.  
+즉, 새로운 값이 만들어지지 않고 직접적으로 변경이 가능하다는 것이다.
+
+```javascript
+const x = {
+  // let이어도 동일한 결과
+  name: '123',
+}
+
+const y = x
+
+x.name = '456'
+
+console.log(y.name) // 456
+console.log(x === y) // true
+```
+
+1. `x`에 새로 만든 객체를 할당한다.
+2. `y`가 `x`가 가리키고 있는 객체의 주소를 똑같이 가리킨다.
+3. `x`가 가리키고 있는 객체의 `name`에 '123'이라는 string 데이터를 다시 할당한다.
+4. `y.name`을 출력하면 `456`이 출력되는데, y는 x가 가리키고 있는 값, 원래는 `{name: '123'}` 었다가 지금은 `{name: '456'}` 으로 변화한 데이터의 주소를 똑같이 참조하고 있기 때문이다.
+5. 따라서 마지막 구문에서도 `x`와 `y`는 똑같은 데이터를 가리키고 있기 때문에 `true`가 출력된다. ~사실 객체는 얕은 참조라서 `false`가 나올 줄 알았는데 같은 주소값을 가리키므로 `true`가 나오는 게 맞는 것 같다.~
+
+배열도 object이므로 위와 같은 시도를 할 때 동일한 결과가 발생한다.
+
+객체는 불변하지 않다.  
+다만 불변성을 지키기 위한 경우가 필요하다.
+
+- 스프레드 문법 사용
+- `immer` 라이브러리 사용
+- `Object.freeze()` 내장 함수 사용
+
+위 세 가지 방법을 통해 불변성을 지킬 수 있다.
