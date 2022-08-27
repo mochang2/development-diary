@@ -6,14 +6,83 @@ React? Vue? 아무리 개발을 해봐도 근본을 모르면 말짱 도루묵�
 
 ## 1. babel
 
-ES6에서 JS 표준 모듈 문법이 정의되었음에도 ES6 문법을 구형 브라우저에서 사용하지 못해 SystemJS 같은 또 다른 라이브러리에 의존했어야 함.  
-트랜스파일러, 즉 한 번 컴파일하면 구형 브라우저에서도 동작하는 JS 코드가 나오게 만드는 도구가 필요했음.
+JS는 ES6에서 JS 표준 모듈 문법이 정의되었음에도 ES6 문법을 구형 브라우저에서 사용하지 못해 SystemJS 같은 또 다른 라이브러리에 의존했어야 했다.
 
-js 컴파일러. 소스 코드를 웹 브라우저가 처리할 수 있는 JS 버전으로 변환. 새로운 ESNext 문법을 사용하여 개발할 때, 지원하지 않는 브라우저에서 오류가 나지 않도록 하기 위해.
-.babelrc
+[공식문서](https://babeljs.io/docs/en/)에 따르면
 
-- polyfill
-  => 개발자가 특정 기능이 지원되지 않는 브라우저를 위해 사용할 수 있는 코드 조각이나 플러그인.
+> Babel is a JavaScript compiler.
+
+바벨은 자바스크립트 컴파일러이다.  
+JS 자체는 인터프리터 언어이지만 JS를 또 다른 JS 결과물로 만들어줄 필요가 있고, 바벨은 이러한 행위를 하기 때문에 *소스 대 소스 컴파일러*라고 불린다.  
+따라서 바벨이 하는 가장 중요한 일은 **ES6 이후의 문법들이 구형 브라우저에서도 돌아갈 수 있도록 컴파일**하는 것이다.
+
+이외에도 babel은 polyfill, source code transformation, type annotation 등의 기능을 제공한다.
+
+### polyfill
+
+babel을 사용한다고 반드시 JS 최신 함수를 사용할 수 있는 것은 아니다.  
+babel은 문법을 변환해주는 역할만 할 뿐이고 실제로 최신 문법의 코드들이 브라우저에서 동작할 수 있도록 각 함수를 검사해서 object의 proptotype에 추가하는 역할을 한다.  
+즉, babel은 컴파일 타임에, babel-polyfill은 런타임에 실행된다.
+
+[모던 JS 튜토리얼](https://ko.javascript.info/polyfills)에 따르면
+
+> 명세서엔 새로운 문법이나 기존에 없던 내장 함수에 대한 정의가 추가되곤 합니다. 새로운 문법을 사용해 코드를 작성하면 트랜스파일러는 이를 구 표준을 준수하는 코드로 변경해줍니다. 반면, 새롭게 표준에 추가된 함수는 명세서 내 정의를 읽고 이에 맞게 직접 함수를 구현해야 사용할 수 있습니다. 자바스크립트는 매우 동적인 언어라서 원하기만 하면 어떤 함수라도 스크립트에 추가할 수 있습니다. 물론 기존 함수를 수정하는 것도 가능합니다. 개발자는 스크립트에 새로운 함수를 추가하거나 수정해서 스크립트가 최신 표준을 준수 할 수 있게 작업할 수 있습니다.
+> 이렇게 변경된 표준을 준수할 수 있게 기존 함수의 동작 방식을 수정하거나, 새롭게 구현한 함수의 스크립트를 "폴리필(polyfill)"이라 부릅니다. 폴리필(polyfill)은 말 그대로 구현이 누락된 새로운 기능을 메꿔주는(fill in) 역할을 합니다.
+
+[core js](https://github.com/zloirock/core-js)는 다양한 폴리필을 제공해주며,  
+[polyfill.io](https://polyfill.io/v3/)는 기능이나 사용자의 브라우저에 따라 폴리필 스크립트를 제공해주는 서비스이다.
+
+바벨이 특정한 대상 환경을 지원하기 위해 어떤 JS polyfill을 사용해야 할지 결정하려면 [여기](https://kangax.github.io/compat-table/es6)를 참조하자.
+
+### type annotation
+
+참고: https://ui.toast.com/weekly-pick/ko_20181220
+
+JS나 TS에서 타입 **표기**에 대해 도와준다.  
+착각하기 쉬운 부분이지만, 타입 **체킹**을 도와주는 것이 아니다.  
+[Flow preset](https://babeljs.io/docs/en/babel-preset-flow), [Typescript preset](https://babeljs.io/docs/en/babel-preset-typescript) 등을 통해 사용 가능하다.
+
+flow preset은
+
+`npm install --save-dev @babel/preset-flow`
+
+```javascript
+// flow 자체가 JS에 대한 static type checker이다.
+
+// in
+// @flow
+function square(n: number): number {
+  return n * n
+}
+
+// out
+function square(n) {
+  return n * n
+}
+```
+
+typescript preset은
+
+`npm install --save-dev @babel/preset-typescript`
+
+```typescript
+// in
+function Greeter(greeting: string) {
+  this.greeting = greeting
+}
+
+// out(ts 부분을 완전히 지워버림)
+function Greeter(greeting) {
+  this.greeting = greeting
+}
+```
+
+'typescript는 `tsc` 명령어로 ES5로 변환시켜주는데 굳이 tsc와 babel을 같이 사용할 필요가 있는가?' 싶었다.  
+(참고로, tsc와 babel을 동시에 사용한다면 컴파일러의 순서는 TS -> (ts-node 등 tsc) -> JS -> (babel) -> JS이다)  
+하지만 동시에 사용하면 두 가지 이점이 있다.
+
+1. 컴파일이 빠르다. 바벨의 캐싱과 단일 파일 방출 설계(?) 덕분에 더욱 빠른 컴파일 속도를 제공한다.
+2. 원할 때만 타입 체킹할 수 있다. babel 컴파일러는 ts를 완전히 지워버리기 때문에 한참 코딩하고 타입 체킹 없이 컴파일을 빠르게 해야 할 때 유용하다.
 
 ### 궁금했던 점
 
@@ -53,8 +122,6 @@ const Box = () => {
 ```
 
 ## 2. Webpack
-
-// import axios from 'axios' <- import axios from '../../node_modules/axios/bin..' 하게 해주는 게 webpack
 
 Webpack은 module bundler이다.
 
@@ -542,3 +609,111 @@ body.appendChild(testClone1)
 ```
 
 이 메서드를 사용할 때 주의할 점은 duplicated element ID를 생성할 수 있다는 점이므로, `id` property를 부여한 node라면 지양하는 게 좋을 거 같다.
+
+### HTMLCollection vs NodeList
+
+참고: https://yung-developer.tistory.com/m/79 , https://stackoverflow.com/questions/32486199/whats-the-difference-between-live-and-not-live-collection-in-javascript-selecto
+
+이 둘을 비교하기 전에 **live dom collection**과 **non-live dom collection**을 먼저 비교할 필요가 있다.
+
+- live dom collection
+  - DOM에 변화가 생길 때 collection에도 변화가 생기는 것을 말한다.
+  - node에 변화가 생길 때 그 내용도 변한다.
+  - `document.getElementsByClassName()`, `document.getElementsByTagName()`, `document.getElementsByName()` 등이 이에 속하는 DOM API이다.
+- non-live dom collection
+  - DOM에 변화가 생겨도 collection에 해당 변화가 반영이 되지 않는 것을 말한다.
+  - request가 발생할 때마다만 변화가 compute 된다.
+  - 이 경우는 live dom collection과 달리 DOM의 각 수정(내용, 속성, 클래스)이 컬렉션의 각 요소를 re-evaluate해야 하기 때문에 비용이 많이 든다. 최대 O(the umber of all elements in the DOM \* the number of active `querySelectorAll()` collections)의 시간 복잡도를 가진다.
+  - `document.querySelectorAll()` 등이 이에 속하는 DOM API이다.
+
+HTMLCollection은 live dom collection 객체이다.
+
+```html
+<!DOCTYPE html>
+<html lang="kr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>test</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="greeting">Hello</div>
+    </div>
+  </body>
+  <script>
+    const app = document.getElementById('app')
+    const greeting = document.getElementsByClassName('greeting')
+    console.log(greeting, greeting.length) // HTMLCollection [div.greeting] 1
+    app.insertAdjacentHTML('beforeend', '<div class="greeting">Hello2</div>')
+    console.log(greeting, greeting.length) // HTMLCollection(2) [div.greeting, div.greeting] 2
+  </script>
+</html>
+```
+
+처음에 'greeting'이라는 className을 가진 element는 하나밖에 없어 첫 번째 `console.log`에서는 길이를 1로 출력한다.  
+하지만 `insertAdjacentHTML`을 실행한 뒤에는 'greeting'을 재선언하거나 재할당하지 않았음에도 `console.log`에서 길이가 2로 변경된다.  
+이는 HTMLCollection이 live dom collection 객체이기 때문이다.
+
+반면 NodeList는 non-live dom collection 객체이다.
+아래와 같은 경우는 `console.log`의 결과가 달라지지 않는다.
+
+```html
+<!DOCTYPE html>
+<html lang="kr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>test</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="greeting">Hello</div>
+    </div>
+  </body>
+  <script>
+    const app = document.getElementById('app')
+    const greeting = document.querySelectorAll('.greeting')
+    console.log(greeting, greeting.length) // NodeList [div.greeting] 1
+    app.insertAdjacentHTML('beforeend', '<div class="greeting">Hello2</div>')
+    console.log(greeting, greeting.length) // NodeList [div.greeting] 1
+  </script>
+</html>
+```
+
+하지만 *주의할 점*은 모든 NodeList 객체가 non-live dom collection인 것은 아니다.  
+`childNodes`라는 property를 통해 반환하는 NodeList 객체는 live dom collection이다.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>test</title>
+  </head>
+  <body id="app">
+    <ul id="students">
+      <li class="frontend">s1</li>
+      <li class="frontend">s2</li>
+    </ul>
+  </body>
+  <script>
+    const $students = document.getElementById('students')
+    const childNodes = $students.childNodes
+
+    console.log(childNodes instanceof NodeList) // true
+    console.log(childNodes)
+    // NodeList(5) [text, li.frontend, text, li.frontend, text]
+    // childNodes는 요소노드 뿐만아니라 공백 텍스트 노드(엔터 키)도 포함되어 있다.
+
+    for (let i = 0; i < childNodes.length; i++) {
+      // removeChild 메서드가 호출될 때마다 NodeList live 객체인 childNodes가 실시간으로 변경된다.
+      // 따라서 첫 번째, 세 번째, 다섯 번째 요소만 삭제된다.
+      $students.removeChild(childNodes[i])
+    }
+
+    console.log(childNodes) // NodeList(2) [li.frontend, li.frontend]
+  </script>
+</html>
+```
+
+추가 사항으로, NodeList와 HTMLCollection은 유사 배열 객체이지만 `Array.prototype`에 있는 배열의 메서드를 대부분 사용하지 못 한다.  
+다만 NodeList는 예외적으로 `forEach` 메서드를 사용할 수 있다.
