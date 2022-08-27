@@ -1194,7 +1194,7 @@ console.log(newStr) // 'str'
 
 최종적으로 `newStr`은 여전히 'str'를 가리키고 있으며 `str`은 'str2'를 가리키고 있다.
 
-![불변성](https://user-images.githubusercontent.com/63287638/187007654-1747df62-9714-42f1-8b31-7b2df0c57120.png)
+![immutability](https://user-images.githubusercontent.com/63287638/187012810-6c9b6161-c903-4e2a-ba5a-a557cdd9bf8a.png)
 
 ### const
 

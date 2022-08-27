@@ -54,6 +54,8 @@ const Box = () => {
 
 ## 2. Webpack
 
+// import axios from 'axios' <- import axios from '../../node_modules/axios/bin..' 하게 해주는 게 webpack
+
 Webpack은 module bundler이다.
 
 ### module
