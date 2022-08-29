@@ -344,7 +344,65 @@ esbuild는 편의성 문제로 사용되지는 않았으나 2020년 snowpack이 
 
 ![cra 프로젝트 build 산출물](https://user-images.githubusercontent.com/63287638/183119085-0ddc744b-66fb-4d94-9a45-94be6a548f3a.png)
 
-## 3. DOM API
+## 3. DOM 관련 내용
+
+### data-\* 속성
+
+HTML5부터 추가된 개념으로 '사용자 지정 데이터 특성'이라는 특성 클래스를 형성할 수 있다.  
+해당 특성을 이용해 page나 application에 private한 custom data를 저장하거나, HTML element에 custom data attirbute를 embed할 수 있다.  
+이를 통해 BE에 Ajax 호출 없이 데이터를 보관할 수 있는 방법으로 사용할 수도 있다(다만 크롤링되어야 하거나 secret한 내용을 담기에는 적합하지 않은 속성이다).  
+하나의 element에 여러 개의 data-\* 속성이 포함될 수 있다.
+
+다음과 같은 두 가지 규칙을 지켜야 된다.
+
+1. attribute 이름에 문자, 숫자, 대시(-), 점(.), 콜론(:), 언더스코어(\_)는 사용 가능하지만 대문자를 포함할 수 없다.
+2. attribute 이름에 접두사 "data-" 뒤에 하나 이상의 문자가 있어야 한다.
+3. attribute 이름이 대소문자 관계없이 'xml'로 시작하면 안 된다.
+4. attribute 값은 어떠한 string도 가능하다.
+
+```html
+<ul>
+  <li data-animal-type="bird">Owl</li>
+  <li data-animal-type="fish">Salmon</li>
+  <li data-animal-type="spider">Tarantula</li>
+</ul>
+```
+
+html에서는 위와 같은 형식이지만 dataset은 JS이기 때문에 attribute명은 camelCase로 변환된다.  
+즉, html과 dataset 간 `data-create-date -> (dateset) createDate`, `(dataset) dataset.monthSalary = '500 -> data-month-salary="500"`로 변환되는 것이다.
+
+#### JS에서의 접근
+
+JS에서 dataset을 get/set 하는 방법은 두 가지가 있다.  
+`getAttribute`/`setAttribute`를 이용하는 방법과 DOM 객체의 property를 이용하는 방법이다.
+
+```javascript
+const div = document.getElementsByTagName('div')[0]
+// const div = document.querySelector('div[data-auto="true"]')
+
+div.setAttribute('data-auto', true)
+console.log(div.dataset.auto) // typeof div.dataset.auto === 'string'
+
+div.dataset.size = 'big'
+console.log(div.getAttribute('data-size'))
+```
+
+#### CSS에서의 접근
+
+위 예시에서 `querySelector`의 예시에서 나왔듯이 data-\* 속성은 html의 속성이기 때문에 css에서도 속성 선택자를 통해 선별할 수 있다.
+
+```css
+/* https://developer.mozilla.org/ko/docs/Learn/HTML/Howto/Use_data_attributes 예시 */
+
+article[data-columns='3'] {
+  width: 400px;
+}
+article[data-columns='4'] {
+  width: 600px;
+}
+```
+
+## 4. DOM API
 
 ### innerHTML
 
@@ -560,3 +618,78 @@ HTMLCollection은 live dom collection 객체이다.
 
 추가 사항으로, NodeList와 HTMLCollection은 유사 배열 객체이지만 `Array.prototype`에 있는 배열의 메서드를 대부분 사용하지 못 한다.  
 다만 NodeList는 예외적으로 `forEach` 메서드를 사용할 수 있다.
+
+### Element.closest()
+
+참고: https://developer.mozilla.org/ko/docs/Web/API/Element/closest
+
+Element의 closest() 메서드는 주어진 CSS 선택자(`querySelector`와 같은 방식)와 일치하는 요소를 찾을 때까지, **자기 자신을 포함**해 위쪽(부모 방향, 문서 루트까지)으로 문서 트리를 순회한다.
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test</title>
+  </head>
+  <body>
+    <article>
+      <div id="div-01">
+        Here is div-01
+        <div id="div-02">
+          Here is div-02
+          <div id="div-03">Here is div-03</div>
+        </div>
+      </div>
+    </article>
+    <script>
+      const el = document.getElementById('div-03')
+
+      // ID가 "div-02"인 가장 가까운 조상
+      console.log(el.closest('#div-02')) // <div id="div-02">
+
+      // div 안에 놓인 div인 가장 가까운 조상
+      console.log(el.closest('div div')) // <div id="div-03">
+
+      // div
+      console.log(el.closest('div div')) // <div id="div-03">
+
+      // div면서 article을 부모로 둔 가장 가까운 조상
+      console.log(el.closest('article > div')) // <div id="div-01">
+
+      // div가 아닌 가장 가까운 조상
+      console.log(el.closest(':not(div)')) // <article>
+    </script>
+  </body>
+</html>
+```
+
+#### event delegation
+
+`closest`가 유용하게 쓰이는 방법 중 하나는 event delegation을 이용할 때이다.  
+event bubbling의 개념이 이용되며 `event.stopPropagation()`이나 bubbling이 되지 않는 'focus'와 같은 이벤트에서는 사용 불가능한 기술이다.
+
+event delegation이란 비슷한 방식으로 여러 요소를 다뤄야 할 때 사용된다.  
+이벤트 위임을 사용하면 요소마다 핸들러를 할당하지 않고, 요소의 공통 조상에 이벤트 핸들러를 단 하나만 할당해도 여러 요소를 한꺼번에 다룰 수 있다.
+
+event delegation의 장점은 다음과 같다.
+
+1. 동적인 element(이벤트 등으로 중간에 생성되는 element들)에 대한 이벤트 처리가 수월하다. 상위 엘리먼트에서만 이벤트 리스너를 관리하기 때문에 하위 엘리먼트는 자유롭게 추가 삭제할 수 있다.
+2. 이벤트 핸들러 관리가 쉽다. 동일한 이벤트에 대해 한 곳에서 관리하기 때문에 각각의 엘리먼트를 여러 곳에 등록하여 관리하는 것보다 관리가 수월하다.
+3. 메모리 사용량이 줄어든다. 동적으로 추가되는 이벤트가 없어지기 때문이다.
+4. 메모리 누수 가능성도 줄어든다. 등록 핸들러 자체가 줄어들기 때문에 메모리 누수 가능성도 줄어든다.
+
+```javascript
+const element = document.getElementById('parent') // 상위 element
+
+element.addEventListener('click', (e) => {
+  const child = e.target.closest('#child') //
+
+  if (!child) {
+    return
+  }
+
+  // something
+})
+```
+
+위와 같은 방식으로 동작시키면 부모에서 한 번의 이벤트 등록으로 모든 자식 요소들에게 동일한 이벤트가 동작하도록 할 수 있다.
