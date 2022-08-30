@@ -16,7 +16,6 @@ React를 개발하다 보면 매번 좋은 구조가 무엇인지 헷갈린다.
 - https://velog.io/@kykim_dev/%EA%B4%80%EC%8B%AC%EC%82%AC%EC%9D%98-%EB%B6%84%EB%A6%ACSeparation-of-Concerns-SoC%EC%99%80-Custom-Hook
 - https://hwan1001.tistory.com/38
 - https://github.com/mochang2/GGABI-Front
-- https://velog.io/@kykim_dev/%EA%B4%80%EC%8B%AC%EC%82%AC%EC%9D%98-%EB%B6%84%EB%A6%ACSeparation-of-Concerns-SoC%EC%99%80-Custom-Hook
 - https://snupi.tistory.com/185
 - https://ko.reactjs.org/docs/context.html
 - https://kyounghwan01.github.io/blog/React/react-context-api/#%E1%84%8B%E1%85%A8%E1%84%89%E1%85%B5
@@ -25,10 +24,12 @@ React를 개발하다 보면 매번 좋은 구조가 무엇인지 헷갈린다.
 
 ## 1. 사전지식
 
-### AJAX
+### 사전지식) AJAX
 
-~깊게 들어가자면 밑도 끝도 없기 때문에 간단히 정리한다.~  
-MDN 정의에 의하면 AJAX는 Asynchronous Javascript And XML의 약어이다.  
+~깊게 들어가자면 밑도 끝도 없기 때문에 간단히 정리한다.~
+
+> MDN에 의하면 AJAX는 Asynchronous Javascript And XML의 약어이다.
+
 즉, 서버와 통신하기 위해 XMLHttpRequest 객체를 사용하는 것을 말한다.  
 서버와 통신할 때 다양한 포맷으로 주고받을 수 있는데 그 중 하나가 XML인 것이고 JSON, HTML, 심지어 일반 텍스트도 가능하다.
 
@@ -39,14 +40,14 @@ AJAX가 가장 중요한 특징은 **비동기**이다.
 만약 form 데이터를 보내서 새로운 페이지를 렌더링 해야 되면 새로운 페이지가 reload 되어야 했다.  
 하지만 AJAX가 나오면서 비동기적으로 요청을 보내고 응답을 받아 웹페이지의 일부분만 갱신할 수 있게 되었다.
 
-### 컴포넌트
+### 사전지식) 컴포넌트
 
-W3C 정의에 따르면 웹 컴포넌트는 독립적인 뷰를 생성하기 위해서 HTML, CSS, JS를 한 곳에 묶어놓은 것이다.  
-웹 컴포넌트는 모든 주요 브라우저에서 지원하는 웹 표준 기반의 재사용 가능한 클라이언트 사이드 컴포넌트이다.  
+W3C 정의에 따르면 웹 컴포넌트는 '독립적인 뷰를 생성하기 위해서 HTML, CSS, JS를 한 곳에 묶어놓은 것'이다.  
+웹 컴포넌트는 모든 주요 브라우저에서 지원하는, 웹 표준 기반의 재사용 가능한 클라이언트 사이드 컴포넌트이다.  
 코드에서 원하는 부분을 캡슐화하는 훌륭한 방법을 제공하며 모든 웹 어플리케이션과 웹 페이지에서 재사용할 수 있다.  
 어떤 프레임워크를 사용하는지 중요하지 않고 언제 어디서나 재사용 가능하게끔 만들어야 좋은 컴포넌트이다.
 
-_참고) react 등의 라이브러리/프레임워크를 사용하지 않고 기존에 컴포넌트를 만들던 방식_
+_참고) react 등의 라이브러리/프레임워크를 사용하지 않고 컴포넌트를 만드는 방식_
 
 ```javascript
 // customElements.define() API를 이용하면 새로운 태그 이름을 만들 수 있다.
@@ -65,7 +66,7 @@ html 코드에서는 아래와 같이 사용하면 된다.
 
 컴포넌트는 데이터(props)를 입력받아 View(state) 상태에 따라 DOM Node를 출력하는 함수이자 react로 만든 어플리케이션을 구성하는 최소 단위이다.
 
-기존의 웹 프레임워크는 MVC방식으로 분리하여 관리하여 각 요소의 의존성이 높아 재활용이 어렵다는 단점이 있었다.  
+기존의 웹 프레임워크는 MVC방식으로 분리해 관리하여 각 요소의 의존성이 높아 재활용이 어렵다는 단점이 있었다.  
 반면 컴포넌트는 MVC의 뷰를 독립적으로 구성하여 재사용을 할 수 있고 이를 통해 새로운 컴포넌트를 쉽게 만들 수 있다.  
 [아래](https://github.com/mochang2/development-diary/blob/main/028-architecture.md#flux)에도 나올 이야기이지만 좋은 구조를 위해서는 비즈니스 로직이 들어가면 컴포넌트의 재사용성이 상당히 떨어지기 때문에 가능하면 컴포넌트에 비즈니스 로직을 포함시키지 않아야 한다.  
 (참고로 컴포넌트 이름은 항상 대문자로 시작하는데, react는 소문자로 시작하는 컴포넌트를 DOM 태그로 취급하기 때문이다)
@@ -85,14 +86,15 @@ html 코드에서는 아래와 같이 사용하면 된다.
 3. 유지 보수가 용이. 변경 사항이 발생했을 때 해당 관심사에 연관된 코드만 수정하면 됨.
 4. 테스트 코드를 작성하기 쉬움. 얽혀있는 로직보다 분리되어 있는 로직에 대한 테스트가 보다 더 간단해짐.
 
-### FLUX와 REDUX
+### 사전지식) FLUX와 REDUX
 
 ![flux 패턴](https://user-images.githubusercontent.com/63287638/187248174-056a59ff-638c-42ce-99ce-07e1589042ae.png)
 
 flux는 facebook에서 (특히 알림 기능을 만들 때) MVC 패턴의 한계를 느끼고 만든 패턴인 반면, redux는 이러한 디자인 패턴을 비슷하게 적용한 '상태 관리' 라이브러리이다.  
-reducer라는 개념이 등장하면서 flux가 deprecated 되었다고 한다.  
-flux는 store가 여러 개인 반면, redux는 sotre가 하나라는 점,  
-redux에선 sotre를 변경하는 여러 개의 reducer가 존재한다는 점,  
+reducer라는 개념이 등장하면서 flux가 deprecated 되었다고 한다.
+
+flux는 store가 여러 개인 반면, redux는 store가 하나라는 점,  
+redux에선 store를 변경하는 여러 개의 reducer가 존재한다는 점,  
 redux는 flux에 비해 thunk, saga, logging 등 미들웨어 생태계가 구축되었다는 점 등
 둘 사이에는 사소한 차이가 존재하는데 근본적인 개념은 비슷하다.
 
@@ -120,10 +122,10 @@ redux는 flux에 비해 thunk, saga, logging 등 미들웨어 생태계가 구�
 // // 1. action 정의
 // actionTypes.js
 
-export const CHANGE_LAYOUT = "CHANGE_LAYOUT"
-export const CHANGE_LAYOUT_WIDTH = "CHANGE_LAYOUT_WIDTH"
-export const CHANGE_SIDEBAR_THEME = "CHANGE_SIDEBAR_THEME"
-export const CHANGE_SIDEBAR_TYPE = "CHANGE_SIDEBAR_TYPE"
+export const CHANGE_LAYOUT = 'CHANGE_LAYOUT'
+export const CHANGE_LAYOUT_WIDTH = 'CHANGE_LAYOUT_WIDTH'
+export const CHANGE_SIDEBAR_THEME = 'CHANGE_SIDEBAR_THEME'
+export const CHANGE_SIDEBAR_TYPE = 'CHANGE_SIDEBAR_TYPE'
 
 // actions.js
 import {
@@ -131,27 +133,28 @@ import {
   CHANGE_LAYOUT_WIDTH,
   CHANGE_SIDEBAR_THEME,
   CHANGE_SIDEBAR_TYPE,
-} from "./actionTypes.js"
+} from './actionTypes.js'
 
-export const changeLayout = layout => ({
+export const changeLayout = (layout) => ({
   type: CHANGE_LAYOUT,
   payload: layout,
 })
 
-export const changePreloader = layout => ({
+export const changePreloader = (layout) => ({
   type: CHANGE_PRELOADER,
   payload: layout,
 })
 
-export const changeLayoutWidth = width => ({
+export const changeLayoutWidth = (width) => ({
   type: CHANGE_LAYOUT_WIDTH,
   payload: width,
 })
 
-export const changeSidebarTheme = theme => ({
+export const changeSidebarTheme = (theme) => ({
   type: CHANGE_SIDEBAR_THEME,
   payload: theme,
 })
+
 
 // // 2. reducer 함수 작성
 // reducer.js
@@ -161,14 +164,14 @@ import {
   CHANGE_LAYOUT_WIDTH,
   CHANGE_SIDEBAR_THEME,
   CHANGE_SIDEBAR_TYPE,
-} from "./actionTypes";
+} from './actionTypes'
 
 const INIT_STATE = {
-  layoutType: "vertical",
-  layoutWidth: "fluid",
-  leftSideBarTheme: "light",
-  leftSideBarType: "icon",
-};
+  layoutType: 'vertical',
+  layoutWidth: 'fluid',
+  leftSideBarTheme: 'light',
+  leftSideBarType: 'icon',
+}
 
 const Layout = (state = INIT_STATE, action) => {
   switch (action.type) {
@@ -176,28 +179,28 @@ const Layout = (state = INIT_STATE, action) => {
       return {
         ...state,
         layoutType: action.payload,
-      };
+      }
     case CHANGE_PRELOADER:
       return {
         ...state,
         isPreloader: action.payload,
-      };
+      }
     case CHANGE_LAYOUT_WIDTH:
       return {
         ...state,
         layoutWidth: action.payload,
-      };
+      }
     case CHANGE_SIDEBAR_THEME:
       return {
         ...state,
         leftSideBarTheme: action.payload,
-      };
+      }
     default:
-      return state;
+      return state
   }
-};
+}
 
-export default Layout;
+export default Layout
 
 
 // // 3. map~ToProps 작성
@@ -207,13 +210,13 @@ import {
   CHANGE_LAYOUT_WIDTH,
   CHANGE_SIDEBAR_THEME,
   CHANGE_SIDEBAR_TYPE,
-} from "../store/actionTypes.js"
+} from '../store/actionTypes.js'
 
 const mapActionToProps = (dispatch) => {
   return {
     onChangeLayout: () => {
       dispatch({ type: CHANGE_LAYOUT })
-    }
+    },
     // ...
   }
 }
@@ -235,7 +238,7 @@ export default connect(mapActionToProps, mapStateToProps)(Component)
 
 ### 아키텍처
 
-> IEEE에 따르면 컴포넌트란 구성 요소들 간의 관계, 환경, 설계와 발전을 관리하는 원칙으로 이루어진 시스템의 근본적인 구조이다.
+> IEEE에 따르면 아키텍처란 구성 요소들 간의 관계, 환경, 설계와 발전을 관리하는 원칙으로 이루어진 시스템의 근본적인 구조이다.
 
 초반에 규칙 없이 그냥 코드를 만들다 보면 덩치가 커지고 불편함이 생기는 순간이 온다.  
 이러한 행위가 반복되어 하나의 특정 패턴이 만들어지고, 이러한 패턴들을 모두가 이해하고 따를 수 있도록 하는 구조를 아키텍처라고 부른다.
@@ -264,7 +267,7 @@ AJAX라는 기술이 추가된 후 react 전에 대세를 이루던 jQuery 시�
 
 ### MVVM(angular, react, vue)
 
-jQuery에서 데이터를 찾아서 데이터를 바꾸고, 이벤트를 연결하고, 이벤트를 수정하는 부분에서 반복적인 작업이 나타난다는 것을 발견했다.  
+jQuery에서 데이터를 찾아 바꾸고, 이벤트를 연결하고, 이벤트를 수정하는 부분에서 반복적인 작업이 나타난다는 것을 발견했다.  
 (Django, php 등을 상기시켜보면) 서버에서 개발할 때 HTML 코드에서 `{{ }}`나 `<%= %>`와 같은 치환자로 '선언적으로' 편하게 개발했던 부분을 상기시켜 템플릿 기반의 바인딩을 생각했다.
 
 이 아키텍처에서 Model이 변하면 View를 수정하고, View에서 이벤트를 받아서 Model을 변경하는 Controller의 역할은 바뀌지 않는다.  
@@ -286,16 +289,16 @@ react 코드에서 `document.getElementById`와 같은 DOM API를 사용하지 �
 주입 받은 정보만 올바르다면 Presenter 컴포넌트는 항상 올바른 UI를 리턴하게 된다.  
 로직과 분리되었기 때문에 여러 곳에서 재활용하기도 쉽고, Container 컴포넌트와 조합하기도 쉽다.
 
-Container-Presenter 구조에 문제가 있었는데 props drilling이 필연적으로 발생한다는 것이었다.  
+다만 Container-Presenter 구조에 문제가 있었는데 그것은 props drilling이 필연적으로 발생한다는 것이었다.  
 중간에 있는 컴포넌트들은 해당 `props`를 이용하지 않는데 하위 컴포넌트에게 `props`를 넘겨주기 위해 `props`를 받아야 했다.  
-props drilling이 발생하면 다음과 같은 경우에 props에 대한 추적이 특히 어려워진다.
+props drilling이 발생하면 다음과 같은 경우에 `props`에 대한 추적이 특히 어려워진다.
 
 - 일부 데이터의 자료형을 바꾸게 되는 경우
 - 프로퍼티의 이름이 중간에 변경되는 경우
 - 필요보다 많은 프로퍼티를 전달하다가 컴포넌트를 분리하는 과정에서 필요 없는 프로퍼티가 계속 남는 경우
 - 필요보다 적은 프로퍼티를 전달하면서 동시에 defaultProps를 과용한 결과로 필요한 프로퍼티가 전달되지 않는 경우
 
-특히 hook의 등장으로 이 패턴(계층적인 패턴, Model과 View의 분리를 포함하는 것이 아님)을 권장되지 않는다고 하며 context api, redux, recoil 등 이를 해결할 다양한 상태 관리 라이브러리들이 등장했다.
+특히 hook의 등장으로 이 패턴(계층적인 패턴, Model과 View의 분리를 말하는 것이 아님)을 권장되지 않는다고 하며 context api, redux, recoil 등 이를 해결할 다양한 상태 관리 라이브러리들이 등장했다.
 
 #### 코드 예시
 
@@ -389,7 +392,7 @@ View에서는 Dispatch를 통해 Action을 전달하면 Action은 Reducer를 통
 다만 flux 패턴의 가장 큰 문제는 높은 학습 곡선과 많은 양의 보일러 플레이트였다.  
 이를 해결하기 위한 것이 Mobx나 Angular의 Rxjs 등이 등장했다 ~얘네는 잘 모르니 그러려니 하고 패스~.
 
-> 해당 패러다임은 공통적으로 사용되는 비지니스 로직의 Layer와 View의 Layer를 완전히 분리되어 상태관리라는 방식으로 관리한다. 각각의 독립된 컴포넌트가 아니라 하나의 거대한 View 영역으로 간주한다. 둘 사이의 관계는 Action과 Reduce라는 인터페이스로 분리한며 Controller는 이제 양방향이 아니라 단반향으로 Cycle을 이루도록 설계한다.
+> 해당 패러다임은 공통적으로 사용되는 비지니스 로직의 Layer와 View의 Layer를 완전히 분리되어 상태관리라는 방식으로 관리한다. 각각의 독립된 컴포넌트가 아니라 하나의 거대한 View 영역으로 간주한다. 둘 사이의 관계는 Action과 Reduce라는 인터페이스로 분리하며 Controller는 양방향이 아니라 단반향으로 Cycle을 이루도록 설계한다.
 
 ### MVI(상태 관리 아키텍처)
 
@@ -509,6 +512,8 @@ _참고) 위 예시는 단순히 context API를 사용하기 위한 방법이고
 간단한 문법으로 컴포넌트 외부에서 공통의 데이터를 set, get을 할 수 있게 하면서 동시에 동기화를 하고자 했다.  
 이와 더불어 computed, derived, select 와 같은 반응형 기능을 제공하여 관련된 데이터의 동시 업데이트를 제공하고 있다.
 
+context처럼 계층적인 형태가 아니라 사용할 데이터(또는 컴포넌트)가 여기저기 뿌려져있고 원할 때 그 데이터(또는 컴포넌트)를 가져다 사용하면 되는 느낌이다.
+
 #### 코드 예시
 
 recoil의 예시이다
@@ -562,10 +567,10 @@ page는 실제 컨텐츠들을 배치한 UI를 보여주며, 템플릿의 구체
 
 ### React Query, SWR, Redux Query
 
-보통 브라우저의 경우 데이터를 로컬에 보관하지 않기에 프론트엔드 대부분의 전역적인 상태관리가 필요한 이유는 서버와의 API 때문이다.  
-왜냐하면 웹의 특성상 데이터의 보관과 조회, 수정이 서버에서 이루어져야 한다.  
+보통 브라우저의 경우 데이터를 로컬에 보관하지 않기에 프론트엔드에서 전역적인 상태관리가 필요한 이유는 보통 서버와의 API 때문이다.  
 따라서 비즈니스 로직이 대부분 백엔드(DB 등)에 보관된다.  
-View는 서버의 데이터를 보여주고 서버에 Action을 전달만 하는 경우가 일반적이라 전역 상태관리를 통해 비즈니스 로직을 관리하기보다 다이렉트로 백엔드와 직접 연동을 하면서 필요한 로딩, 캐싱, 무효화, 업데이트 등 기존 상태관리에서 복잡하게 진행해야했던 로직들을 단순하게 만들어주는 방식도 생겨났다.  
+View는 서버의 데이터를 보여주고 서버에 Action을 전달만 하는 경우가 일반적이기 때문에  
+전역 상태관리를 통해 비즈니스 로직을 관리하기보다 다이렉트로 백엔드와 직접 연동을 하면서 필요한 로딩, 캐싱, 무효화, 업데이트 등 기존 상태관리에서 복잡하게 진행해야했던 로직들을 단순하게 만들어주는 방식도 생겨났다.  
 이러한 방식을 통해서 API를 통한 전역 상태관리가 단순하게 되는 결과를 가져왔다.
 
 특히 react query는
