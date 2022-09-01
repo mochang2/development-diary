@@ -693,3 +693,97 @@ element.addEventListener('click', (e) => {
 ```
 
 위와 같은 방식으로 동작시키면 부모에서 한 번의 이벤트 등록으로 모든 자식 요소들에게 동일한 이벤트가 동작하도록 할 수 있다.
+
+#### event.target vs event currentTarget
+
+- `target`: event를 trigger한 element 자체. event가 bubble될 때면 root element.
+- `currentTarget`: event listener가 달려있는 element.
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="modal">
+      <div class="content">
+        <div>공간공간</div>
+      </div>
+    </div>
+    <script>
+      const modal = document.querySelector('div.modal')
+
+      modal.addEventListener('click', (e) => {
+        console.log(e.target) // 가장 안에 있는 div를 클릭하면 <div>공간</div>. div.modal을 클릭하면 <div class="modal">...</div>
+        console.log(e.currentTarget) // 항상 <div class="modal">...</div>
+      })
+    </script>
+  </body>
+</html>
+```
+
+#### keydown vs keypress vs keyup
+
+이벤트가 발생하는 순서는 `keydown` -> `keypress` -> `keyup`이다.  
+`keydown`은 사용자가 키를 눌렀을 때 trigger되고, `keyup`은 사용자가 키에서 손을 뗄 때 trigger된다.  
+`keypress`는 그 중간에서 발생하는 event이다.
+
+`keydown`과 `keyup`은 물리적인 키들을 다루지만 `keypress` 그렇지 않다.  
+무슨 뜻이냐면 delete, arrows, esc, ctrol, alt, shift 등은 `keypress`가 감지할 수 없다는 의미이다.  
+그래서 esc 키를 감지하고 싶다면 아래와 같은 방식으로 사용해야 된다.
+
+```javascript
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    // do something
+  }
+})
+```
+
+`keydown`과 `keypress`는 사용자가 해당 키를 누르고 있는 동안 여러 번 발생하지만,  
+`keyup`은 키에서 손을 뗄 때 한 번만 발생한다.
+
+#### removeEventListener
+
+element에 부여된 listener를 1번만 발동시키기 위한 방법은 크게 3가지가 있지만 가장 추천되는 방법은 1번이다.
+
+1. 이름 있는 함수 사용
+
+```javascript
+function onClickFunction() {
+  element.removeEventListener('click', onClickFunction)
+  console.log('event has been removed')
+}
+
+element.addEventListener('click', onClickFunction)
+```
+
+2. once 옵션 사용하기
+
+```javascript
+element.addEventListener(
+  'click',
+  () => {
+    console.log('event has been removed')
+  },
+  { once: true }
+)
+```
+
+위 방법은 간편하지만 조건에 따라 listener를 삭제하고 싶을 때엔 적합한 방법이 아니다.
+
+3. `arguments.callee`
+
+```javascript
+element.addEventListener('click', function () {
+  element.removeEventListener('click', arguments.callee)
+})
+```
+
+`arguments.callee`는 현재 실행 중인 함수를 참조할 수 있는 속성이다.  
+익명 함수에서 함수를 참조할 때 사용한다.
+이때 콜백 함수는 반드시 `function` 키워드로 작성해야 하는데, arrow function은 arguments의 바인딩이 일어나지 않기 때문이다.
+
+다만, `arguments.callee`는 ES5 이후에서는 strict mode에서 사용이 금지되었다.

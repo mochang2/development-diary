@@ -126,6 +126,104 @@ element.parentNode.removeChild(element)
 // element와 onClick은 GC에 의해 release됨
 ```
 
+_+) 추가 사항_  
+위 예시에서 `removeEventListener`를 굳이 실행시켜주지 않아도 (모던 브라우저에서는) 무한정 heap이 늘어나지 않는다. ~미친 성능의 GC~  
+(`removeChild` 말고 `element.remove()`를 써도 마찬가지이다)  
+https://www.tutorialspoint.com/if-a-dom-element-is-removed-are-its-listeners-also-removed-from-memory-in-javascript 와 https://yung-developer.tistory.com/82 를 참고했을 때, 그리고 실제로 개발자 도구를 이용해본 결과 GC가 알아서 event listener를 remove 해준다는 것을 알았다.  
+다만 GC가 언제 동작할지 예측이 불가능하고(2019년 이후로 명시적으로 GC를 호출하는 것이 프로그래밍적으로 가능하지 않다고 함), 일정 기간 동안은 메모리 누수가 확실하게 발생한다.
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>test</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <button id="btn1">btn1</button>
+    <button id="btn2">btn2</button>
+    <script>
+      'use strict'
+
+      let btn1 = document.getElementById('btn1')
+      let btn2 = document.getElementById('btn2')
+
+      btn1.addEventListener('click', function () {
+        console.log('btn1 clicked')
+        btn1.remove()
+        // btn1 = null
+      })
+
+      btn2.addEventListener('click', function () {
+        console.log(btn1)
+        btn1.dispatchEvent(new Event('click')) // #btn1 클릭 이벤트 발생
+      })
+    </script>
+  </body>
+</html>
+```
+
+위 코드에서 `btn1 = null`을 명시적으로 해주지 않으면 GC가 동작할 때까지 `btn1`의 event listener는 사라지지 않는다.  
+따라서 `btn2`를 눌렀을 때 지속적으로 `console.log('btn1 clicked')`가 동작한다.  
+그래서 위와 같은 코드만으로는 GC의 동작을 확인하기 힘들어 프로그래머스 과제관에서 풀었던 '고양이 사진첩 애플리케이션 만들기'의 코드를 이용해 테스트해봤다.
+
+```javascript
+import { IMAGE_URL } from '../lib/constants.js'
+
+class ImageViewer {
+  constructor({ app, filePath }) {
+    const image = this.createImage(filePath)
+    const content = this.createContent(image)
+    const modal = this.createModal(content)
+
+    modal.addEventListener('click', (event) => {
+      if (event.target.matches('.Modal')) {
+        app.removeChild(modal)
+      }
+    })
+    modal.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' || event.key === 'Esc') {
+        app.removeChild(modal)
+      }
+    })
+
+    app.append(modal) // modal을 dom에 추가
+  }
+
+  createImage(filePath) {
+    const image = document.createElement('img')
+    image.setAttribute('src', `${IMAGE_URL}${filePath}`)
+
+    return image
+  }
+
+  createContent(image) {
+    const content = document.createElement('div')
+    content.append(image)
+
+    return content
+  }
+
+  createModal(content) {
+    const modal = document.createElement('div')
+    modal.setAttribute('class', 'Modal')
+    modal.append(content)
+
+    return modal
+  }
+}
+```
+
+위 코드는 `app.js`에서 어떠한 동작을 하면 `new ImageViewer({ app, filePath })`가 동작하여 modal이라는 div가 DOM에 생성된다.  
+그리고 esc를 누르거나 modal의 외부를 누르면 modal이라는 div가 DOM에서 사라진다.
+
+아래 사진은 `new ImageViewer({ app, filePath })`를 수백 번 호출한 뒤 개발자 도구에서 확인한 memory 정보이다.  
+별도의 `removeEventListener`가 존재하지 않지만 결과를 보면 꾸준히 'JS Heap, Nodes, Listeners'가 증가하다가 GC가 잘 처리해주면서 어느 순간 감소하는 것을 알 수 있다.  
+추가적으로 `element.remove()`와 같이 DOM에서 element 지우는 API를 호출해도 바로 메모리에서 사라지지 않고 GC가 처리할 때까지 메모리에 상주한다는 것을 알 수 있다.  
+따라서 최적화가 너무 중요하다면 DOM에서 지움과 동시에 `null`로 초기화해주고, `removeEventListener`도 명시적으로 호출해줘야 한다.
+
+![network](https://user-images.githubusercontent.com/63287638/187958527-b7f9f296-4584-44b2-9107-8404d2e6f4d7.png)
+
 **closure**
 
 ```javascript
