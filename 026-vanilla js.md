@@ -153,6 +153,18 @@ JS에서 모듈의 개념이 나오기 전에는 아래와 같은 방식으로 �
 만약 `jquery.js`와 `tweenmax.js`에서 `a`라는 변수를 각각 사용하고 있었다면, 나중에 로드된 모듈이 먼저 로드된 모듈의 변수를 재정의했다.  
 이러한 문제를 해결하기 위해 나온 방식이 4가지가 있다.
 
+모듈 개념이 나온 뒤에는 아래와 같이 사용할 수 있다.
+
+```html
+<script type="module" src="./index.js"></script>
+```
+
+위와 같이 선언하면 일반적인 JS 파일과 다른 세 가지 특징을 지닌다.
+
+1. import 혹은 export 구문을 사용할 수 있다.
+2. 기본적으로 strict mode로 동작한다.
+3. 모듈의 가장 바깥쪽에서 선언된 이름은 전역 스코프가 아니라 모듈 스코프에서 선언된다. (`a.js`에서 선언한 `const foo = 'bar'`를 `b.js`에서 별다른 `import` 없이는 사용하지 못한다)
+
 #### 1) commonJS
 
 Node.js에서 채택한 방식으로 지금도 node.js를 사용하면 바벨 없이는 `require()`과 `module.exports`를 사용해야 한다.  
@@ -787,3 +799,43 @@ element.addEventListener('click', function () {
 이때 콜백 함수는 반드시 `function` 키워드로 작성해야 하는데, arrow function은 arguments의 바인딩이 일어나지 않기 때문이다.
 
 다만, `arguments.callee`는 ES5 이후에서는 strict mode에서 사용이 금지되었다.
+
+#### parentNode.append vs parentNode.appendChild
+
+둘다 parent element에 child Element를 추가하는 메서드이다.
+
+차이점은 다음과 같다.
+
+- append
+  - Node object뿐만 아니라 text도 child로 추가할 수 있다.
+  - 한 번에 여러 개의 child를 추가할 수 있다.
+  - return값이 없다.
+- appendChild
+  - Node object만 child로 추가할 수 있다.
+  - 한 번에 하나의 child만 추가할 수 있다.
+  - 추가된 child를 반환한다.
+
+```javascript
+// append 예시
+const div = document.createElement('div')
+const div2 = document.createElement('div')
+document.body.append(div, 'hello', div, div2)
+
+/*
+<body> 
+  hello
+  <div></div>
+  <div></div>
+</body>
+*/
+
+// appendChild 예시
+const div = document.createElement('div')
+console.log(document.body.appendChild(div)) // <div></div>
+
+/*
+<body>
+  <div></div>
+</body>
+*/
+```
