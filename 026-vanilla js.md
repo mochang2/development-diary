@@ -110,8 +110,7 @@ React.createElement(MyButton, { color: 'blue', shadowSize: 2 }, 'Click Me')
 // 이후 `ReactDOM.render(변수명, 배치할 곳)`을 통해 화면에 렌더링 됨
 ```
 
-이 모든 과정을 도와주는 것이 babel이다.  
-그리고 아래와 같이 컴포넌트 내부에서 `React`를 사용하지 않는데도 굳이 import해야 하는 이유가 jsx 변환을 위해서이다.
+이 모든 과정을 도와주는 것이 babel이다.
 
 ```jsx
 import React from 'react'
@@ -120,6 +119,11 @@ const Box = () => {
   return <div>i'm box</div>
 }
 ```
+
+react 17 버전 이전 함수 컴포넌트에서는 위와 같이 `React`를 사용하지 않는데도 반드시 React를 import해야 된다.  
+이는 JSX를 transiple하기 위해선 `react`를 import함으로써 `React.createElement`를 사용해야 하기 때문이다.
+
+하지만 react 17 버전 이후부터는 새로운 JSX transform인 React 패키지 자체의 `_jsxRuntime` 함수를 불러와 이러한 작업을 가능하게 해준다.
 
 ## 2. Webpack
 
