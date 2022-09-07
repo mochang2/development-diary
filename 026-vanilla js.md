@@ -846,8 +846,8 @@ console.log(document.body.appendChild(div)) // <div></div>
 
 #### history
 
-`react-router-dom`와 같은, SPA에서 router를 구현할 수 있다.  
-우선 필요한 DOM 개념 2가지를 설명하겠다.
+vanilla.js에서도 `react-router`(`react-router-dom`, `react-router-native`) 와 같은, SPA에서의 router를 구현할 수 있다.  
+우선 필요한 DOM 개념 2가지를 알아야 한다.
 
 **`CustomEvent()`**
 
@@ -883,8 +883,7 @@ SPA와 같은 웹 페이지를 만들기 위한 것이 목적이므로 BrowserRo
 ```javascript
 // // app.js
 const app = document.querySelector('#app')
-
-function route() {
+const route = () => {
   const { pathname } = location
 
   app.innerHTML = ''
@@ -898,7 +897,7 @@ function route() {
 }
 
 window.addEventListener(ROUTE_CHANGE_EVENT, () => {
-  route()
+  route() // route가 바뀔 때마다 불릴 수 있도록 설정
 })
 window.addEventListener('popstate', () => {
   // window.onpopstate. 앞으로 가기, 뒤로 가기 처리
@@ -907,12 +906,10 @@ window.addEventListener('popstate', () => {
 
 // // utils.js
 // url을 바꿔야 되는 상황이 있을 때 해당 함수 호출
-export const changeRoute = (url, params) => {
+const changeRoute = (url, params) => {
   history.pushState(null, '', url)
   window.dispatchEvent(new CustomEvent(ROUTE_CHANGE_EVENT, params))
 }
 ```
 
-https://woong-jae.com/javascript/220325-spa-from-scratch-2  
-path를 key, callback을 value로 둬서 사용한 예시이다.  
-위 방법도 나쁘지 않아 보인다.
+_참고) https://woong-jae.com/javascript/220325-spa-from-scratch-2 는 path를 key, callback을 value로 둬서 사용한 예시이다._
