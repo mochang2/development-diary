@@ -259,29 +259,25 @@ styled-components의 장점과 같이 섞어서 사용하는 방법도 있다.
 
 아래는 예제코드이다.
 
-```jsx
+```tsx
 import styled from 'styled-components'
 
-const GridContent = styled.div`
+const GridContent = styled.div<{ active: boolean }>`
   display: flex;
   justify-content: space-between;
-  background-color: ${({ active }) =>
-    active
-      ? 'black'
-      : '#f1f1f1'}; // styled component 안에 props를 넘겨줘서 가변 스타일링이 가능
+  background-color: ${({ active }) => (active ? 'black' : '#f1f1f1')};
 `
 
 const Title = styled.div`
   color: #202020;
   & > h2 {
-    // 본인에 대한 selector
     display: inline-block;
     margin-left: 15px;
   }
 `
 
+// 기본적인 html 태그뿐만 아니라 본인이 만든 component도 styled 안에 인자로 들어갈 수 있음
 const NewsAgency = styled(GridContent)`
-  // 기본적인 html 태그뿐만 아니라 본인이 만든 component도 styled 안에 인자로 들어갈 수 있음
   flex-direction: column;
   padding: 10px 0;
 `
@@ -290,7 +286,7 @@ const NonNewsAgency = styled(GridContent)`
   padding: 20px 16px;
 `
 
-export default function component() {
+export default function Component() {
   const active = true
 
   return (
@@ -326,10 +322,32 @@ const CustomButton = styled.button`
     `}
 `
 
-export default function component(props) {
+export default function Component(props) {
   return <CustomButton {...props}>content</CustomButton> // 넘겨야 할 props가 많다면 spread operator 사용할 수 있음
 }
 ```
+
+_+) 추가사항 1_  
+`styled-components` 5.1부터 [transient props](https://styled-components.com/docs/api#transient-props)가 생겼다.  
+컴포넌트에 스타일 구성 요소가 (props로서) react element로 전달되거나 DOM 요소로 렌더링되는 것을 방지하려면 props 앞에 달러 기호($)를 붙여 임시 소품으로 바꿀 수 있다.
+
+```jsx
+// 아래 예시에서 $draggable은 DOM에는 전달되지 않는 반면,
+// draggable은 DOM에 전달된다.
+
+const Comp = styled.div`
+  color: ${(props) => props.$draggable || 'black'};
+`
+
+render(
+  <Comp $draggable="red" draggable="true">
+    Drag me!
+  </Comp>
+)
+```
+
+_+) 추가사항 2_  
+`styled-components`에 global style, typescript, media query 적용하는 방법: https://velog.io/@hwang-eunji/styled-component-typescript
 
 #### emotion
 
