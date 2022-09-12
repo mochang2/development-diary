@@ -437,3 +437,266 @@ const TodoList = withLoadingFeedback(
 ```
 
 +) 참고로 [공식문서](https://ko.reactjs.org/docs/composition-vs-inheritance.html)에서 '합성'은 좋은 구조이지만 '상속'을 사용하는 좋은 사례는 발견하지 못했다고 한다.
+
+## 5. 전역 상태 관리
+
+전역 상태 관리 라이브러리가 등장하기 전에는 [Container-Presenter 패턴](https://github.com/mochang2/development-diary/blob/main/028-architecture.md#container-presenter)을 이용해서 컴포넌트 간 데이터를 공유했다.  
+props drilling을 사용했다는 뜻이다.
+
+전역 상태 관리에 들어가기 전에 props drilling의 단점을 먼저 짚고 넘어가고자 한다.
+
+### Props Drilling
+
+props drilling이란 react의 컴포넌트 트리에서 데이터를 전달하기 위해 상위 컴포넌트에서 하위 컴포넌트로 props를 계속해서 내려주는 것을 의미한다.
+
+전역 변수를 사용한다면 데이터가 어디서 초기화되고 갱신되며 사용하는지 판단하기 쉽지 않다.  
+props drilling을 이용해서 props를 따라간다면 코드를 실행하지 않고도 어디서 선언됐고 사용됐는지 쉽게 파악할 수 있으며 전역 변수를 사용할 때 항상 문제가 되는 사이드 이펙트를 덜 걱정할 수 있다.
+
+하지만 컴포넌트 depth가 증가할수록 이 장점은 희미해진다.  
+특히 다음과 같은 상황을 마주한다면 말이다.
+
+- 일부 데이터의 자료형을 바꾸게 되는 경우 `{ user: { name: 'Joe West' } } -> { user: { firstName: 'Joe', lastName: 'West' } })`
+- 필요보다 많은 property를 전달하다가 컴포넌트를 분리하는 과정에서 필요 없는 property가 계속 남는 경우
+- 필요보다 적은 property를 전달하면서 동시에 defaultProps를 과용한 결과로 필요한 property가 전달되지 않은 상황을 문제를 인지하지 어려운 경우 (또한 컴포넌트 분리 과정에서도)
+- property의 이름이 중간에서 변경되어서 값을 추적하는데 쉽지 않아지는 경우
+
+추가적으로 props drilling의 단점으로 re-rendering의 비효율성이 있다고 예상했다.  
+~아무리 검색해도 리렌더링 비효율성이란 단점은 나오지 않았을 때 잘못된 결론이라는 것을 알았어야 됐다...~  
+하지만 잘못된 판단이었다.
+
+아래 내용은 props drilling이 전역 상태 관리 라이브러리와는 다르게 실제로 비효율적인 re-render을 발생하는지 실험하기 위한 과정이다.
+
+#### 컴포넌트 리렌더링
+
+컴포넌트는 다음과 같은 세 가지 상황에서 re-render 된다.
+
+1. update in state(`setState`). `props` 변화가 발생하는지 상관없이 해당 컴포넌트의 모든 자식 요소들도 re-render 된다.
+2. update in props. 부모로부터 물려받은 `props`에 변화가 발생하면 해당 컴포넌트는 re-render 된다.
+3. re-rendering of parent component.
+
+위 3번은 react의 [diffing 알고리즘](https://ko.reactjs.org/docs/reconciliation.html#motivation) 때문에 발생하며 이를 간단하게 증명할 수 있다.
+
+```tsx
+function App() {
+  const [message, setMessage] = useState('')
+
+  const handleMessage = () => {
+    setMessage(message + 'click ')
+  }
+
+  console.log('re-render app')
+
+  return (
+    <>
+      <div onClick={handleMessage}>click here</div>
+      <Title message={message} />
+      <Title />
+    </>
+  )
+}
+
+interface TitleProps {
+  message?: string
+}
+function Title({ message }: TitleProps) {
+  console.log('re-render title')
+
+  return <div>{message}</div>
+}
+```
+
+위와 같은 경우는 `message`를 바꾸면 두 번째 `<Title />`은 props를 전달받지 않더라도 `<App />`과 두 개의 `<Title />` 모두에서 re-rendering 발생한다(`re-render app` -> `re-render title` -> `re-render title`).
+
+#### Re-render 코드로 살펴보기 - Props Drilling
+
+props drilling을 사용할 때 중간에 단순히 `props`를 전달받는 컴포넌트는 어떻게 될까?  
+앞서 이야기했듯이 `props`가 바뀌거나 부모가 re-render 되면서 본인도 re-render 된다.
+
+```tsx
+function Main() {
+  const [count, setCount] = useState(0)
+
+  const handleCount = () => {
+    setCount(count + 1)
+  }
+
+  console.log('re-render main')
+
+  return (
+    <div>
+      여기는 메인 페이지입니다.
+      <Middleware count={count} onChange={handleCount} />
+    </div>
+  )
+}
+
+interface MiddlewareProps {
+  count: number
+  onChange: () => void
+}
+function Middleware({ count, onChange }: MiddlewareProps) {
+  console.log('re-render middleware')
+
+  return (
+    <div>
+      여기는 미들웨어입니다.
+      <Button count={count} onChange={onChange} />
+    </div>
+  )
+}
+
+interface ButtonProps {
+  count: number
+  onChange: () => void
+}
+function Button({ count, onChange }: ButtonProps) {
+  console.log('re-render button')
+
+  return <button onClick={onChange}>{count}</button>
+}
+```
+
+`onChange`가 실행될 때마다 세 컴포넌트 모두 re-render 된다.
+
+#### Re-render 코드로 살펴보기 - Recoil
+
+그렇다면 `recoil`을 사용한다면 어떻게 될까?
+
+```typescript
+// 아래 state를 사용
+const CountState = atom<number>({
+  key: 'count-state',
+  default: 0,
+})
+```
+
+1. 부모에서 전역 변수에 대해 변화를 발생시킨 뒤 부모와 자식에서 해당 값을 구독하기
+
+```tsx
+function Main() {
+  const [count, setCount] = useRecoilState(CountState)
+
+  const handleCount = () => {
+    setCount(count + 1)
+  }
+
+  console.log('re-render main')
+
+  return (
+    <div>
+      여기는 메인 페이지입니다.
+      <button onClick={handleCount}>click me</button>
+      <Middleware />
+    </div>
+  )
+}
+
+function Middleware() {
+  console.log('re-render middleware')
+
+  return (
+    <div>
+      여기는 미들웨어입니다.
+      <Button />
+    </div>
+  )
+}
+
+function Button() {
+  const count = useRecoilValue(CountState)
+
+  console.log('re-render button')
+
+  return <button>{count}</button>
+}
+```
+
+![부모에서 전역 변수에 대해 변화를 발생시킨 뒤 부모와 자식에서 해당 값을 구독하기](https://user-images.githubusercontent.com/63287638/189563571-d4ba66a5-108d-4567-b77a-1da7130e5a23.jpg)
+
+`handleCount`가 실행될 때마다 세 컴포넌트 모두 re-render 된다.
+
+2. 부모에서 전역 변수에 대해 변화를 발생시킨 뒤 자식에서만 해당 값을 구독하기
+
+```tsx
+function Main() {
+  const setCount = useSetRecoilState(CountState)
+
+  const handleCount = () => {
+    setCount(Math.floor(Math.random() * 1000))
+  }
+
+  console.log('re-render main')
+
+  return (
+    <div>
+      여기는 메인 페이지입니다.
+      <button onClick={handleCount}>click me</button>
+      <Middleware />
+    </div>
+  )
+}
+
+// 나머지 컴포넌트는 1)과 동일
+```
+
+![부모에서 전역 변수에 대해 변화를 발생시킨 뒤 자식에서만 해당 값을 구독하기](https://user-images.githubusercontent.com/63287638/189563570-a2eeaeca-b99a-4d8b-bc71-43e8938f453d.jpg)
+
+`handleCount`가 발생해도 `<Button >`만 re-render 된다.
+
+3. 자식에서 변화를 발생시킨 뒤 부모에서 해당 값 구독하기
+
+```tsx
+function Main() {
+  const count = useRecoilValue(CountState)
+
+  console.log('re-render main')
+
+  return (
+    <div>
+      여기는 메인 페이지입니다. {count}
+      <Middleware />
+    </div>
+  )
+}
+
+function Middleware() {
+  console.log('re-render middleware')
+
+  return (
+    <div>
+      여기는 미들웨어입니다.
+      <Button />
+    </div>
+  )
+}
+
+function Button() {
+  const setCount = useSetRecoilState(CountState)
+
+  const handleCount = () => {
+    setCount(Math.floor(Math.random() * 1000))
+  }
+
+  console.log('re-render button')
+
+  return <button onClick={handleCount}>click here</button>
+}
+```
+
+![자식에서 변화를 발생시킨 뒤 부모에서 해당 값 구독하기](https://user-images.githubusercontent.com/63287638/189563575-b882f840-05ec-45a3-b3a4-a880cee51926.jpg)
+
+`handleCount`가 실행될 때마다 세 컴포넌트 모두 re-render 된다.
+
+**결론**
+
+결론적으로 '전역 상태 관리 라이브러리가 re-render 효율성을 가진다'는 말이 틀린 말은 아니다.  
+다만 특정한 구조가 아니고서는 '반드시 더 효율적이다'고 얘기할 수는 없는 것 같다.
+
+### Context API
+
+context API - https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwjEiOa1-4v6AhWZm1YBHVHtBCsQFnoECAcQAQ&url=https%3A%2F%2Fcodemacaw.com%2F2021%2F11%2F21%2Fprevent-unnecessary-re-rendering-when-using-context-api%2F&usg=AOvVaw0hmf6N2lhTO0csUEhcV7L5
+redux
+recoil - https://velog.io/@yiyb0603/TypeScript-React-Recoil%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-TodoList-%EB%A7%8C%EB%93%A4%EC%96%B4%EB%B3%B4%EA%B8%B0
+jotai
+
+언제 re-rendering 되는지. 어떠한 철학을 가지고 만들었는지.
