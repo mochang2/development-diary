@@ -47,7 +47,7 @@ console.log(urlFriendly)
 아래는 'hello world'를 쓰기 위한 실제 DOM 조작과 관련된 예시이다.
 
 ```javascript
-// Vanilla.js의 절차적 프로그래밍
+// vanilla.js의 절차적 프로그래밍
 const app = document.querySelector('#app')
 const header = document.createElement('h1')
 header.innerText = 'hello world'
@@ -81,19 +81,219 @@ vanilla.js는 아마 `const header2 = document.createElement('h1')`를 선언한
 4. 유지보수가 좋다(위 예시에서는 와닿지 않을 수도 있지만 많은 데이터를 갖는 object 형식을 사용한다고 생각하면 와닿을 것이다)
 
 +) 추가사항  
-만약 react에서 DOM을 변경할 때 기존 element를 완전히 제거하고 새로운 element르르 생성한다면 다음과 같은 문제가 발생한다.
+만약 react에서 DOM을 변경할 때 기존 element를 완전히 제거하고 새로운 element를 생성한다면 다음과 같은 문제가 발생한다.
 
-1. performance 저하한다.
+1. performance가 저하한다.
 2. 화면 깜빡임 발생하여 UX가 좋지 않다.
-3. state가 사라진다.
 
 이를 해결하기 위해 react에서는 [**virtual DOM**](https://github.com/mochang2/development-diary/blob/main/029-virtual%20DOM.md)과 **reconciliation**이라는 개념을 도입했다.
 
 ## 2. 불변성(immutability)
 
-## 3. hook과 함수형 컴포넌트 vs 클래스형 컴포넌트
+props와 state
 
-hook 구현?
+## 3. hook과 함수형 컴포넌트, 클래스형 컴포넌트
+
+[react 공식문서](https://ko.reactjs.org/docs/hooks-overview.html)에서 effect hook에 대해 side effect를 수행하는 훅이라고 설명한다.
+
+> Effect Hook, 즉 `useEffect`는 함수 컴포넌트 내에서 side effects를 수행할 수 있게 해줍니다. React class의 `componentDidMount` 나 `componentDidUpdate`, `componentWillUnmount`와 같은 목적으로 제공되지만, 하나의 API로 통합된 것입니다.
+
+hook에 대해 본격적으로 들어가기 전에 side effect는 무엇인지 먼저 알아봤다.
+
+### Side Effect
+
+side effect라는 말은 순수 함수에서 나온 개념이다.  
+순수 함수는 같은 input에 대해 항상 같은 output을 내뱉는 함수를 말한다~그 외의 특징이 더 있지만 여기서 기술하는 것은 함수형 프로그래밍이 아니므로 패스~  
+따라서 함수형 프로그래밍에서 사용하는 순수 함수는 예측 가능하며 테스트가 쉽다는 특징이 있다.
+side effect는 부작용이라는 뜻으로, **순수 함수에서 결과값을 예측하기 어렵게 만드는 외부 환경 등**을 말한다.
+
+react에서도 크게 다른 뜻이 아니다.  
+react 컴포넌트 안에서 데이터를 가져오거나 구독하고, DOM을 직접 조작하는 작업을 모든 작업을 side effect(또는 짧게 effect)라고 한다.  
+왜냐하면 이것은 다른 컴포넌트에 영향을 줄 수도 있는 부분이며, 렌더링 과정에서는 구현할 수 없는 작업이기 때문이다.
+
+side effect는 다음 사항들을 포함한다.
+
+- BE에 API 요청하는 행위
+- `document`나 `window`를 조작하는 browser API 사용하는 행위
+- `setTimeout`이나 `setInterval` 등 예측 불가능한 timer API를 사용하는 행위
+
+```jsx
+function App({ name }) {
+  document.title = name
+  // This is a side effect. Don't do this in the component body!
+
+  return <h1>{name}</h1>
+}
+```
+
+위와 같이 side effect를 컴포넌트 내부에서 바로 동작시킨다면 컴포넌트 렌더링 과정에 영향을 끼치게 된다.  
+따라서 side effect는 컴포넌트 렌더링 과정과 '분리'되어야 한다.  
+해당 기능을 제공해주는 것이 `useEffect`와 같은 hook이다.
+
+_useEffect 참고_  
+`useEffect` hook은 react에게 컴포넌트가 렌더링 이후에 어떤 일을 수행해야 하는지를 말해준다.  
+react는 hook을 통해 넘긴 함수(effect)를 기억했다가 DOM 업데이트를 수행한 이후에 해당 함수를 호출한다.
+
+`useEffect`에 전달되는 함수는 모든 렌더링마다 다른데, state가 제대로 업데이트 되는지에 대한 걱정 없이 effect 내부에서 그 값을 읽도록 하기 위해 의도된 부분이라고 한다.  
+덕분에 리렌더링할 때마다 이전과 다른 effect로 교체된 상태를 전달할 수 있다.
+
+### 함수형 컴포넌트로 전환된 이유
+
+현재는 모든 react 코드가 함수형으로 작성되고 있다.  
+그 이유는 무엇일까?
+
+#### `this`를 사용하지 않음
+
+클래스형 컴포넌트는 state를 다룰 때 항상 `this.`로 시작한다.
+
+```jsx
+class Example extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      count: 0,
+    }
+  }
+
+  componentDidMount() {
+    document.title = `You clicked ${this.state.count} times`
+  }
+  componentDidUpdate() {
+    document.title = `You clicked ${this.state.count} times`
+  }
+
+  render() {
+    return (
+      <div>
+        <p>You clicked {this.state.count} times</p>
+        <button onClick={() => this.setState({ count: this.state.count + 1 })}>
+          Click me
+        </button>
+      </div>
+    )
+  }
+}
+```
+
+```jsx
+import { useState, useEffect } from 'react'
+
+function Example() {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    document.title = `You clicked ${count} times`
+  })
+
+  return (
+    <div>
+      <p>You clicked {count} times</p>
+      <button onClick={() => setCount(count + 1)}>Click me</button>
+    </div>
+  )
+}
+```
+
+위에 쓴 각각의 컴포넌트는 결과적으로 같은 동작을 하며 UI를 그린다.  
+하지만 클래스형 컴포넌트가 훨씬 많은 양의 코드가 필요하며 (위에 나온 예시는 아니지만)JS에서 위치에 따라 `this`가 다르게 동작하기 때문에 이벤트 핸들러에 함수 바인딩 과정도 복잡했다.  
+반면 함수형 컴포넌트는 훨씬 코드가 간단하며 함수 바인딩이 편해졌다.
+
+#### 생명주기가 없음
+
+![lifecycle](https://user-images.githubusercontent.com/63287638/189896667-fab16e4b-7e79-4967-bcf7-69c8cd5b88a1.png)
+
+위 사진은 클래스형 컴포넌트에서 이용했던 컴포넌트 생명 주기를 나타낸 것이다.  
+`componentDidMount`는 컴포넌트가 마운트된 후, `componentDidUpdate`는 컴포넌트가 업데이트된 후, `componentWillUnmount`는 컴포넌트가 언마운트되기 직전에 실행된다.  
+클래스형 컴포넌트가 버그 없이 의도한대로 동작하기 위해서는 위에 나온 것들을 올바르게 이해하고 사용했어야만 했다.
+
+반면에 함수형 컴포넌트는 생명 주기 함수가 따로 존재하지 않는다.  
+이유는 '모든 라이프 사이클 훅은 `React.Component`에 존재하기 때문'이다.  
+클래스형 컴포넌트는 `extends`로 `React.Component`에 접근할 수 있었지만 함수형 컴포넌트는 그렇지 않다.
+
+대신 함수형 컴포넌트는 공식문서에 나왔듯이 `useEffect` 훅을 이용해 `componentDidMount` 나 `componentDidUpdate`, `componentWillUnmount`를 대체할 수 있다.
+
+#### 성능?
+
+참고: https://djoech.medium.com/functional-vs-class-components-in-react-231e3fbd7108 , https://betterprogramming.pub/react-class-vs-functional-components-2327c7324bdd
+
+[과거 react 공식문서](https://reactjs.org/blog/2015/10/07/react-v0.14.html#stateless-functional-components)에서 미래에는 함수형 컴포넌트의 performance 향상을 기대한다~ 라고 이야기했다.  
+이것 때문에 계속 찾아봤는데 성능이 다르다는 결과가 없었다...
+https://jsfiddle.net/69z2wepo/136096/ 에서 렌더링 속도도 측정했으나 서로 빠른 정도가 왔다갔다한다.
+
+다만 바벨로 컴파일한 결과는 확연한 차이가 있다.
+
+```jsx
+// 함수형 컴포넌트
+function Welcome(props) {
+  return <h1>Hello, {props.name}</h1>
+}
+
+// 컴파일 결과
+function Welcome(props) {
+  return _react2.default.createElement('h1', null, 'Hello, ', props.name)
+}
+```
+
+```jsx
+// 클래스형 컴포넌트
+class Welcome extends React.Component {
+  render() {
+    return <h1>Hello, {this.props.name}</h1>
+  }
+}
+
+// 컴파일 결과
+var Welcome = (function (_React$Component) {
+  _inherits(Welcome, _React$Component)
+
+  function Welcome() {
+    _classCallback(this, Welcome)
+
+    return _possibleConstructorReturn(
+      this,
+      (Welcome.__proto__ || Object.getPrototypeOf(Welcome)).apply(
+        this,
+        arguments
+      )
+    )
+  }
+
+  _createClass(Welcome, [
+    {
+      key: 'render',
+      value: function render() {
+        return _reaact2.default.createElement(
+          'h1',
+          null,
+          'Hello, ',
+          this.props.name
+        )
+      },
+    },
+  ])
+
+  return Welcome
+})(_react2.default.Component)
+```
+
+하지만 바벨로 컴파일한 결과물로 인해 렌더링 속도의 차이가 발생하지는 않는 것 같다.
+
+만~약 함수형 컴포넌트와 클래스형 컴포넌트 간의 성능 차이가 나더라도 구조로 인한 성능 차이 더 크다.  
+따라서 성능면에서는 함수형인지 클래스형인지를 신경쓸 필요는 없는 것 같다.
+
+결론적으로 함수형 컴포넌트가 대세인 이유는 **간결함**인 것 같다.
+
+### Hook
+
+react v16.8에서 hook이라는 개념이 등장하면서 함수형 컴포넌트가 대세가 되었다.  
+이전에도 함수형 컴포넌트는 존재했으나 그 당시의 함수형 컴포넌트는 단순한 JS 함수로서, stateless한 컴포넌트였다.  
+즉, 클래스형 컴포넌트처럼 `this.state`와 같은 문법을 사용할 수 없었다.  
+그래서 그 당시에 굳이 함수형 컴포넌트를 쓰고 싶었다면 별도로 클래스형 컴포넌트를 생성하거나 부모 컴포넌트로 'lift the state up'한 뒤 자식 컴포넌트에서 받아쓰는 방법으로 구현해야 됐다고 한다.
+
+_참고) hook 사용 규칙_
+
+1. 최상위(at the Top Level)에서만 hook을 호출해야 한다. 컴포넌트가 렌더링 될 때마다 항상 동일한 순서로 hook이 호출되기 위해서는 반복문, 조건문 또는 중첩된 함수 내에서 hook을 호출하면 안 된다.
+2. react 함수 내에서만 hook을 호출해야 한다. 다만 react 함수 컴포넌트나 custom hook 내부에서 hook을 호출할 수는 있다. 해당 규칙을 지킨다면 모든 상태 관련 로직을 소스코드에서 명확하게 보이도록 코드를 짤 수 있다.
 
 ## 4. 컴포넌트 합성
 
@@ -109,9 +309,6 @@ hook 구현?
 
 // Content.jsx
 const Wrapper = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
   padding-left: ${({ paddingLeft }) => paddingLeft};
 `
 function Content({ paddingLeft, children }: ContentProps) {
@@ -145,7 +342,7 @@ import Content from 'components/common/Content'
 import Header from './Header'
 import VerticalNavBar from './VerticalNavBar'
 
-const NAV_BAR_WIDTH = '326px' // 반응형이라면 고정되면 안됨
+const NAV_BAR_WIDTH = '326px'
 
 function VerticalLayout({ children }) {
   return (
@@ -164,13 +361,13 @@ import { VerticalLayout } from 'components/layout'
 
 // 합성된 컴포넌트 이용
 function Page() {
-  return <VerticalLayout>{/* Page 내용 렌더링 */}</VerticalLayout>
+  return <VerticalLayout>{/* Page 내용 */}</VerticalLayout>
 }
 ```
 
-`props.children`에게 새로운 props를 전달해주고 싶을 때가 있지만 만약 그렇다면 구조를 잘 짰는지 다시 생각해보자.  
+`props.children` 자체에 새로운 props를 전달해주고 싶을 때가 있지만 만약 그렇다면 구조를 잘 짰는지 다시 생각해보자.  
 기본적으로 props는 read-only이므로 `{children}` 이외의 방식은 `children`의 props를 변형시킬 수 있다.  
-도저히 답이 안 나오면 `React.cloneElement`를 사용하고 사용법은 https://velog.io/@hyunjoogo/React-children-Component%EC%97%90-props-%EC%A0%84%EB%8B%AC%ED%95%98%EA%B8%B0 와 https://www.delftstack.com/ko/howto/react/react-pass-props-to-children/ 를 참고하자.
+도저히 답이 안 나오면 `React.cloneElement`를 사용할 수 있으며 사용법은 https://velog.io/@hyunjoogo/React-children-Component%EC%97%90-props-%EC%A0%84%EB%8B%AC%ED%95%98%EA%B8%B0 와 https://www.delftstack.com/ko/howto/react/react-pass-props-to-children/ 를 참고하자.
 
 컴포넌트 합성시 반드시 `props.children`을 사용해야 하는 것은 아니다.  
 아래는 [공식문서](https://ko.reactjs.org/docs/composition-vs-inheritance.html)의 예시이다.
