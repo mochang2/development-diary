@@ -313,6 +313,42 @@ function Component() {
 
 SPA로 제작된 큰 규모의 웹 페이지라면 virtual DOM을 사용해서 브라우저 연산 양을 줄여 성능을 개선할 수 있고 그래서 react가 요새 가장 인기 있는 라이브러리인 것 같다.
 
+### React에서의 렌더링
+
+참고: https://yceffort.kr/2022/04/deep-dive-in-react-rendering
+
+react에서 렌더링은 컴포넌트가 현재 props와 state의 상태에 기초하여 UI를 어떻게 구성할지 컴포넌트에게 요청하는 작업을 말한다.  
+간단히 말하면 렌더링은 DOM 업데이트를 말하며, 따라서 가시적인 변경이 없어도 컴포넌트가 렌더링될 수 있다.
+
+렌더링이 일어나는 동안, react는 컴포넌의 루트에서 시작해 아래쪽으로 쭉 훑어보면서, 업데이트가 필요하다고 플래그가 지정되어 있는 모든 컴포넌트를 찾는다(diffing algorithm).  
+만약 플래그가 지정되어 있는 컴포넌트를 만난다면, 클래스 컴포넌트의 경우 `classComponentInstance.render()`를, 함수형 컴포넌트의 경우 `FunctionComponent()`를 호출하고, 렌더링된 결과를 저장한다.
+
+전체 컴포넌트에서 이러한 렌더링 결과물을 수집하고, 리액트는 새로운 오브젝트 트리와 비교하며, 실제 DOM을 의도한 출력처럼 보이게 적용해야 하는 모든 변경 사항을 수집한다.  
+이렇게 비교하고 계산하는 과정을 위에서 말한 재조정(_reconciliation_)이라고 한다.  
+즉, re-rendering될 때 재조정이 발생한다.
+
+react는 이 단계를 의도적으로 다음 두 가지 단계로 분류하였다.
+
+- Render phase: 컴포넌트를 렌더링하고 변경사항을 계산하는 모든 작업
+- Commit phase: 돔에 변경사항을 적용하는 과정
+
+_cf) 권고하지 않는 사항_
+
+모든 컴포넌트는 그 안에 또 다른 컴포넌트 선언을 가지고 있지 않는다.  
+예를 들면 아래와 같은 상황처럼 말이다.
+
+```jsx
+function ParentComponent() {
+  function ChildComponent() {
+    return <div>I'm child</div>
+  }
+
+  return <div>I'm parent</div>
+}
+```
+
+왜냐하면 렌더링할 때마다 매번 새로운 참조를 만들게 되어 매번 새로운 트리를 생성하는 비효율성이 발생하기 때문이다.
+
 ## 4. vanilla.js로 virtual DOM 흉내내기 (+ react 흉내내기)
 
 vanilla js로 virtual DOM 만들기
