@@ -2,6 +2,15 @@
 
 React에 대해 면접 전에 부랴부랴 외우기 보다 미리 '이해'하고 싶어서 정리하려고 한다.
 
+### 목차
+
+- [명령형 프로그래밍 vs 선언형 프로그래밍](https://github.com/mochang2/development-diary/blob/main/030-react.md#1-%EB%AA%85%EB%A0%B9%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Dimperative-programming-vs-%EC%84%A0%EC%96%B8%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Ddeclarative-programming)
+- [불변성](https://github.com/mochang2/development-diary/blob/main/030-react.md#2-%EB%B6%88%EB%B3%80%EC%84%B1immutability)
+- [hook과 함수형 컴포넌트 vs 클래스형 컴포넌트](https://github.com/mochang2/development-diary/blob/main/030-react.md#3-hook%EA%B3%BC-%ED%95%A8%EC%88%98%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%81%B4%EB%9E%98%EC%8A%A4%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8)
+- [컴포넌트 합성](https://github.com/mochang2/development-diary/blob/main/030-react.md#4-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%95%A9%EC%84%B1)
+- [전역 상태 관리](https://github.com/mochang2/development-diary/blob/main/030-react.md#5-%EC%A0%84%EC%97%AD-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC)
+- [성능]()
+
 ## 1. 명령형 프로그래밍(imperative programming) vs 선언형 프로그래밍(declarative programming)
 
 [React 공식 페이지](https://ko.reactjs.org/)에서는 react를 선언형이라고 설명한다.  
@@ -90,9 +99,97 @@ vanilla.js는 아마 `const header2 = document.createElement('h1')`를 선언한
 
 ## 2. 불변성(immutability)
 
-props와 state
+### Props vs State
 
-## 3. hook과 함수형 컴포넌트, 클래스형 컴포넌트
+~해당 주제에 관련된 부분은 state만 다루는 것이지만 중요한 개념이기도 해서 state를 다루는 김에 같이 다뤘다~
+
+- props
+  - 변경되면 안 됨
+  - 컴포넌트가 호출받을 때 전달받는 값
+  - 호출받고 코드가 읽혀지는 시점에서 값이 고정됨
+- state
+  - 변경될 수 있음
+  - 컴포넌트가 실행될 때 내부적으로 가진 값
+  - 비동기적으로 변경됨
+
+props와 state와 관련해서 자주 실수하는 부분이 있다.
+
+1. 전달받은 props로 state를 초기화한다.
+
+```jsx
+function ChildComponent({ data }) {
+  const [childData, setChildData] = useState(data)
+  // ...
+}
+```
+
+만약 data가 primitive type이라면 (그래도 좋은 경우는 아니지만) 문제 없이 동작할 것이다.  
+하지만 object라면 (주소값이 복사되므로) `setChildData`로 state를 변경할 때 `data`도 변경되는 예상치 못한 side effect나 rendering될 때 상태 변화가 반영되지 않을 수 있다.  
+~(정확한 결과는 실행을 안 해봐서 모르겠다)~
+구조를 변경할 수 없다면 차라리 spread 연산자 등을 이용해서 복사한 값을 state의 초기값을 넣어주는 것이 좋다.
+
+2. state는 비동기적으로 변경된다.
+
+```jsx
+function App() {
+  const [count, setCount] = useState(0)
+
+  const addCount = () => {
+    console.log(count) // 0
+    setCount(count + 1)
+    console.log(count) // 0
+  }
+
+  console.log(count) // 1
+
+  return (
+    <div>
+      <button onClick={addCount}>
+        +1
+      <button>
+      <h1>{count}</h1>
+    </div>
+  )
+}
+```
+
+setState는 비동기적 으로 동작한다.  
+setState가 호출되는 시점은 해당 setState가 포함된 모든 함수가 실행된 이후이다.
+
+### React의 불변성
+
+[JS의 불변성](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#8-immutability)에서 다뤘듯이 불변성이란 **메모리 영역에서 값을 변경할 수 없다**는 의미이다.
+react에서 불변성은 새로운 개념이 아니라 JS의 불변성이라는 개념을 지켜가면서 state와 props를 이용할 수 있도록 하는 아이디어를 react에 녹여낸 것이다.
+
+[아래](https://github.com/mochang2/development-diary/blob/main/030-react.md#%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EB%A6%AC%EB%A0%8C%EB%8D%94%EB%A7%81)에서 다루듯이 react는 state가 변경되면 컴포넌트가 re-render된다.  
+react에서 불변성을 지켜주는 이유는 state가 변경되었는지 파악하기 위함이다.
+
+react는 state가 변경되었는지 확인할 때 얕은 비교를 수행한다.  
+즉, object의 내부를 하나하나 비교하는 것이 아니라 주소값(참조값)만 비교한다.  
+만약 불변성을 지켜주지 않는 방식으로 setState를 호출하면 변화된 값이 화면에 반영되지 않을 수 있다.
+
+react에서 불변성을 지킴으로써 다음과 같은 이점을 얻는다.
+
+1. 효율적인 상태 업데이트(계산 리소스가 적은 shallow compare)
+2. side effect 방지 및 프로그래밍 구조의 단순성
+
+#### 불변성을 유지하는 방법
+
+함수형 프로그래밍을 생각하면 단순하다.  
+간단하게 Array로 설명을 하면, `push`나 `splice` 등을 사용하지 않고 spread 연산자나 고차함수(`map`, `filter` 등)을 이용하는 것이다.
+
+```jsx
+// state에 어떤 값을 추가해야 되는 상황
+function Component() {
+  const [data, setData] = useState([])
+
+  const handleData = (event) => {
+    setData([...data, event.target.dataset.id])
+  }
+}
+```
+
+## 3. hook과 함수형 컴포넌트 vs 클래스형 컴포넌트
 
 [react 공식문서](https://ko.reactjs.org/docs/hooks-overview.html)에서 effect hook에 대해 side effect를 수행하는 훅이라고 설명한다.
 
@@ -127,8 +224,17 @@ function App({ name }) {
 ```
 
 위와 같이 side effect를 컴포넌트 내부에서 바로 동작시킨다면 컴포넌트 렌더링 과정에 영향을 끼치게 된다.  
+이는 react rendering 규칙 중 하나인 **렌더링은 '순수'해야 하고 side effect가 없어야 한다**는 것을 무시한 것이다.  
 따라서 side effect는 컴포넌트 렌더링 과정과 '분리'되어야 한다.  
 해당 기능을 제공해주는 것이 `useEffect`와 같은 hook이다.
+
+_rendering 로직 참고_  
+렌더링 로직은 다음과 같은 행위를 할 수 없다.
+
+- 존재하는 변수나 객체 변경
+- `Math.random()` `Date.now()`와 같은 랜덤 값 생성
+- 네트워크 요청
+- state를 업데이트
 
 _useEffect 참고_  
 `useEffect` hook은 react에게 컴포넌트가 렌더링 이후에 어떤 일을 수행해야 하는지를 말해준다.  
@@ -671,6 +777,18 @@ props drilling을 이용해서 props를 따라간다면 코드를 실행하지 �
 2. update in props. 부모로부터 물려받은 `props`에 변화가 발생하면 해당 컴포넌트는 re-render 된다.
 3. re-rendering of parent component.
 
+> (3번) 예를 들어, `A` > `B` > `C` > `D` 순서의 컴포넌트 트리가 있다고 가정해보자. `B`에 카운터를 올리는 버튼이 있고, 이를 클릭했다고 가정해보자.
+
+`B`의 `setState()`가 호출되어, `B`의 리렌더링이 렌더링 큐로 들어간다.
+리액트는 트리 최상단에서 부터 렌더링 패스를 시작한다.
+`A`는 업데이트가 필요하다고 체크 되어 있지 않을 것이므로, 지나간다.
+`B`는 업데이트가 필요한 컴포넌트로 체크되어 있으므로, `B`를 리렌더링 한다. `B`는 `C`를 리턴한다.
+`C`는 원래 업데이트가 필요한 것으로 간주되어 있지 않았다. 그러나, 부모인 `B`가 렌더링 되었으므로, 리액트는 그 하위 컴포넌트인 `C`를 렌더링 한다. `C`는 `D`를 리턴한다.
+`D`도 마찬가지로 렌더링이 필요하다고 체크되어 있지 않았지만, `C`가 렌더링된 관계로, 그 자식인 `D`도 렌더링 한다.
+컴포넌트를 렌더링 하는 작업은, 기본적으로, 하위에 있는 모든 컴포넌트 또한 렌더링 하게 된다.
+
+> 일반적인 렌더링의 경우, 리액트는 props가 변경되어 있는지 신경쓰지 않는다. 부모 컴포넌트가 렌더링 되어 있기 때문에, 자식 컴포넌트도 무조건 리렌더링 된다.
+
 위 3번은 react의 [diffing 알고리즘](https://ko.reactjs.org/docs/reconciliation.html#motivation) 때문에 발생하며 이를 간단하게 증명할 수 있다.
 
 ```tsx
@@ -897,3 +1015,139 @@ recoil - https://velog.io/@yiyb0603/TypeScript-React-Recoil%EC%9D%84-%EC%9D%B4%E
 jotai
 
 언제 re-rendering 되는지. 어떠한 철학을 가지고 만들었는지.
+
+## 6. 성능(Performance)
+
+2. 리액트 퍼포먼스에 영향 끼치는 행위둘 - chunk file. webpack => production mode. dependency optimization. re-rendering. additional html wrapper => <></>. iterate key props. CDN. Webworkder. SSR. Content compression.
+
+> <렌더링>
+
+리액트는 기본적으로 재귀적으로 컴포넌트를 렌더링 한다. 그러므로, 부모가 렌더링 되면 자식도 렌더링 된다.
+렌더링 그 자체로는 문제가 되지 않는다. 렌더링은 리액트가 DOM의 변화가 있는지 확인하기 위한 절차일 뿐이다.
+그러나 렌더링은 시간이 소요되며, UI 변화가 없는 불필요한 렌더링은 시간을 소비한다.
+
+re-rendering => props.children. memo. useMemo 등
+// 아래 경우 P가 render -> C가 render되므로 memo 의미 x
+
+```jsx
+const MemoizedChildComponent = React.memo(ChildComponent)
+
+function ParentComponent() {
+  const onClick = () => {
+    console.log('Button clicked')
+  }
+
+  const data = { a: 1, b: 2 }
+
+  return <MemoizedChildComponent onClick={onClick} data={data} />
+}
+```
+
+// memo를 사용해서 re-render를 막을 수 있는 상황인지 살펴보기! 특히 props를 전달받지 않는다면 가능하지 않을까
+// memo를 사용하지 말하야 할 경우? https://github.com/facebook/react/issues/14463
+See how your app behaves in production mode, use React's profiling builds and the DevTools profiler to see where bottlenecks are, and strategically use these tools to optimize parts of the component tree that will actually benefit from these optimizations.
+
+3. 해당 행위 개선방법
+
+#### 컴포넌트 분리
+
+```tsx
+// 아래 예시에서 state, setState를 그대로 child component에게 전달해줬는데, 실제로는 저렇게 쓰면 안됨
+
+// 분리 이전
+function App() {
+  const [data, setData] = useState<DataType[] | null>(null)
+  const [categoryOption, setCategoryOption] = useState(DEFAULT_OPTION) // DEFAULT_OPTION = '전체'
+  const [searchText, setSearchText] = useState('')
+  const [page, setPage] = useState(1)
+
+  useEffect(() => {
+    async function fetch() {
+      const {
+        data: { data },
+      } = await api.get('/')
+
+      setData(data)
+    }
+
+    fetch()
+  }, [])
+
+  return (
+    <>
+      <Filter>
+        <Selection />{' '}
+        {/* categoryOption, setCategoryOption를 전달받는 컴포넌트 */}
+        <SearchInput /> {/* searchText, setSearchText를 전달받는 컴포넌트 */}
+      </Filter>
+      {faqs ? (
+        <>
+          <Table />
+          {/* 필터링된 데이터를 토대로, 해당 페이지의 있는 데이터들을 보여주는 부분. 별도 컴포넌트 분리x */}
+          <Pagination />
+          {/* page, setPage를 전달받는 컴포넌트 */}
+        </>
+      ) : (
+        <Loading />
+      )}
+    </>
+  )
+}
+```
+
+category, searchText가 변경될 때 DataList가 re-render되는 것은 어쩔 수 없음.
+하지만 Page가 변경되면서 DataList가 re-render될 때, Filter 부분이 re-render할 필요가 없음.
+
+```tsx
+// 분리 이후
+function App() {
+  // ... 동일
+  return (
+    <>
+      <Filter>{/* 동일 */}</Filter>
+      {faqs ? (
+        <FaqList
+          faqs={faqs}
+          categoryOption={
+            categoryOption === DEFAULT_OPTION ? '' : categoryOption
+          }
+          searchText={searchText}
+        />
+      ) : (
+        <Loading />
+      )}
+    </>
+  )
+}
+
+function DataList({ data, categoryOption, searchText }: DataListProps) {
+  const filteredData = data.filter(
+    (datum) =>
+      datum.category.includes(categoryOption) &&
+      datum.title.includes(searchText)
+  )
+
+  const [page, setPage] = useState(1)
+
+  return (
+    <>
+      <Table rowCount={PER_PAGE_COUNT + 1}>
+        {HEADERS.map((header, index) => (
+          <HeaderCell key={index}>{header}</HeaderCell>
+        ))}
+        {currentPageFaqs(filteredData, page).map((datum) => (
+          <DataCell key={datum.no} />
+        ))}
+      </Table>
+      <Pagination {/* some props */} />
+    </>
+  )
+}
+```
+
+> wrapper 최소화
+
+공용 컴포넌트, page 최상단은 wrapper로 감쌈
+나머지는 <></>로 처리하고자 함
+
+https://jelvix.com/blog/is-react-js-fast

@@ -1264,6 +1264,8 @@ requestAnimationFrame API가 실행되면 콜백이 Animation Frames으로 담�
 
 ## 8. immutability
 
+**불변성: 메모리 영역에서 값을 변경할 수 없음**
+
 JS에서는 객체 관리를 '불변'하게 한다.  
 이 말 뜻은 객체가 생성된 이후 그 상태를 변경할 수 없다는 것이다.  
 여기서 상태를 변경한다는 것과 값을 재할당하는 것은 다른 의미이다.
@@ -1302,8 +1304,19 @@ console.log(newStr) // 'str'
 
 ### 객체의 불변성?
 
-위에서 말한 primitive type을 제외한 모든 object들은 mutable하다.  
-즉, 새로운 값이 만들어지지 않고 직접적으로 변경이 가능하다는 것이다.
+객체도 다음과 같이 사용하면 위에서 설명한 과정과 똑같은 순서를 거친다.
+
+```javascript
+let arr1 = [1, 2, 3]
+let arr2 = arr1
+arr1 = [1, 2, 3, 4]
+
+console.log(arr1) // [1, 2, 3, 4]
+console.log(arr2) // [1, 2, 3]
+```
+
+다만 primitive type과 달리 object type는 '불변하다'고 표현하지 않는다.  
+새로운 값이 만들어지지 않고 메모리 영역에서 직접적으로 변경이 가능하기 때문이다.
 
 ```javascript
 const x = {
