@@ -5,10 +5,9 @@ React에 대해 면접 전에 부랴부랴 외우기 보다 미리 '이해'하�
 ### 목차
 
 - [명령형 프로그래밍 vs 선언형 프로그래밍](https://github.com/mochang2/development-diary/blob/main/030-react.md#1-%EB%AA%85%EB%A0%B9%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Dimperative-programming-vs-%EC%84%A0%EC%96%B8%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Ddeclarative-programming)
-- [불변성](https://github.com/mochang2/development-diary/blob/main/030-react.md#2-%EB%B6%88%EB%B3%80%EC%84%B1immutability)
-- [hook과 함수형 컴포넌트 vs 클래스형 컴포넌트](https://github.com/mochang2/development-diary/blob/main/030-react.md#3-hook%EA%B3%BC-%ED%95%A8%EC%88%98%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%81%B4%EB%9E%98%EC%8A%A4%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8)
-- [컴포넌트 합성](https://github.com/mochang2/development-diary/blob/main/030-react.md#4-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%95%A9%EC%84%B1)
-- [전역 상태 관리](https://github.com/mochang2/development-diary/blob/main/030-react.md#5-%EC%A0%84%EC%97%AD-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC)
+- [hook과 함수형 컴포넌트 vs 클래스형 컴포넌트](https://github.com/mochang2/development-diary/blob/main/030-react.md#2-hook%EA%B3%BC-%ED%95%A8%EC%88%98%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%81%B4%EB%9E%98%EC%8A%A4%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8)
+- [컴포넌트 합성](https://github.com/mochang2/development-diary/blob/main/030-react.md#3-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%95%A9%EC%84%B1)
+- [전역 상태 관리](https://github.com/mochang2/development-diary/blob/main/030-react.md#4-%EC%A0%84%EC%97%AD-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC)
 - [성능]()
 
 ## 1. 명령형 프로그래밍(imperative programming) vs 선언형 프로그래밍(declarative programming)
@@ -97,99 +96,7 @@ vanilla.js는 아마 `const header2 = document.createElement('h1')`를 선언한
 
 이를 해결하기 위해 react에서는 [**virtual DOM**](https://github.com/mochang2/development-diary/blob/main/029-virtual%20DOM.md)과 **reconciliation**이라는 개념을 도입했다.
 
-## 2. 불변성(immutability)
-
-### Props vs State
-
-~해당 주제에 관련된 부분은 state만 다루는 것이지만 중요한 개념이기도 해서 state를 다루는 김에 같이 다뤘다~
-
-- props
-  - 변경되면 안 됨
-  - 컴포넌트가 호출받을 때 전달받는 값
-  - 호출받고 코드가 읽혀지는 시점에서 값이 고정됨
-- state
-  - 변경될 수 있음
-  - 컴포넌트가 실행될 때 내부적으로 가진 값
-  - 비동기적으로 변경됨
-
-props와 state와 관련해서 자주 실수하는 부분이 있다.
-
-1. 전달받은 props로 state를 초기화한다.
-
-```jsx
-function ChildComponent({ data }) {
-  const [childData, setChildData] = useState(data)
-  // ...
-}
-```
-
-만약 data가 primitive type이라면 (그래도 좋은 경우는 아니지만) 문제 없이 동작할 것이다.  
-하지만 object라면 (주소값이 복사되므로) `setChildData`로 state를 변경할 때 `data`도 변경되는 예상치 못한 side effect나 rendering될 때 상태 변화가 반영되지 않을 수 있다.  
-~(정확한 결과는 실행을 안 해봐서 모르겠다)~
-구조를 변경할 수 없다면 차라리 spread 연산자 등을 이용해서 복사한 값을 state의 초기값을 넣어주는 것이 좋다.
-
-2. state는 비동기적으로 변경된다.
-
-```jsx
-function App() {
-  const [count, setCount] = useState(0)
-
-  const addCount = () => {
-    console.log(count) // 0
-    setCount(count + 1)
-    console.log(count) // 0
-  }
-
-  console.log(count) // 1
-
-  return (
-    <div>
-      <button onClick={addCount}>
-        +1
-      <button>
-      <h1>{count}</h1>
-    </div>
-  )
-}
-```
-
-setState는 비동기적 으로 동작한다.  
-setState가 호출되는 시점은 해당 setState가 포함된 모든 함수가 실행된 이후이다.
-
-### React의 불변성
-
-[JS의 불변성](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#8-immutability)에서 다뤘듯이 불변성이란 **메모리 영역에서 값을 변경할 수 없다**는 의미이다.
-react에서 불변성은 새로운 개념이 아니라 JS의 불변성이라는 개념을 지켜가면서 state와 props를 이용할 수 있도록 하는 아이디어를 react에 녹여낸 것이다.
-
-[아래](https://github.com/mochang2/development-diary/blob/main/030-react.md#%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EB%A6%AC%EB%A0%8C%EB%8D%94%EB%A7%81)에서 다루듯이 react는 state가 변경되면 컴포넌트가 re-render된다.  
-react에서 불변성을 지켜주는 이유는 state가 변경되었는지 파악하기 위함이다.
-
-react는 state가 변경되었는지 확인할 때 얕은 비교를 수행한다.  
-즉, object의 내부를 하나하나 비교하는 것이 아니라 주소값(참조값)만 비교한다.  
-만약 불변성을 지켜주지 않는 방식으로 setState를 호출하면 변화된 값이 화면에 반영되지 않을 수 있다.
-
-react에서 불변성을 지킴으로써 다음과 같은 이점을 얻는다.
-
-1. 효율적인 상태 업데이트(계산 리소스가 적은 shallow compare)
-2. side effect 방지 및 프로그래밍 구조의 단순성
-
-#### 불변성을 유지하는 방법
-
-함수형 프로그래밍을 생각하면 단순하다.  
-간단하게 Array로 설명을 하면, `push`나 `splice` 등을 사용하지 않고 spread 연산자나 고차함수(`map`, `filter` 등)을 이용하는 것이다.
-
-```jsx
-// state에 어떤 값을 추가해야 되는 상황
-function Component() {
-  const [data, setData] = useState([])
-
-  const handleData = (event) => {
-    setData([...data, event.target.dataset.id])
-  }
-}
-```
-
-## 3. hook과 함수형 컴포넌트 vs 클래스형 컴포넌트
+## 2. hook과 함수형 컴포넌트 vs 클래스형 컴포넌트
 
 [react 공식문서](https://ko.reactjs.org/docs/hooks-overview.html)에서 effect hook에 대해 side effect를 수행하는 훅이라고 설명한다.
 
@@ -382,7 +289,7 @@ var Welcome = (function (_React$Component) {
 })(_react2.default.Component)
 ```
 
-하지만 바벨로 컴파일한 결과물로 인해 렌더링 속도의 차이가 발생하지는 않는 것 같다.
+하지만 바벨로 컴파일한 결과물로 인해 (서버에서 전달하는 데이터의 크기와는 별도로) 렌더링 속도의 차이가 발생하지는 않는 것 같다.
 
 만~약 함수형 컴포넌트와 클래스형 컴포넌트 간의 성능 차이가 나더라도 구조로 인한 성능 차이 더 크다.  
 따라서 성능면에서는 함수형인지 클래스형인지를 신경쓸 필요는 없는 것 같다.
@@ -396,12 +303,15 @@ react v16.8에서 hook이라는 개념이 등장하면서 함수형 컴포넌트
 즉, 클래스형 컴포넌트처럼 `this.state`와 같은 문법을 사용할 수 없었다.  
 그래서 그 당시에 굳이 함수형 컴포넌트를 쓰고 싶었다면 별도로 클래스형 컴포넌트를 생성하거나 부모 컴포넌트로 'lift the state up'한 뒤 자식 컴포넌트에서 받아쓰는 방법으로 구현해야 됐다고 한다.
 
+`useState` 훅이 등장하면서 함수형 컴포넌트에서 별도로 state 관리가 가능해졌고 'lift the state up'과 같은 방법을 사용하지 않을 수 있게 되었다.  
+`useState`는 JS의 [클로져](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#3-closure)라는 개념을 활용하여 구현했다고 한다.
+
 _참고) hook 사용 규칙_
 
 1. 최상위(at the Top Level)에서만 hook을 호출해야 한다. 컴포넌트가 렌더링 될 때마다 항상 동일한 순서로 hook이 호출되기 위해서는 반복문, 조건문 또는 중첩된 함수 내에서 hook을 호출하면 안 된다.
 2. react 함수 내에서만 hook을 호출해야 한다. 다만 react 함수 컴포넌트나 custom hook 내부에서 hook을 호출할 수는 있다. 해당 규칙을 지킨다면 모든 상태 관련 로직을 소스코드에서 명확하게 보이도록 코드를 짤 수 있다.
 
-## 4. 컴포넌트 합성
+## 3. 컴포넌트 합성
 
 특정 컴포넌트들은 어떤 자식 엘리먼트가 들어올지 미리 예상할 수 없는데, 이를 '일반화'(맞는 표현일지는 모르겠지만) 시킴으로써 재사용 가능하게 만들 수 있다.  
 특히 `props.children`을 이용하여 `Sidebar`나 `Dialog`를 만들 때 유용한 방식이다.
@@ -741,282 +651,7 @@ const TodoList = withLoadingFeedback(
 
 +) 참고로 [공식문서](https://ko.reactjs.org/docs/composition-vs-inheritance.html)에서 '합성'은 좋은 구조이지만 '상속'을 사용하는 좋은 사례는 발견하지 못했다고 한다.
 
-## 5. 전역 상태 관리
-
-전역 상태 관리 라이브러리가 등장하기 전에는 [Container-Presenter 패턴](https://github.com/mochang2/development-diary/blob/main/028-architecture.md#container-presenter)을 이용해서 컴포넌트 간 데이터를 공유했다.  
-props drilling을 사용했다는 뜻이다.
-
-전역 상태 관리에 들어가기 전에 props drilling의 단점을 먼저 짚고 넘어가고자 한다.
-
-### Props Drilling
-
-props drilling이란 react의 컴포넌트 트리에서 데이터를 전달하기 위해 상위 컴포넌트에서 하위 컴포넌트로 props를 계속해서 내려주는 것을 의미한다.
-
-전역 변수를 사용한다면 데이터가 어디서 초기화되고 갱신되며 사용하는지 판단하기 쉽지 않다.  
-props drilling을 이용해서 props를 따라간다면 코드를 실행하지 않고도 어디서 선언됐고 사용됐는지 쉽게 파악할 수 있으며 전역 변수를 사용할 때 항상 문제가 되는 사이드 이펙트를 덜 걱정할 수 있다.
-
-하지만 컴포넌트 depth가 증가할수록 이 장점은 희미해진다.  
-특히 다음과 같은 상황을 마주한다면 말이다.
-
-- 일부 데이터의 자료형을 바꾸게 되는 경우 `{ user: { name: 'Joe West' } } -> { user: { firstName: 'Joe', lastName: 'West' } })`
-- 필요보다 많은 property를 전달하다가 컴포넌트를 분리하는 과정에서 필요 없는 property가 계속 남는 경우
-- 필요보다 적은 property를 전달하면서 동시에 defaultProps를 과용한 결과로 필요한 property가 전달되지 않은 상황을 문제를 인지하지 어려운 경우 (또한 컴포넌트 분리 과정에서도)
-- property의 이름이 중간에서 변경되어서 값을 추적하는데 쉽지 않아지는 경우
-
-추가적으로 props drilling의 단점으로 re-rendering의 비효율성이 있다고 예상했다.  
-~아무리 검색해도 리렌더링 비효율성이란 단점은 나오지 않았을 때 잘못된 결론이라는 것을 알았어야 됐다...~  
-하지만 잘못된 판단이었다.
-
-아래 내용은 props drilling이 전역 상태 관리 라이브러리와는 다르게 실제로 비효율적인 re-render을 발생하는지 실험하기 위한 과정이다.
-
-#### 컴포넌트 리렌더링
-
-컴포넌트는 다음과 같은 세 가지 상황에서 re-render 된다.
-
-1. update in state(`setState`). `props` 변화가 발생하는지 상관없이 해당 컴포넌트의 모든 자식 요소들도 re-render 된다.
-2. update in props. 부모로부터 물려받은 `props`에 변화가 발생하면 해당 컴포넌트는 re-render 된다.
-3. re-rendering of parent component.
-
-> (3번) 예를 들어, `A` > `B` > `C` > `D` 순서의 컴포넌트 트리가 있다고 가정해보자. `B`에 카운터를 올리는 버튼이 있고, 이를 클릭했다고 가정해보자.
-
-`B`의 `setState()`가 호출되어, `B`의 리렌더링이 렌더링 큐로 들어간다.
-리액트는 트리 최상단에서 부터 렌더링 패스를 시작한다.
-`A`는 업데이트가 필요하다고 체크 되어 있지 않을 것이므로, 지나간다.
-`B`는 업데이트가 필요한 컴포넌트로 체크되어 있으므로, `B`를 리렌더링 한다. `B`는 `C`를 리턴한다.
-`C`는 원래 업데이트가 필요한 것으로 간주되어 있지 않았다. 그러나, 부모인 `B`가 렌더링 되었으므로, 리액트는 그 하위 컴포넌트인 `C`를 렌더링 한다. `C`는 `D`를 리턴한다.
-`D`도 마찬가지로 렌더링이 필요하다고 체크되어 있지 않았지만, `C`가 렌더링된 관계로, 그 자식인 `D`도 렌더링 한다.
-컴포넌트를 렌더링 하는 작업은, 기본적으로, 하위에 있는 모든 컴포넌트 또한 렌더링 하게 된다.
-
-> 일반적인 렌더링의 경우, 리액트는 props가 변경되어 있는지 신경쓰지 않는다. 부모 컴포넌트가 렌더링 되어 있기 때문에, 자식 컴포넌트도 무조건 리렌더링 된다.
-
-위 3번은 react의 [diffing 알고리즘](https://ko.reactjs.org/docs/reconciliation.html#motivation) 때문에 발생하며 이를 간단하게 증명할 수 있다.
-
-```tsx
-function App() {
-  const [message, setMessage] = useState('')
-
-  const handleMessage = () => {
-    setMessage(message + 'click ')
-  }
-
-  console.log('re-render app')
-
-  return (
-    <>
-      <div onClick={handleMessage}>click here</div>
-      <Title message={message} />
-      <Title />
-    </>
-  )
-}
-
-interface TitleProps {
-  message?: string
-}
-function Title({ message }: TitleProps) {
-  console.log('re-render title')
-
-  return <div>{message}</div>
-}
-```
-
-위와 같은 경우는 `message`를 바꾸면 두 번째 `<Title />`은 props를 전달받지 않더라도 `<App />`과 두 개의 `<Title />` 모두에서 re-rendering 발생한다(`re-render app` -> `re-render title` -> `re-render title`).
-
-#### Re-render 코드로 살펴보기 - Props Drilling
-
-props drilling을 사용할 때 중간에 단순히 `props`를 전달받는 컴포넌트는 어떻게 될까?  
-앞서 이야기했듯이 `props`가 바뀌거나 부모가 re-render 되면서 본인도 re-render 된다.
-
-```tsx
-function Main() {
-  const [count, setCount] = useState(0)
-
-  const handleCount = () => {
-    setCount(count + 1)
-  }
-
-  console.log('re-render main')
-
-  return (
-    <div>
-      여기는 메인 페이지입니다.
-      <Middleware count={count} onChange={handleCount} />
-    </div>
-  )
-}
-
-interface MiddlewareProps {
-  count: number
-  onChange: () => void
-}
-function Middleware({ count, onChange }: MiddlewareProps) {
-  console.log('re-render middleware')
-
-  return (
-    <div>
-      여기는 미들웨어입니다.
-      <Button count={count} onChange={onChange} />
-    </div>
-  )
-}
-
-interface ButtonProps {
-  count: number
-  onChange: () => void
-}
-function Button({ count, onChange }: ButtonProps) {
-  console.log('re-render button')
-
-  return <button onClick={onChange}>{count}</button>
-}
-```
-
-`onChange`가 실행될 때마다 세 컴포넌트 모두 re-render 된다.
-
-#### Re-render 코드로 살펴보기 - Recoil
-
-그렇다면 `recoil`을 사용한다면 어떻게 될까?
-
-```typescript
-// 아래 state를 사용
-const CountState = atom<number>({
-  key: 'count-state',
-  default: 0,
-})
-```
-
-1. 부모에서 전역 변수에 대해 변화를 발생시킨 뒤 부모와 자식에서 해당 값을 구독하기
-
-```tsx
-function Main() {
-  const [count, setCount] = useRecoilState(CountState)
-
-  const handleCount = () => {
-    setCount(count + 1)
-  }
-
-  console.log('re-render main')
-
-  return (
-    <div>
-      여기는 메인 페이지입니다.
-      <button onClick={handleCount}>click me</button>
-      <Middleware />
-    </div>
-  )
-}
-
-function Middleware() {
-  console.log('re-render middleware')
-
-  return (
-    <div>
-      여기는 미들웨어입니다.
-      <Button />
-    </div>
-  )
-}
-
-function Button() {
-  const count = useRecoilValue(CountState)
-
-  console.log('re-render button')
-
-  return <button>{count}</button>
-}
-```
-
-![부모에서 전역 변수에 대해 변화를 발생시킨 뒤 부모와 자식에서 해당 값을 구독하기](https://user-images.githubusercontent.com/63287638/189563571-d4ba66a5-108d-4567-b77a-1da7130e5a23.jpg)
-
-`handleCount`가 실행될 때마다 세 컴포넌트 모두 re-render 된다.
-
-2. 부모에서 전역 변수에 대해 변화를 발생시킨 뒤 자식에서만 해당 값을 구독하기
-
-```tsx
-function Main() {
-  const setCount = useSetRecoilState(CountState)
-
-  const handleCount = () => {
-    setCount(Math.floor(Math.random() * 1000))
-  }
-
-  console.log('re-render main')
-
-  return (
-    <div>
-      여기는 메인 페이지입니다.
-      <button onClick={handleCount}>click me</button>
-      <Middleware />
-    </div>
-  )
-}
-
-// 나머지 컴포넌트는 1)과 동일
-```
-
-![부모에서 전역 변수에 대해 변화를 발생시킨 뒤 자식에서만 해당 값을 구독하기](https://user-images.githubusercontent.com/63287638/189563570-a2eeaeca-b99a-4d8b-bc71-43e8938f453d.jpg)
-
-`handleCount`가 발생해도 `<Button >`만 re-render 된다.
-
-3. 자식에서 변화를 발생시킨 뒤 부모에서 해당 값 구독하기
-
-```tsx
-function Main() {
-  const count = useRecoilValue(CountState)
-
-  console.log('re-render main')
-
-  return (
-    <div>
-      여기는 메인 페이지입니다. {count}
-      <Middleware />
-    </div>
-  )
-}
-
-function Middleware() {
-  console.log('re-render middleware')
-
-  return (
-    <div>
-      여기는 미들웨어입니다.
-      <Button />
-    </div>
-  )
-}
-
-function Button() {
-  const setCount = useSetRecoilState(CountState)
-
-  const handleCount = () => {
-    setCount(Math.floor(Math.random() * 1000))
-  }
-
-  console.log('re-render button')
-
-  return <button onClick={handleCount}>click here</button>
-}
-```
-
-![자식에서 변화를 발생시킨 뒤 부모에서 해당 값 구독하기](https://user-images.githubusercontent.com/63287638/189563575-b882f840-05ec-45a3-b3a4-a880cee51926.jpg)
-
-`handleCount`가 실행될 때마다 세 컴포넌트 모두 re-render 된다.
-
-**결론**
-
-결론적으로 '전역 상태 관리 라이브러리가 re-render 효율성을 가진다'는 말이 틀린 말은 아니다.  
-다만 특정한 구조가 아니고서는 '반드시 더 효율적이다'고 얘기할 수는 없는 것 같다.
-
-### Context API
-
-context API - https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwjEiOa1-4v6AhWZm1YBHVHtBCsQFnoECAcQAQ&url=https%3A%2F%2Fcodemacaw.com%2F2021%2F11%2F21%2Fprevent-unnecessary-re-rendering-when-using-context-api%2F&usg=AOvVaw0hmf6N2lhTO0csUEhcV7L5
-redux
-recoil - https://velog.io/@yiyb0603/TypeScript-React-Recoil%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-TodoList-%EB%A7%8C%EB%93%A4%EC%96%B4%EB%B3%B4%EA%B8%B0
-jotai
-
-언제 re-rendering 되는지. 어떠한 철학을 가지고 만들었는지.
-
-## 6. 성능(Performance)
+## 5. 성능(Performance)
 
 2. 리액트 퍼포먼스에 영향 끼치는 행위둘 - chunk file. webpack => production mode. dependency optimization. re-rendering. additional html wrapper => <></>. iterate key props. CDN. Webworkder. SSR. Content compression.
 
@@ -1151,3 +786,15 @@ function DataList({ data, categoryOption, searchText }: DataListProps) {
 나머지는 <></>로 처리하고자 함
 
 https://jelvix.com/blog/is-react-js-fast
+
+##
+
+성능 향상을 위한 방법 or CSR의 단점 극복하는 방법
+
+1. tree shaking: 실제로 쓰지 않는 코드들을 제외함. https://helloinyong.tistory.com/305
+
+2. SSR 도입(항상 성능 향상은 아니다): https://d2.naver.com/helloworld/7804182
+
+3. code splitting(chunk.js): 유저가 당장 필요한 정보에 우선순위를 두어 순서대로 로딩. dynamic import(React.lazy) / 여러 entry points
+   https://velog.io/@y1andyu/React-%EC%BD%94%EB%93%9C-%EB%B6%84%ED%95%A0  
+   https://medium.com/humanscape-tech/react%EC%97%90%EC%84%9C-%ED%95%B4%EB%B3%B4%EB%8A%94-%EC%BD%94%EB%93%9C-%EC%8A%A4%ED%94%8C%EB%A6%AC%ED%8C%85-code-splitting-56c9c7a1baa4
