@@ -390,7 +390,7 @@ console.log(urError.info) // 에러에러에러
 
 ### Array의 비밀
 
-구글에 `js array map`이라고 검색하면 MDN 사이트의 제목으로 `Array.prototype.map()`이 나온다.  
+구글에 'js array map'이라고 검색하면 MDN 사이트의 제목으로 `Array.prototype.map()`이 나온다.  
 내가 `const whatArray = [1,2,3]` 이라고 선언하면 `whatArray.map(~)`이나 `whatArray.sort()` 등의 내장 함수를 사용할 수 있는 이유이다.  
 실제로 `console.log(Array.prototype)` 이라고 하면 아래와 같은 결과물이 출력된다.
 
@@ -829,10 +829,10 @@ class Child extends Parent {
 new Child().getName() // parent
 ```
 
-## 5. event bubbling
+## 5. Event Bubbling
 
 이벤트 버블링은 특정 화면 요소에서 이벤트가 발생했을 때 해당 이벤트가 더 상위의 화면 요소들로 전달되어 가는 특성을 의미한다.  
-아래와 같이 코드를 짰을 경우, div3를 눌렀을 때, `click div3` -> `click div2` -> `click div1` 순으로 alert가 실행된다.
+아래와 같이 코드를 짰을 경우, `div3`를 눌렀을 때, 'click `div3`' -> 'click `div2`' -> 'click `div1`' 순으로 alert가 실행된다.
 
 ```html
 <!DOCTYPE html>
@@ -968,7 +968,7 @@ div1.addEventListener(
 ### event delegation
 
 하위 요소에 각각 이벤트를 붙이지 않고 상위 요소에서 하위 요소의 이벤트들을 제어하는 방식이다.  
-focus와 같이 이벤트 전파가 되지 않거나 stopPropagation을 사용하지 않았을 때 사용 가능하다.  
+focus와 같이 이벤트 전파가 되지 않거나 `event.stopPropagation`을 사용하지 않았을 때 사용 가능하다.  
 또한 동적으로 element가 새로 생성될 때, 해당 객체에 대한 이벤트를 자동으로 할당할 수 있어서 유용하게 사용할 수 있는 기술이다.
 
 _출처: https://joshua1988.github.io/web-development/javascript/event-propagation-delegation/_
@@ -1130,6 +1130,8 @@ JS는 싱글 스레드 기반이며 비동기적으로 동작한다.
 JS의 내부 구조에 대한 설명을 하기에 앞서 이후에 계속 나올 Execution Context와 Call Stack을 먼저 정리하겠다.
 
 ##### Execution Context
+
+**코드를 실행하는데 필요한 환경을 제공하는 객체. 변수 식별자(record)와 외부 scope와의 연결(outer) 등을 포함**
 
 Execution Context는 JS 코드가 실행되는 환경을 의미하며 두 가지 타입의 Execution Context가 있다.  
 하나는 Global Execution Context로 JS 엔진에 의해 처음 코드가 실행될 때 생성된다.  

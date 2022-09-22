@@ -47,7 +47,7 @@ JWT의 단점을 보완하기 위해 나왔다.
 refresh token이 만료되지 않았다면, 새로운 access token을 발급해주지만,  
 만료되었다면, 재인증(로그인 등)을 요청한다.  
 JWT의 장점은 세션 및 쿠키, JWT의 단점을 커버한 것이라고 생각하면 된다.  
-다만 가장 큰 단점을 구현이 어렵다는 것이다.  
+다만 가장 큰 단점은 구현이 어렵다는 것이다.  
 다음 링크는 refresh token을 구현한 코드이다. https://cotak.tistory.com/102
 
 ## 2. token storage

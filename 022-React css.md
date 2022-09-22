@@ -225,7 +225,7 @@ utility-first css라고 하면 생소하겠지만 bootstrap이 이 개념을 기
 `npm install -D tailwindcss` 또는 `yarn add -D tailwindcss`로 설치가 가능하다.
 
 // TODO: tailwind.config.js 변경이나 react 프로젝트에 적용하기 등은 나중에 직접 사용하게 되면 추가
-tailwind.config.js 관련해서 알고 싶다면 [여기를](https://so-so.dev/web/tailwindcss-w-twin-macro-emotion/) 볼 것.
+tailwind.config.js 관련해서 알고 싶다면 [여기](https://so-so.dev/web/tailwindcss-w-twin-macro-emotion/)를 볼 것.
 
 아래는 tailwind css를 적용한 코드의 예시이다.
 
