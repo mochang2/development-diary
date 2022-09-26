@@ -3,6 +3,18 @@
 vanilla.js로 개발할 일이 좀 적다보니 새로 얻는 개념에 대해 기록해야 조금 더 머리에 오래 남을 것 같아서 정리한다.
 ~원래는 [vanilla.js](https://github.com/mochang2/development-diary/blob/main/026-vanilla%20js.md)에 있는 내용인데 분리했다.~
 
+### 목차
+
+[innerHTML](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#1-innerhtml)  
+[insertAdjacentHTML](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#2-insertadjacenthtml)  
+[cloneNode](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#3-clonenode)
+[HTMLCollection vs NodeList](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#4-htmlcollection-vs-nodelist)  
+[Element.closest()](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#5-elementclosest)
+[keydown vs keypress vs keyup](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#6-keydown-vs-keypress-vs-keyup)  
+[removeEventListener](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#7-removeeventlistener)  
+[append vs appendChild](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#8-parentnodeappend-vs-parentnodeappendchild)  
+[history](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#9-history)
+
 ## 1. innerHTML
 
 참고: https://velog.io/@1106laura/insertAdjacentHTML
