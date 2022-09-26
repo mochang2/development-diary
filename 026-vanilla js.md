@@ -304,6 +304,146 @@ bundler마다 약간의 차이가 있을 수는 있지만, 이러한 과정을 �
 
 리소스(CSS)나 애셋(Image, Font 등)들도 JS 코드로 변환하고 이를 분석해서 bundling하는 방식을 제공한다. 다만 이 때문에 다른 bundler에 비해 설정할 게 많고 복잡하다.
 
+#### 로더(Loader)
+
+**로더는 Node.js에서 실행된다.**
+
+```javascript
+import SomeImage from 'assets/image/some-image.png'
+import SomeFont from 'assets/font/some-font.otf'
+import './main.css'
+```
+
+위와 같이 이미지, 폰트, CSS를 모듈로 `import`하는 코드를 본 적이 있을 것이다.  
+이는 웹팩이 정적인 애셋들을 JS의 모듈처럼 사용할 수 있게 도와주는 기능이다.
+
+위와 같이 사용할 수 있는 `webpack.config.js` 설정은 다음과 같이 할 수 있다.  
+우선 `npm install webpack webpack-cli css-loader style-loader file-loader`(자주 사용되는 로더 예시) 한 뒤 아래와 같이 설정 파일을 변경하면 된다.
+
+```javascript
+// webpack.config.js
+const path = require('path')
+
+module.exports = {
+  mode: 'development', // production, none이 존재.
+  entry: {
+    main: './src/app.js', // 번들을 여러 개로 나눌 경우 entry를 분리할 수 있음.
+  },
+  output: {
+    filename: '[name].js', // entry의 key 값이 [name]에 해당.
+    path: path.resolve('./dist'),
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'], // 순서가 중요. 뒤에 있는 loader부터 실행.
+      },
+      {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'file-loader',
+        options: {
+          publicPath: './dist/', // index.html가 dist 내부에 위치하지 않는다면 필요한 설정.
+          name: '[name].[ext]?[hash]', // 캐시 무력화를 위해 해시값 사용. 다른 사진이 같은 이름이 되는 것을 방지하기 위해 사용.
+        },
+      },
+    ],
+  },
+}
+```
+
+참고로 `rules` 안에 `use`와 `loader`는 하는 역할이 똑같은데 2개 이상의 로더를 사용하고 싶다면 `use`를 사용해야 한다.
+
+inline으로 사용하는 방법도 있는데 보통은 잘 사용되지 않는 것 같다.
+아래는 `css-loader`를 inline으로 사용하는 방법이다.
+
+```javascript
+import Styles from 'style-loader!css-loader?modules!./styles.css'
+```
+
+위 `webpack.config.js`를 설정한 뒤 `webpack` 명령어를 입력하면 아래와 같은 결과를 얻을 수 있다.  
+안에 내용이 난독화되지 않은 건 별도의 설정 없이 `development`로 빌드해서 그렇다.
+
+![webpack result1](https://user-images.githubusercontent.com/63287638/192182948-8d444f1a-618d-46e2-9800-26afbc791d4e.jpg)
+
+![webpack result2](https://user-images.githubusercontent.com/63287638/192182949-895c8232-a55d-48ee-ab34-55e02315f694.jpg)
+
+##### file-loader vs url-loader
+
+`file-loader`는 배포 폴더에 해당 파일을 옮기는 정도의 역할이다.  
+`url-loader` 또한 사진과 같은 정적 파일을 모듈처럼 사용하게 해주는 로더이지만 다른 결과물을 낸다.  
+파일을 base64(인코딩 시 33% 정도 크기가 커지는, binary 값을 text로 표현할 수 있게 해주는 인코딩) URL로 변환하는 처리를 한다.
+
+사용하는 이미지가 많은데, 각각의 이미지의 크기가 작다면 네트워크 리소스를 여러 번 사용하는 것 보다 [Data URI Scheme](https://en.wikipedia.org/wiki/Data_URI_scheme) 방식이 나을 수 있다.  
+다만 번들의 크기가 커지므로 상황에 따라 각종 설정을 성능이 좋은 방향으로 바꿔야 한다.
+
+설정 파일은 다음과 같이 사용할 수 있다.
+
+```javascript
+// webpack.config.js
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpg|gif|svg)$/,
+        loader: 'url-loader',
+        options: {
+          publicPath: './dist/',
+          name: '[name].[ext]?[hash]',
+          limit: 5000, // byte 단위. 5kb 미만의 파일은 data url로 처리. 이외의 옵션은 동일.
+        },
+      },
+    ],
+  },
+}
+```
+
+빌드를 하면 다음과 같은 결과물을 낸다.  
+중간에 `data:image/png;base64, ...`와 같은 형식을 볼 수 있다.
+
+```javascript
+// ./dist/main.js
+
+'use strict'
+eval(
+  '__webpack_require__.r(__webpack_exports__);\n/* harmony default export */ __webpack_exports__["default"] = ("data:image/png;base64, (인코딩 내용은 생략) # sourceURL=webpack:///./src/images/times-circle.png?'
+)
+```
+
+_cf) 로더의 또다른 역할_
+
+로더는 파일에 대한 전처리도 가능하다.  
+보통 TS를 JS로 변환할 때 많이 사용된다고 한다.
+
+```javascript
+// myloader.js
+
+module.exports = function myWebpackLoader(content) {
+  const newContent = _.cloneDeep(content)
+  // 뭔가 하는 동작
+  return newContent
+}
+```
+
+```javascript
+// webpack.config.js
+const path = require('path')
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: [path.resolve('./myloader.js')], // 커스텀 로더 적용.
+      },
+    ],
+  },
+}
+```
+
 3. **HMR(Hot Module Replacement)**
 
 새로고침 없이 런타임에 브라우저의 모듈을 업데이트할 수 있는 기능이다. 개발할 때 코드를 저장하면 화면이 깜빡이면서 화면 전체가 reloading되는 것을 방지한다는 말이다. Webpack은 기본적으로 해당 옵션이 활성화된 `webpack-dev-server`(Webpack 자체 웹 서버)만 설치하면 되지만, RollUp과 Parcel을 별도의 dependency와 설정을 추가해주거나 특정 상황에서는 잘 동작하지 않는 경우를 보인다고 한다.

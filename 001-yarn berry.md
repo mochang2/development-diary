@@ -30,6 +30,12 @@ Node.js는 서버 실행을 위해 필요한 http/https/http2 모듈을 제공�
 - 메시지 미들웨어
 - HTML5 멀티 플레이어 게임용 서버
 
+#### 프론트엔드 개발에서도 Node.js가 필요한 이유
+
+1. **최신 스펙으로 개발 가능.** JS의 스펙 발전 속도에 비해 브라우저의 발전 속도는 느림. 바벨과 같은 도구를 사용하며 웹팩, NPM 같은 노드 기술로 만들어진 환경을 사용해야 프론트엔드 개발환경을 갖출 수 있음.
+2. **빌드 자동화.** 코딩 결과물을 바로 서버에 올리지 않음. 파일을 압축하고, 코드를 난독화하고, 폴리필을 추가하는 등 개발 이외의 작업이 필요. 추가적으로 라이브러리 의존성이나 테스트를 자동화할 수도 있음.
+3. **개발 환경 커스터마이징.** CRA로 제공되는 것 이외에 커스터마이징이 필요할 수도 있음.
+
 ### 1) NVM(Node Version Manager)
 
 Node.js의 버전을 관리하는 도구이다.  
@@ -117,7 +123,7 @@ package.json은 다음과 같이 구성되어 있다.
 devDependencies는 개발할 때만 사용되고 배포할 때는 포함되지 않는 패키지들을 적는 곳으로 `-D` 옵션을 추가해서 설치한다.  
 다만 [github issue](https://github.com/facebook/create-react-app/issues/10219)를 참고하면 알 수 있듯이 CRA로 react를 시작하면 모든 패키지들이 dependencies에 설치된다.  
 이는 빌드 중에 모든 것이 번들로 제공되고 웹팩에 의해 사용하지 않는 모듈들은 제거되기 때문에 실제로 런타임 의존성이 없다.  
-즉, react에서는(~front에서는 이라고 표현해도 틀리지 않을 듯~) 둘을 구분하는 것이 의미가 없다는 것이다.
+즉, react에서는(~front에서는 이라고 표현해도 틀리지 않을 듯~) 둘을 구분하는 것이 의미가 없다.
 
 참고로 모듈 버전은 일반적으로 "x.x.x"로 구성되는데, 첫 번째 자리 수는 대대적인 변화가 있을 경우, 두 번째 자리 수는 버그 픽스 등 적당한 변화가 있을 경우, 세 번째 자리 수는 아주 미묘한 변화가 있을 경우 1씩 올려서 사용한다.  
 모듈 버전을 관리할 때 "x.x.x"는 세 자리 수 모두 똑같은 버전을 설치하라는 의미이다.  
@@ -137,15 +143,15 @@ _참고: https://velog.io/@songyouhyun/Package.json%EA%B3%BC-Package-lock.json%E
 | It records important metadata about the project.                                     | It allows future devs to install the same dependencies in the project.                                                                        |
 | It contains information such as name, description, author, script, and dependencies. | It contains the name, dependencies, and locked version of the project.                                                                        |
 
-위 표에서 나온 것처럼 package-lock.json은 모듈의 '정확한 버전 정보'를 가지고 있기 때문에 package-lock.json이 존재하면 `npm install(yarn)`은 package.json을 이용해서 node_modules를 생성하지 않고 package-lock.json을 이용해서 node_modules를 생성한다.
+위 표에서 나온 것처럼 package-lock.json은 모듈의 '정확한 버전 정보'를 가지고 있기 때문에 package-lock.json이 존재하면 `npm install(yarn add)`은 package.json을 이용해서 node_modules를 생성하지 않고 package-lock.json을 이용해서 node_modules를 생성한다.
 
-같은 `package.json`을 사용해도 서로 다른 `node_modules`를 생성하는 경우가 발생합니다.
+같은 `package.json`을 사용해도 서로 다른 `node_modules`를 생성하는 경우가 발생한다.
 
 1. npm 버전이 다를 때
 2. 버전을 명시하지 않고 version range를 사용할 때
 3. 내가 사용하는 패키지를 의존하고 있는 패키지가 새로운 버전으로 배포되었을 때
 
-와 같은 경우입니다
+와 같은 경우이다.
 
 2번과 같은 문제를 해결하기 위해 처음부터 정확한 정보를 package.json에 명시하면 되지 않겠냐고 생각하겠지만,  
 `package-lock.json`을 별도로 사용하면 프로젝트 패키지의 중요한 버그 수정이 이루어질 때마다 프로젝트의 `package.json`에 적혀 있는 버전을 항상 수정하지 않고 version range(^ 또는 `)로 해결할 수 있다.
