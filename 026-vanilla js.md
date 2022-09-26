@@ -18,9 +18,124 @@ JS 자체는 인터프리터 언어이지만 JS를 또 다른 JS 결과물로 �
 
 이외에도 babel은 polyfill, source code transformation, type annotation 등의 기능을 제공한다.
 
+바벨은 다음과 같은 3단계를 거쳐서 컴파일이 진행된다.
+
+1. 파싱
+2. 변환
+3. 출력
+
+이때 1, 3 단계는 바벨 코어가 진행하지만 2단계는 플러그인이 처리한다.
+
+### Custom Plugin 만들기
+
+`npm install @babel/core @babel/cli`로 필요한 모듈을 먼저 설치한다.
+
+```javascript
+// my-babel-plugin.js
+
+module.exports = function myBabelPlugin({ types }) {
+  return {
+    visitor: {
+      VariableDeclaration(path) {
+        console.log('VariableDeclaration() kind:', path.node.kind) // const
+
+        if (path.node.kind === 'const') {
+          path.node.kind = 'var'
+        }
+      },
+    },
+  }
+}
+```
+
+이후 `npx babel [변환할 파일.js] --plugins ./my-babel-plugin.js` 실행한다.
+
+위 코드는 ES6의 `const` 키워드를 `var`로 바꾸는 작업을 한다.  
+바벨 플러그인은 반드시 객체 안에 `visitor`가 있어야 되고 그 안에 객체 메서드가 존재한다.  
+파싱 결과물(AST)에서 해당하는 타입의 노드가 생성되면 같은 이름의 메서드가 호출된다.  
+많이 나오는 예시로는 다음과 같다.
+
+- Program : 루트의 타입
+- VariableDeclaration : 변수 타입
+- FunctionDeclaration : 함수 타입
+- Identifier : 개발자가 만든 값(변수, 함수 등)
+- BinaryExpression : 사칙연산
+- Literal : 문자열
+
+더 많은 내용은 [AST explorer](https://astexplorer.net/)에서 확인 가능하다.
+
+### 이미 만들어진 설정 사용하기
+
+`.babelrc` 또는 `babel.config.js(on)`, `package.json` 등에 설정을 추가할 수 있다.  
+다만 `package.json`에는 보통 잘 안 두고 설정을 분리하는 편이다.  
+해당 설정 파일들에 사용할 babel plugin들을 모아놓는다.
+
+`npm install @babel/plugin-transform-block-scoping @babel/plugin-transform-arrow-functions @babel/plugin-transform-strict-mode`로 모듈을 설치하고 다음과 같이 파일을 추가한다.
+
+```javascript
+// babel.config.js
+
+module.exports = {
+  plugins: [
+    '@babel/plugin-transform-block-scoping',
+    '@babel/plugin-transform-arrow-functions',
+    '@babel/plugin-transform-strict-mode',
+  ],
+}
+```
+
+다만 실제로는 이렇게 custom plugin을 만들거나 모든 plugin을 별도로 설치하지 않고 미리 만들어놓은 preset을 사용한다.  
+preset은 플러그인들을 모아놓은 것을 말한다.  
+아래와 같이 사용할 수 있다.
+
+```javascript
+// babel.config.js
+
+module.exports = {
+  presets: ['@babel/preset-env'],
+}
+```
+
+해당 preset이 하는 자세한 역할은 [공식 문서](https://babeljs.io/docs/en/babel-preset-env)를 참조.
+
+### 웹팩과 사용
+
+~웹팩은 [아래](https://github.com/mochang2/development-diary/blob/main/026-vanilla%20js.md#polyfill)를 참조.~
+
+실무에서는 바벨을 직접 사용하지 않고 보통 웹팩에 `babel-loader`를 통해 사용한다.  
+아래 인용은 [공식 문서](https://webpack.js.org/loaders/babel-loader/)의 내용이다.
+
+> babel-loader exposes a loader-builder utility that allows users to add custom handling of Babel's configuration for each file that it processes.
+
+`babel-loader`의 정의가 명확히 나오지 않아서 해당 인용문을 토대로 `babel-loader`를 필자의 방식대로 정의했다.  
+webpack은 loader를 통해 `test`에 해당하는 파일명을 가진 파일들을 전처리를 할 수 있다.  
+따라서 `babel-loader`는 `js` 파일들에 대해 babel 설정(`babel.config.js`)을 적용하여 컴파일할 수 있도록 도와주는 놈(?) 정도로 정의할 수 있을 것 같다.
+
+사용은 `npm install babel-loader`를 한 뒤 아래와 같이 설정하면 된다.
+
+```javascript
+// webpack.config.js
+
+module.exports = {
+  // ...
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        loader: 'babel-loader',
+        exclude: /node_modules/,
+      },
+    ],
+  },
+}
+```
+
 ### polyfill
 
 babel을 사용한다고 반드시 JS 최신 함수를 사용할 수 있는 것은 아니다.  
+예를 들어 `let`, `const`나 arrow function, block scoping 등은 구식 문법으로 변경할 수 있지만 `new Promise()`와 같은 문법은 ie 등에서 사용할 수 없다.  
+이러한 문법은 polyfill을 사용해서 해결해야 한다.
+
 babel은 문법을 변환해주는 역할만 할 뿐이고 실제로 최신 문법의 코드들이 브라우저에서 동작할 수 있도록 각 함수를 검사해서 object의 proptotype에 추가하는 역할을 한다.  
 즉, babel은 컴파일 타임에, babel-polyfill은 런타임에 실행된다.
 
@@ -260,6 +375,8 @@ JS 공식 모듈 시스템이다.
 2. 기본적으로 strict mode로 동작한다.
 3. 모듈의 가장 바깥쪽에서 선언된 이름은 전역 스코프가 아니라 모듈 스코프에서 선언된다. (`a.js`에서 선언한 `const foo = 'bar'`를 `b.js`에서 별다른 `import` 없이는 사용하지 못한다)
 
+(3번은 HTML 파일에서 `<script type="module" src="./a.js"></script>` 하지 않았다는 가정이다)
+
 가장 큰 장점은 모듈을 비동기적으로 불러오며 빌드 타임에 정적 분석이 가능하여 tree shaking이 쉽다는 것이다.  
 또한 commonJS와는 다르게 실제 객체/함수를 바인딩하기 때문에 순환 참조 관리도 편하다.  
 모든 브라우저가 지원하는 것은 아니며 ~(RIP IE...)~ Node.js에서도 아직 commonJS가 공식적으로 사용되기 때문에 Babel의 `@babel/plugin-transform-modules-commonjs`를 통해 변환시켜야 한다.
@@ -274,7 +391,8 @@ module을 사용하는 것까지는 좋았으나 브라우저 특성상 JS 파�
 > As a result, each of those files has to be included in your main HTML file in a `<script>` tag, which is then loaded by the browser when a user visits your home page. Having separate `<script>` tags for each file means that the browser has to load each file individually: one… by… one.
 
 module이 기능에 관한 코드가 모여있는 각각의 파일이었다면 bundle은 모듈들의 의존성을 안전하게 유지시키면서 하나의 파일로 만드는 과정이다.  
-즉, 서로 참조관계를 가지고 있는 모듈들을 모아서 하나의 파일로 묶는 것이라고 할 수 있다.  
+즉, 서로 참조관계를 가지고 있는 모듈들을 모아서 하나의 파일로 묶는 것이라고 할 수 있다.
+
 이게 바로 모듈 번들러의 탄생 배경이다.  
 모듈 번들러란 JS 모듈을 브라우저에서 실행할 수 있는 단일 JS 파일로 번들링하는데 사용되는 프론트엔드 개발 도구이다.  
 _모듈 로더(JS 모듈을 런타임에 로드할 수 있게 하는 구현체로 RequireJS나 네이티브 브라우저 등이 포함)와 유사한 부분이 있지만, 모듈 번들러(컴파일 시간에 빌드 산출물을 만들어서 하나의 js파일을 산출)는 코드를 프로덕션 환경에서 사용할 수 있도록 준비하는 데 더 큰 목적이 있음._
@@ -317,8 +435,9 @@ import './main.css'
 위와 같이 이미지, 폰트, CSS를 모듈로 `import`하는 코드를 본 적이 있을 것이다.  
 이는 웹팩이 정적인 애셋들을 JS의 모듈처럼 사용할 수 있게 도와주는 기능이다.
 
-위와 같이 사용할 수 있는 `webpack.config.js` 설정은 다음과 같이 할 수 있다.  
-우선 `npm install webpack webpack-cli css-loader style-loader file-loader`(자주 사용되는 로더 예시) 한 뒤 아래와 같이 설정 파일을 변경하면 된다.
+위와 같이 사용할 수 있도록 `webpack.config.js` 설정은 다음과 같이 변경해야 한다.
+
+우선 `npm install webpack webpack-cli css-loader style-loader file-loader`(자주 사용되는 로더 예시) 한 뒤 아래와 같이 설정 파일을 변경한다.
 
 ```javascript
 // webpack.config.js
@@ -343,8 +462,10 @@ module.exports = {
         test: /\.(png|jpg|gif|svg)$/,
         loader: 'file-loader',
         options: {
-          publicPath: './dist/', // index.html가 src 내부에 위치하지 않는다면 필요한 설정.
-          name: '[name].[ext]?[hash]', // 캐시 무력화를 위해 해시값 사용. 다른 사진이 같은 이름이 되는 것을 방지하기 위해 사용.
+          publicPath: './dist/',
+          // index.html가 src 내부에 위치하지 않는다면 필요한 설정. 빌드 산출물 경로(정적 파일 접근을 위한 경로).
+          name: '[name].[ext]?[hash]',
+          // 캐시 무력화를 위해 해시값 사용. 다른 사진이 같은 이름이 되는 것을 방지하기 위해 사용.
         },
       },
     ],
