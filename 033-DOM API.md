@@ -14,7 +14,7 @@ vanilla.js로 개발할 일이 좀 적다보니 새로 얻는 개념에 대해 �
 [removeEventListener](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#7-removeeventlistener)  
 [append vs appendChild](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#8-parentnodeappend-vs-parentnodeappendchild)  
 [history](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#9-history)
-[data-\* 속성](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#9-history)
+[data-\* 속성](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#10-data--%EC%86%8D%EC%84%B1)
 
 ## 1. innerHTML
 
