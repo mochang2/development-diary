@@ -1,8 +1,7 @@
 ## 0. 공부하게 된 계기
 
 React? Vue? 아무리 개발을 해봐도 근본을 모르면 말짱 도루묵인 것 같다.  
-~과제 테스트 통과 못하는 건 덤~  
-우테캠으로 과제 전형을 보고, vanilla js로 [virtual DOM을 비슷하게 따라 만드는 강의](https://junilhwang.github.io/TIL/Javascript/Design/Vanilla-JS-Virtual-DOM/)가 있다는 것을 알고 공부해야겠다 마음을 먹었다.
+~과제 테스트 통과 못하는 건 덤~
 
 ## 1. babel
 
@@ -100,7 +99,7 @@ module.exports = {
 
 ### 웹팩과 사용
 
-~웹팩은 [아래](https://github.com/mochang2/development-diary/blob/main/026-vanilla%20js.md#polyfill)를 참조.~
+~웹팩은 [아래](https://github.com/mochang2/development-diary/blob/main/026-FE%20development%20environment.md#polyfill)를 참조.~
 
 실무에서는 바벨을 직접 사용하지 않고 보통 웹팩에 `babel-loader`를 통해 사용한다.  
 아래 인용은 [공식 문서](https://webpack.js.org/loaders/babel-loader/)의 내용이다.
@@ -109,7 +108,7 @@ module.exports = {
 
 `babel-loader`의 정의가 명확히 나오지 않아서 해당 인용문을 토대로 `babel-loader`를 필자의 방식대로 정의했다.  
 webpack은 loader를 통해 `test`에 해당하는 파일명을 가진 파일들을 전처리를 할 수 있다.  
-따라서 `babel-loader`는 `js` 파일들에 대해 babel 설정(`babel.config.js`)을 적용하여 컴파일할 수 있도록 도와주는 놈(?) 정도로 정의할 수 있을 것 같다.
+따라서 `babel-loader`는 `js` 파일들에 대해 babel 설정(`babel.config.js`)을 적용하여 컴파일할 수 있도록 도와주는 놈(?), babel을 webpack에서 사용할 수 있도록 도와주는 놈(?) 정도로 정의할 수 있을 것 같다.
 
 사용은 `npm install babel-loader`를 한 뒤 아래와 같이 설정하면 된다.
 
@@ -194,7 +193,7 @@ function Greeter(greeting) {
 
 'typescript는 `tsc` 명령어로 ES5로 변환시켜주는데 굳이 tsc와 babel을 같이 사용할 필요가 있는가?' 싶었다.  
 (참고로, tsc와 babel을 동시에 사용한다면 컴파일러의 순서는 TS -> (ts-node 등 tsc) -> JS -> (babel) -> JS이다)  
-하지만 동시에 사용하면 두 가지 이점이 있다.
+하지만 동시에 사용하면 두 가지 이점이 있다고 한다.
 
 1. 컴파일이 빠르다. 바벨의 캐싱과 단일 파일 방출 설계(?) 덕분에 더욱 빠른 컴파일 속도를 제공한다.
 2. 원할 때만 타입 체킹할 수 있다. babel 컴파일러는 ts를 완전히 지워버리기 때문에 한참 코딩하고 타입 체킹 없이 컴파일을 빠르게 해야 할 때 유용하다.
@@ -254,7 +253,7 @@ Webpack은 module bundler이다.
 _참고: [js module](https://blog.bitsrc.io/javascript-require-vs-import-47827a361b77)_
 
 Webpack을 온전히 이해하기 위해서는 JS에서 module이 무엇인지 먼저 알 필요가 있다.  
-참고로 JS는 모듈이 없는 상태로 세상에 나타났고(이전에는 `<script>` 태그 이용), 모듈 개념은 node.js가 만들어지고 서버에서 JS를 사용할 수 있게 되면서 나온 개념이다.  
+참고로 JS는 모듈이 없는 상태로 세상에 나타났고, 모듈 개념은 node.js가 만들어지고 서버에서 JS를 사용할 수 있게 되면서 나온 개념이다.  
 **module**이란 프로그램을 구성하는 내부의 코드가 기능별로 나뉘어져 있는 형태로 다음과 같은 장점이 있다.
 
 - 유지보수성: 기능들이 모듈화가 잘 되어 있다면, 의존성을 그만큼 줄일 수 있기 때문에 어떤 기능을 개선하거나 수정할 때 훨씬 편하다.
@@ -375,7 +374,7 @@ JS 공식 모듈 시스템이다.
 2. 기본적으로 strict mode로 동작한다.
 3. 모듈의 가장 바깥쪽에서 선언된 이름은 전역 스코프가 아니라 모듈 스코프에서 선언된다. (`a.js`에서 선언한 `const foo = 'bar'`를 `b.js`에서 별다른 `import` 없이는 사용하지 못한다)
 
-(3번은 HTML 파일에서 `<script type="module" src="./a.js"></script>` 하지 않았다는 가정이다)
+(3번은 HTML 파일에서 `<script src="./a.js"></script>` 하지 않았다는 가정이다. 만약 하게 되면 `index.js`의 변수들을 `export`하지 않아도 접근이 가능하다)
 
 가장 큰 장점은 모듈을 비동기적으로 불러오며 빌드 타임에 정적 분석이 가능하여 tree shaking이 쉽다는 것이다.  
 또한 commonJS와는 다르게 실제 객체/함수를 바인딩하기 때문에 순환 참조 관리도 편하다.  
@@ -386,7 +385,8 @@ JS 공식 모듈 시스템이다.
 _참고: https://www.freecodecamp.org/news/javascript-modules-part-2-module-bundling-5020383cf306/ , https://snipcart.com/blog/javascript-module-bundler_
 
 module을 사용하는 것까지는 좋았으나 브라우저 특성상 JS 파일을 동시에 여러 개 호출하면 속도 문제가 발생하거나 특정 JS 파일의 로딩이 지연되면 전체가 늦어지는 문제가 있었다.  
-이러한 문제를 해결하기 위해 등장한 것이 bundle이다.
+이러한 문제를 해결하기 위해 등장한 것이 bundle이다.  
+(개인적으로 `async`나 `defer`와 같은 키워드가 존재하니 위와 같은 문제를 해결하기 위해서보다는, 번들 탄생 이유로 '모듈 간의 의존성을 유지하기 위해서'가 더 맞는 것 같다)
 
 > As a result, each of those files has to be included in your main HTML file in a `<script>` tag, which is then loaded by the browser when a user visits your home page. Having separate `<script>` tags for each file means that the browser has to load each file individually: one… by… one.
 
@@ -419,7 +419,8 @@ bundler마다 약간의 차이가 있을 수는 있지만, 이러한 과정을 �
 
 2. **리소스 및 애셋**
 
-리소스(CSS)나 애셋(Image, Font 등)들도 JS 코드로 변환하고 이를 분석해서 bundling하는 방식을 제공한다. 다만 이 때문에 다른 bundler에 비해 설정할 게 많고 복잡하다.
+리소스(CSS)나 애셋(Image, Font 등)들도 JS 코드로 변환하고 이를 분석해서 bundling하는 방식을 제공한다.  
+다만 이 때문에 다른 bundler에 비해 설정할 게 많고 복잡하다.
 
 #### 로더(Loader)
 
@@ -463,7 +464,7 @@ module.exports = {
         loader: 'file-loader',
         options: {
           publicPath: './dist/',
-          // index.html가 src 내부에 위치하지 않는다면 필요한 설정. 빌드 산출물 경로(정적 파일 접근을 위한 경로).
+          // index.html가 dist 내부에 위치하지 않는다면 필요한 설정. 빌드 산출물 경로(정적 파일 접근을 위한 경로).
           name: '[name].[ext]?[hash]',
           // 캐시 무력화를 위해 해시값 사용. 다른 사진이 같은 이름이 되는 것을 방지하기 위해 사용.
         },
@@ -702,7 +703,191 @@ module.exports = {
 
 3. **HMR(Hot Module Replacement)**
 
-새로고침 없이 런타임에 브라우저의 모듈을 업데이트할 수 있는 기능이다. 개발할 때 코드를 저장하면 화면이 깜빡이면서 화면 전체가 reloading되는 것을 방지한다는 말이다. Webpack은 기본적으로 해당 옵션이 활성화된 `webpack-dev-server`(Webpack 자체 웹 서버)만 설치하면 되지만, RollUp과 Parcel을 별도의 dependency와 설정을 추가해주거나 특정 상황에서는 잘 동작하지 않는 경우를 보인다고 한다.
+새로고침 없이 런타임에 브라우저의 모듈을 업데이트할 수 있는 기능이다.  
+개발할 때 코드를 저장하면 화면이 깜빡이면서 화면 전체가 reloading되는 것을 방지한다는 말이다.  
+덕분에 입력하고 있던 폼이 초기화되는 일 등을 방지할 수 있다.
+
+Webpack은 기본적으로 해당 옵션이 활성화된 `webpack-dev-server`(Webpack 자체 웹 서버)만 설치하면 되지만, RollUp과 Parcel을 별도의 dependency와 설정을 추가해주거나 특정 상황에서는 잘 동작하지 않는 경우를 보인다고 한다.
+
+4. **webpack-dev-server**
+
+vscode의 open live server와 같은 개발 서버를 제공한다.  
+`npm install webpack-dev-server`로 설치한 뒤 다음과 같이 설정할 수 있다.
+
+```javascript
+// webpack.config.js:
+module.exports = {
+  devServer: {
+    contentBase: path.join(__dirname, 'dist'), // 정적 파일을 제공할 경로. 기본값은 웹팩의 아웃풋
+    publicPath: '/', // 브라우저를 통해 접근하는 경로. 기본은 /
+    host: 'dev.domain.com', // 개발환경에서 도메인을 맞추는 상황에 사용
+    port: 8081, // 개발 서버 포트. 기본은 8080
+    historyApiFallback: true, // history API를 사용하는 SPA 개발시 설정. 404가 발생하면 index.html로 리다이렉트
+    before: (app) => {
+      app.get('/api/todos', (_, res) => {
+        res.json([]) // mocking
+      })
+    },
+    proxy: {
+      '/api': 'origin이 다른 주소', // 프론트에서 CORS를 해결하도록 도와줌
+    },
+    hot: true, // 핫로딩 활성화
+  },
+}
+```
+
+### Webpack 최적화
+
+development와 production의 빌드 목표는 다르다.  
+development 에서는 강력한 소스 매핑, localhost 서버에서는 라이브 리로딩이나 hot module replacement 기능을 원하는 반면 production은 로드 시간을 줄이기 위해 번들 최소화, 가벼운 소스맵 및 애셋 최적화에 초점을 맞춘다.
+
+원하는 면이 다르기 때문에 보통 설정 파일은 나눠서 작성하며 가이드는 [공식 문서](https://webpack.kr/guides/production/)에 있다,
+
+참고로 아래 예시에서 CRA(react 18.2)의 webpack 설정은 `npx create-react-app [project-name]` 이후 `npm run eject`를 수행하면 `config` 디렉터리 내부에서 찾아볼 수 있다.
+
+#### Production Mode
+
+[공식 문서](https://webpack.js.org/configuration/mode/)에 따르면
+
+> Sets process.env.NODE_ENV on DefinePlugin to value production. Enables deterministic mangled names for modules and chunks, `FlagDependencyUsagePlugin`, `FlagIncludedChunksPlugin`, `ModuleConcatenationPlugin`, `NoEmitOnErrorsPlugin` and `TerserPlugin`.
+
+대부분 빌드 결과물을 최소화 하기 위해 사용되며 `TerserPlugin`을 제외하고는 전부 internal plugin이다.
+
+CRA에서는 [npm terser-webpack-plugin](https://www.npmjs.com/package/terser-webpack-plugin)에서 설명하지 않은 옵션도 주고 있으나 해당 옵션들의 정확한 의미를 찾지는 못 했다.
+
+```javascript
+// webpack.config.js
+
+module.exports = function (webpackEnv) {
+  return {
+    // ...
+    optimization: {
+      minimize: isEnvProduction, // boolean. production mode면 minimize
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            parse: {
+              // We want terser to parse ecma 8 code. However, we don't want it
+              // to apply any minification steps that turns valid ecma 5 code
+              // into invalid ecma 5 code. This is why the 'compress' and 'output'
+              // sections only apply transformations that are ecma 5 safe
+              // https://github.com/facebook/create-react-app/pull/4234
+              ecma: 8,
+            },
+            compress: {
+              ecma: 5,
+              warnings: false,
+              // Disabled because of an issue with Uglify breaking seemingly valid code:
+              // https://github.com/facebook/create-react-app/issues/2376
+              // Pending further investigation:
+              // https://github.com/mishoo/UglifyJS2/issues/2011
+              comparisons: false,
+              // Disabled because of an issue with Terser breaking valid code:
+              // https://github.com/facebook/create-react-app/issues/5250
+              // Pending further investigation:
+              // https://github.com/terser-js/terser/issues/120
+              inline: 2,
+            },
+            mangle: {
+              safari10: true,
+            },
+            // Added for profiling in devtools
+            keep_classnames: isEnvProductionProfile,
+            keep_fnames: isEnvProductionProfile,
+            output: {
+              ecma: 5,
+              comments: false,
+              // Turned on because emoji and regex is not minified properly using default
+              // https://github.com/facebook/create-react-app/issues/2488
+              ascii_only: true,
+            },
+          },
+        }),
+      ],
+    },
+  }
+}
+```
+
+#### 정적 파일 사이즈 최소화
+
+`html-webpack-plugin`의 `collapseWhitespace`, `removeComments` 와 같은 옵션이나 `optimize-css-assets-webpack-plugin`의 옵션은 개행 등 제거해도 실제 기능에 문제가 생기지 않는 부분들을 없애준다.
+
+#### 코드 스플리팅
+
+```javascript
+module.exports = {
+  // ...
+  entry: {
+    main: 'main.js',
+    sub1: 'sub1.js',
+    sub2: 'sub2.js',
+  },
+  optimiazation: {
+    // 기본적으로 이 부분은 CRA에서 제공을 안 해주는 것 같다
+    splitChunks: {
+      chunks: 'all', // 여러 개의 엔트리 포인트에서 중복된 부분을 따로 chunk로 뺌
+    },
+  },
+}
+```
+
+`chunks`의 옵션으로 다음과 같은 옵션을 추가할 수 있다.
+
+- `all`: 동기 / 비동기로 import된 모든 모듈에 대한 최적화 진행.
+- `async`: 비동기로 import된 모든 모듈에 대한 최적화 진행.
+- `initial`: 동기로 import된 모든 모듈에 대한 최적화 진행.
+
+#### externals
+
+`axios`와 같은 서드 파티 라이브러리는 이미 빌드 과정을 거쳤기 때문에 웹팩을 통한 별도의 빌드를 거치지 않아도 된다(CDN 등을 활용하는 방법도 있지만 네트워크 상황에 따라 동작이 가능해질 수도, 아닐 수도 있는 것보다는 차라리 번들에 포함되게 하는 것을 일반적으로 사용한다고 한다).  
+다만 보통 라이브러리 개발자에게 유용하다고 하니 성능 향상보다는 내가 작성한 모듈의 종속성을 제거하기 위해서 많이 쓰이는 것 같다.
+
+`webpack-node-externals` 또는 `copy-webpack-plugin` 등의 모듈을 설치하여 진행할 수 있다.
+
+아래는 `copy-webpack-plugin`을 사용하는 코드 예시이다.  
+`npm install copy-webpack-plugin`을 진행한 뒤 아래와 같이 코드를 작성한다.
+
+```javascript
+// webpack.config.js
+const CopyPlugin = require('copy-webpack-plugin')
+
+module.exports = {
+  externals: {
+    axios: 'axios', // 전역 변수로 접근할 수 있도록 하는 키 값
+  },
+  plugins: [
+    new CopyPlugin([
+      {
+        from: './node_modules/axios/dist/axios.min.js',
+        to: './axios.min.js', // 목적지 파일에 들어간다
+      },
+    ]),
+  ],
+}
+```
+
+```html
+<!-- index.html -->
+<html>
+  <head></head>
+  <body>
+    <script type="text/javascript" src="axios.min.js"></script>
+  </body>
+</html>
+```
+
+이후 `webpack` 명령어를 진행하면 빌드 산출물에 `axios.min.js`가 메인 번들에서 제외되어 따로 존재한다.
+
+_개인적인 생각_
+이 부분은 CRA에서 기본적으로 제공을 안 해주므로 커스터마이징이 필요한 부분으로 생각된다.  
+너무 많은 부분은 extenrals로 빼면 번들이 많아지므로 무작정 진행하는 것이 아니라 하나의 대안으로 고민해볼 수 있는 부분인 것 같다.
+
+#### 기타
+
+이외에도 dynamic loading, prefetching, preloading 등의 기능을 제공한다.
+
+~실제 프로젝트에서 사용하게 되면 추가해보자~
 
 ### 다른 모듈 번들러와 비교
 
@@ -722,7 +907,8 @@ AMD API 명세를 구현한 구현체이다.
 
 - 최소한의 서드파티로 라이브러리를 만들고 싶을 때 가장 적합하다고 한다.
 
-Webpack가 가장 큰 차이점이자 장점은 ES6 모듈 형식으로 빌드 결과물을 출력한다는 것이다. 로더가 ES6 모듈을 따르기 때문인데, 이를 라이브러리나 패키지 개발에 활용할 수 있다.  
+Webpack가 가장 큰 차이점이자 장점은 ES6 모듈 형식으로 빌드 결과물을 출력한다는 것이다.  
+로더가 ES6 모듈을 따르기 때문인데, 이를 라이브러리나 패키지 개발에 활용할 수 있다.  
 이 때문에 code splitting에서 entry point가 달라서 중복해서 번들될 수 있는 부분을 알아내고 독립된 모듈로 분리할 수 있다.
 
 **Parcel**
@@ -731,7 +917,8 @@ Webpack가 가장 큰 차이점이자 장점은 ES6 모듈 형식으로 빌드 �
 
 별도의 설정이 없이 동작 가능하다는 *zero config*가 가장 두드러진 특징이다. 설치만 하면 설정 파일 없이 빌드 명령어를 입력해서 사용할 수 있다. Webpack과 달리 JS 엔트리 포인트를 지정해주는 것이 아니라 애플리케이션 진입을 위한 HTML 파일을 자체적으로 읽을 수 있다.
 RollUp, Webpack과 비교했을 때 Dead code elimination(==tree shaking) 면에서 가장 우수하다.  
-Module transformation(JS 외의 파일을 만나면 dependency graph에 추가하고 bundle 작업하는 것)이 가장 똑똑하다. RollUp이나 Webpack은 파일 타입을 명시한 뒤 변환하고 설치하고 설정(`specify file types to transform, install and configure`)해야 하지만 Parcel은 built-in support가 된다.
+Module transformation(JS 외의 파일을 만나면 dependency graph에 추가하고 bundle 작업하는 것)이 가장 똑똑하다.  
+RollUp이나 Webpack은 파일 타입을 명시한 뒤 변환하고 설치하고 설정(`specify file types to transform, install and configure`)해야 하지만 Parcel은 built-in support가 된다.
 
 ### bundler 단점
 
@@ -760,61 +947,3 @@ esbuild는 편의성 문제로 사용되지는 않았으나 2020년 snowpack이 
 아래 사진은 CRA로 생성했던 내 프로젝트의 build 산출물이다(따로 웹팩을 건든적이 없다)
 
 ![cra 프로젝트 build 산출물](https://user-images.githubusercontent.com/63287638/183119085-0ddc744b-66fb-4d94-9a45-94be6a548f3a.png)
-
-## 3. DOM 관련 내용
-
-### data-\* 속성
-
-HTML5부터 추가된 개념으로 '사용자 지정 데이터 특성'이라는 특성 클래스를 형성할 수 있다.  
-해당 특성을 이용해 page나 application에 private한 custom data를 저장하거나, HTML element에 custom data attirbute를 embed할 수 있다.  
-이를 통해 BE에 Ajax 호출 없이 데이터를 보관할 수 있는 방법으로 사용할 수도 있다(다만 크롤링되어야 하거나 secret한 내용을 담기에는 적합하지 않은 속성이다).  
-하나의 element에 여러 개의 data-\* 속성이 포함될 수 있다.
-
-다음과 같은 두 가지 규칙을 지켜야 된다.
-
-1. attribute 이름에 문자, 숫자, 대시(-), 점(.), 콜론(:), 언더스코어(\_)는 사용 가능하지만 대문자를 포함할 수 없다.
-2. attribute 이름에 접두사 "data-" 뒤에 하나 이상의 문자가 있어야 한다.
-3. attribute 이름이 대소문자 관계없이 'xml'로 시작하면 안 된다.
-4. attribute 값은 어떠한 string도 가능하다.
-
-```html
-<ul>
-  <li data-animal-type="bird">Owl</li>
-  <li data-animal-type="fish">Salmon</li>
-  <li data-animal-type="spider">Tarantula</li>
-</ul>
-```
-
-html에서는 위와 같은 형식이지만 dataset은 JS이기 때문에 attribute명은 camelCase로 변환된다.  
-즉, html과 dataset 간 `data-create-date -> (dateset) createDate`, `(dataset) dataset.monthSalary = '500 -> data-month-salary="500"`로 변환되는 것이다.
-
-#### JS에서의 접근
-
-JS에서 dataset을 get/set 하는 방법은 두 가지가 있다.  
-`getAttribute`/`setAttribute`를 이용하는 방법과 DOM 객체의 property를 이용하는 방법이다.
-
-```javascript
-const div = document.getElementsByTagName('div')[0]
-// const div = document.querySelector('div[data-auto="true"]')
-
-div.setAttribute('data-auto', true)
-console.log(div.dataset.auto) // typeof div.dataset.auto === 'string'
-
-div.dataset.size = 'big'
-console.log(div.getAttribute('data-size'))
-```
-
-#### CSS에서의 접근
-
-위 예시에서 `querySelector`의 예시에서 나왔듯이 data-\* 속성은 html의 속성이기 때문에 css에서도 속성 선택자를 통해 선별할 수 있다.
-
-```css
-/* https://developer.mozilla.org/ko/docs/Learn/HTML/Howto/Use_data_attributes 예시 */
-
-article[data-columns='3'] {
-  width: 400px;
-}
-article[data-columns='4'] {
-  width: 600px;
-}
-```
