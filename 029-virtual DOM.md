@@ -76,7 +76,7 @@ transform, opacity, will-change 등을 사용했을 때 해당 과정을 거친�
 
 DOM을 virtual DOM과 구분 짓기 위해 real DOM이라고 사용하겠다.
 
-![virtual dom vs read dom](https://user-images.githubusercontent.com/63287638/188290423-b312a25f-625c-4d71-a201-816bc8df40c6.png)
+![virtual dom vs real dom](https://user-images.githubusercontent.com/63287638/188290423-b312a25f-625c-4d71-a201-816bc8df40c6.png)
 
 virtual DOM은 real DOM의 구조만 간결히 흉내낸 JS 객체이며 real DOM의 추상화 버전이다.  
 virtual DOM은 real DOM과 같은 class 등의 속성들을 포함하지만 DOM API를 가지고 있지는 않다.

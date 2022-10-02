@@ -140,7 +140,7 @@ body {
 }
 
 // _component.scss
-@use "main";
+@use 'main';
 
 .mail-box {
   font-size: 100%;
@@ -260,7 +260,7 @@ _아래에서부터는 scss에 대한 예제만 존재한다._
 
 ```scss
 // scss
-@use "sass:math";
+@use 'sass:math';
 
 span {
   width: math.div(100px, 200px) * 100%;
@@ -327,7 +327,7 @@ $default-width: 400px;
 .list-fruits {
   @each $fruit in apple, banana, mango, orange {
     li.#{$fruit} {
-      background: url("../img/#{fruit}.png");
+      background: url('../img/#{fruit}.png');
     }
   }
 }
@@ -336,7 +336,7 @@ $fruits: apple, banana, mango, orange;
 .list_fruits {
   @each $fruit in $fruits {
     li.#{$fruit} {
-      background: url("../img/#{fruit}.png");
+      background: url('../img/#{fruit}.png');
     }
   }
 }
@@ -370,8 +370,9 @@ _cf) sass(scss) 컴파일 방식에 대해서 궁금하다면 [Ruby를 통한 sc
 
 4. webpack.config.js를 수정한다.
 
-```config.js
-  module: {
+```javascript
+module.exports = {
+module: {
     rules: [{
       ...
     }, {
@@ -389,6 +390,7 @@ _cf) sass(scss) 컴파일 방식에 대해서 궁금하다면 [Ruby를 통한 sc
       ]
     }]
   },
+}
 ```
 
 fibers라는 패키지를 설치하면 Dart Sass의 컴파일 속도를 2배로 올릴 수 있다.  
@@ -396,7 +398,7 @@ node는 기본적으로 비동기 방식을 사용하지만 동기방식으로 �
 webpack은 기본적으로 이 패키지가 설치된 것을 전제로 동작하기 때문에 특별한 설정은 필요없다.  
 만일 이 패키지가 동작하는 것을 원하지 않는다면 아래처럼 수정한다.
 
-```config.js
+```javascript
 // ...
         {
           loader: "sass-loader",
