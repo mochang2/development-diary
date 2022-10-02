@@ -1,13 +1,25 @@
 ## 0. 공부하게 된 계기
 
-React에 대해 면접 전에 부랴부랴 외우기 보다 미리 '이해'하고 싶어서 정리하려고 한다.
+react에 대해 면접 전에 부랴부랴 외우기 보다 미리 '이해'하고 싶어서 정리하려고 한다.
+
+react는 왜 등장했는가에 대해 여러 글을 읽고 나의 방식대로 정리해봤다.  
+react 이전에는 SPA 프레임워크로서 angular가 존재했다.  
+angular는 jQuery를 써서 DOM을 조작(느리고)했고 앱이 커질수록 user interaction에 대한 추적이 어려워졌으며 러닝 커브도 존재했다고 한다.
+이에 불편함을 느껴 facebook(현 meta)에서 개발을 한 것이 react이며 다음과 같은 장점으로 현재 대세 라이브러리가 되었다.
+
+1. (이거는 논란의 여지가 있지만) react는 라이브러리이며 단지 UI이다.  
+   그래서 자율도가 높고 다른 분야에서도 활용할 수 있다.  
+   react를 ReactNative 라이브러리와 결합시키면 앱을 만들 수 있으며, React360 라이브러리와 결합시키면 VR을, ReactElectron과 결합시키면 데스크톱 앱을 만들 수 있다.  
+   따라서 자바스크립트를 기반으로 모바일, VR, 데스크톱 어떤 것이든 만들 수 있는 크로스 플랫폼 역할을 한다.
+2. JSX를 이용해 선언적 프로그래밍이 가능하다.
+3. virtual DOM의 효율적인 diffing algorithm으로 빠르다.
+4. component를 통해 재사용성과 독립성을 얻어냈다.
 
 ### 목차
 
 - [명령형 프로그래밍 vs 선언형 프로그래밍](https://github.com/mochang2/development-diary/blob/main/030-react.md#1-%EB%AA%85%EB%A0%B9%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Dimperative-programming-vs-%EC%84%A0%EC%96%B8%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Ddeclarative-programming)
 - [hook과 함수형 컴포넌트 vs 클래스형 컴포넌트](https://github.com/mochang2/development-diary/blob/main/030-react.md#2-hook%EA%B3%BC-%ED%95%A8%EC%88%98%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%81%B4%EB%9E%98%EC%8A%A4%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8)
 - [컴포넌트 합성](https://github.com/mochang2/development-diary/blob/main/030-react.md#3-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%95%A9%EC%84%B1)
-- [전역 상태 관리](https://github.com/mochang2/development-diary/blob/main/030-react.md#4-%EC%A0%84%EC%97%AD-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC)
 - [성능]()
 
 ## 1. 명령형 프로그래밍(imperative programming) vs 선언형 프로그래밍(declarative programming)
