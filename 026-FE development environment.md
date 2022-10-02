@@ -373,6 +373,7 @@ JS 공식 모듈 시스템이다.
 1. `import` 혹은 `export` 구문을 사용할 수 있다.
 2. 기본적으로 strict mode로 동작한다.
 3. 모듈의 가장 바깥쪽에서 선언된 이름은 전역 스코프가 아니라 모듈 스코프에서 선언된다. (`a.js`에서 선언한 `const foo = 'bar'`를 `b.js`에서 별다른 `import` 없이는 사용하지 못한다)
+4. 기본적으로 `defer` 옵션이 붙은 것처럼 동작한다. 그래서 `<head>`에서 선언하든 `<body>`에서 선언하든 똑같이 동작한다. [참고](https://github.com/vitejs/vite/issues/881)
 
 (3번은 HTML 파일에서 `<script src="./a.js"></script>` 하지 않았다는 가정이다. 만약 하게 되면 `index.js`의 변수들을 `export`하지 않아도 접근이 가능하다)
 
