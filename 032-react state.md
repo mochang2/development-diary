@@ -80,7 +80,6 @@ function Item({ item }) {
   const [name, setName] = useState(item)
 
   const handleNameChange = (event) => {
-    t
     setName({ ...name, name: element.value })
   }
 
@@ -376,7 +375,9 @@ function App() {
     setMessage(message + 'click ')
   }
 
-  console.log('re-render app')
+  useEffect(() => {
+    console.log('re-render app')
+  })
 
   return (
     <>
@@ -391,7 +392,9 @@ interface TitleProps {
   message?: string
 }
 function Title({ message }: TitleProps) {
-  console.log('re-render title')
+  useEffect(() => {
+    console.log('re-render title')
+  })
 
   return <div>{message}</div>
 }
@@ -412,7 +415,9 @@ function Main() {
     setCount(count + 1)
   }
 
-  console.log('re-render main')
+  useEffect(() => {
+    console.log('re-render main')
+  })
 
   return (
     <div>
@@ -427,7 +432,9 @@ interface MiddlewareProps {
   onChange: () => void
 }
 function Middleware({ count, onChange }: MiddlewareProps) {
-  console.log('re-render middleware')
+  useEffect(() => {
+    console.log('re-render middleware')
+  })
 
   return (
     <div>
@@ -442,7 +449,9 @@ interface ButtonProps {
   onChange: () => void
 }
 function Button({ count, onChange }: ButtonProps) {
-  console.log('re-render button')
+  useEffect(() => {
+    console.log('re-render button')
+  })
 
   return <button onClick={onChange}>{count}</button>
 }
@@ -472,7 +481,9 @@ function Main() {
     setCount(count + 1)
   }
 
-  console.log('re-render main')
+  useEffect(() => {
+    console.log('re-render main')
+  })
 
   return (
     <div>
@@ -484,7 +495,9 @@ function Main() {
 }
 
 function Middleware() {
-  console.log('re-render middleware')
+  useEffect(() => {
+    console.log('re-render middleware')
+  })
 
   return (
     <div>
@@ -497,7 +510,9 @@ function Middleware() {
 function Button() {
   const count = useRecoilValue(CountState)
 
-  console.log('re-render button')
+  useEffect(() => {
+    console.log('re-render button')
+  })
 
   return <button>{count}</button>
 }
@@ -517,7 +532,9 @@ function Main() {
     setCount(Math.floor(Math.random() * 1000))
   }
 
-  console.log('re-render main')
+  useEffect(() => {
+    console.log('re-render main')
+  })
 
   return (
     <div>
@@ -541,7 +558,9 @@ function Main() {
 function Main() {
   const count = useRecoilValue(CountState)
 
-  console.log('re-render main')
+  useEffect(() => {
+    console.log('re-render main')
+  })
 
   return (
     <div>
@@ -552,7 +571,9 @@ function Main() {
 }
 
 function Middleware() {
-  console.log('re-render middleware')
+  useEffect(() => {
+    console.log('re-render middleware')
+  })
 
   return (
     <div>
@@ -569,7 +590,9 @@ function Button() {
     setCount(Math.floor(Math.random() * 1000))
   }
 
-  console.log('re-render button')
+  useEffect(() => {
+    console.log('re-render button')
+  })
 
   return <button onClick={handleCount}>click here</button>
 }
@@ -599,7 +622,8 @@ https://chatoo2412.github.io/javascript/react/react-context-as-a-state-managemen
 
 redux
 recoil - https://velog.io/@yiyb0603/TypeScript-React-Recoil%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-TodoList-%EB%A7%8C%EB%93%A4%EC%96%B4%EB%B3%B4%EA%B8%B0
-jotai
+2022.09 현재 1 버전이 출시되지 않음. 1점대가 아니기 때문에 변경 사항이 많이 생김. migration 하는 것은 개발자가 감당해야 할 몫. 1점대가 아니면 real에서는 잘 안 씀.
+jotai - 1버전이 넘음
 
 언제 re-rendering 되는지. 어떠한 철학을 가지고 만들었는지.
 
