@@ -1,20 +1,22 @@
 ## 0. 공부하게 된 계기
 
 vanilla.js로 개발할 일이 좀 적다보니 새로 얻는 개념에 대해 기록해야 조금 더 머리에 오래 남을 것 같아서 정리한다.
-~원래는 [vanilla.js](https://github.com/mochang2/development-diary/blob/main/026-vanilla%20js.md)에 있는 내용인데 분리했다.~
+~원래는 [vanilla.js](https://github.com/mochang2/development-diary/blob/main/026-FE%20development%20environment.md)에 있는 내용인데 분리했다.~
 
 ### 목차
 
-[innerHTML](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#1-innerhtml)  
-[insertAdjacentHTML](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#2-insertadjacenthtml)  
-[cloneNode](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#3-clonenode)
-[HTMLCollection vs NodeList](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#4-htmlcollection-vs-nodelist)  
-[Element.closest()](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#5-elementclosest)
-[keydown vs keypress vs keyup](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#6-keydown-vs-keypress-vs-keyup)  
-[removeEventListener](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#7-removeeventlistener)  
-[append vs appendChild](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#8-parentnodeappend-vs-parentnodeappendchild)  
-[history](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#9-history)
-[data-\* 속성](https://github.com/mochang2/development-diary/blob/main/033-DOM%20API.md#10-data--%EC%86%8D%EC%84%B1)
+[innerHTML](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#1-innerhtml)  
+[insertAdjacentHTML](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#2-insertadjacenthtml)  
+[cloneNode](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#3-clonenode)  
+[HTMLCollection vs NodeList](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#4-htmlcollection-vs-nodelist)  
+[Element.closest()](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#5-elementclosest)  
+[keydown vs keypress vs keyup](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#6-keydown-vs-keypress-vs-keyup)  
+[removeEventListener](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#7-removeeventlistener)  
+[append vs appendChild](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#8-parentnodeappend-vs-parentnodeappendchild)  
+[history](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#9-history)  
+[data-\* 속성](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#10-data--%EC%86%8D%EC%84%B1)  
+[modulo](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#11-modulo)  
+[debounce](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#12-debounce)
 
 ## 1. innerHTML
 
@@ -230,6 +232,20 @@ HTMLCollection은 live dom collection 객체이다.
 
 추가 사항으로, NodeList와 HTMLCollection은 유사 배열 객체이지만 `Array.prototype`에 있는 배열의 메서드를 대부분 사용하지 못 한다.  
 다만 NodeList는 예외적으로 `forEach` 메서드를 사용할 수 있다.
+
+_`querySelectorAll` 참고 사항_  
+ES6부터 추가된 `Array.from()` 메서드를 사용하면 HTMLCollection이나 NodeList를 배열로 반환할 수 있다.  
+이를 통해 형제 요소 중 특정 property를 가진 element를 특정할 수 있다.  
+아래는 코드 예시이다.
+
+```javascript
+// suggestions 중에서 Suggestion__item--selected 라는 클래스를 가진 요소의 index
+
+const suggestions = document.querySelectorAll('div.Suggestion li')
+const suggestedIndex = Array.from(suggestions).indexOf(
+  document.querySelector('.Suggestion__item--selected')
+)
+```
 
 ## 5. Element.closest()
 
@@ -565,3 +581,100 @@ article[data-columns='4'] {
   width: 600px;
 }
 ```
+
+## 11. modulo
+
+아래는 파이썬 코드의 나머지 연산이다.
+
+```python
+print(-5 % 10) # 5
+```
+
+하지만 JS는 음수의 나머지 연산이 일반적이지 않다.
+
+```javascript
+console.log(-5 % 10) // -5
+```
+
+index에 대한 나머지 연산이 필요한 경우, 예를 들면 -1번째 인덱스를 원하면 object.length - 1번째 인덱스를 가리켜야 하는 경우 위와 같은 연산은 문제가 된다.  
+[스택오버플로우](https://stackoverflow.com/questions/4467539/javascript-modulo-gives-a-negative-result-for-negative-numbers)의 해설에 따르면 다음과 같은 custom modulo 연산을 만들어야 한다.
+
+```javascript
+// prototype chaining. 보통 더 느림
+Number.prototype.mod = function (n) {
+  return ((this % n) + n) % n
+}
+
+// 아래 방법 추천
+function mod(n, m) {
+  return ((n % m) + m) % m
+}
+```
+
+## 12. debounce
+
+`lodash`에서 많이 사용하는 함수 중 하나가 `debounce`이다.  
+이벤트 호출을 지연시키거나 한 번에 처리하게끔 해서 API의 호출을 최소화하기 위해 많이 사용된다.
+
+`lodash`에서는 `leading`과 `trailing`이라는 옵션을 받는다.
+
+- `leading`
+  - `true`면 첫 이벤트 발생시 그 이벤트는 일단 반영되고, 이후의 연속하는 이벤트는 묶어서 처리한다.
+  - 기본값은 `false`이다.
+- `trailing`
+  - `true`면 연속된 이벤트의 마지막 이벤트가 발생 후 wait으로 대입된 밀리세컨트 만큼이 지난 후 마지막 이벤트 하나가 반영된다.
+  - 기본값은 `true`이다.
+
+아래는 vanilla.js로 구현한 debounce이다.  
+클로저 개념을 사용해서 구현한다.
+
+```javascript
+// arguments는 함수 선언시 기본적으로 전달되는 매개변수들을 의미하는 keyword
+
+/**
+ * @param {function} callback
+ * @param {number} time - trailing milliseconds
+ * @param {object} options
+ * @return {function}
+ */
+const debounce = (callback, time, options) => {
+  let inDebounce
+  const { leading, trailing } = options
+
+  return function () {
+    // inDebounce 값이 변하기 전에 미리 저장하기 위해 사용
+    // 첫 이벤트를 무조건 발생시킬지 여부
+    let callNow = leading && !inDebounce
+
+    // leading이 아닌 경우에만 wait 이후 callback을 실행
+    const later = () => {
+      inDebounce = null
+      if (!leading) {
+        callback.apply(this, arguments)
+      }
+    }
+
+    if (trailing) {
+      if (inDebounce) {
+        clearTimeout(inDebounce)
+      }
+      inDebounce = setTimeout(later, time)
+    }
+
+    if (callNow) {
+      callback.apply(this, arguments)
+    }
+  }
+}
+
+// 사용
+const debounced = debounce(() => console.log(123), 500)
+```
+
+_참고) `throttle`_  
+`debounce`는 주어진 인터벌마다 실행되는 것이 아니라, 주어진 time 이내에 연속으로 이벤트가 발생할 경우, 더 이상 이벤트가 발생하지 않을 때까지 일단 대기하도록 하는 함수이다.  
+검색어 자동 완성과 같은 기능을 할 때 주로 사용된다.
+
+반면 `throttle`은 여러 번 발생하는 이벤트를 일정 시간 동안 한 번만 실행되도록 만드는 개념이다.  
+이벤트가 꾸준히 발생되며 주어진 인터벌마다 주기적으로 이벤트가 발생하게 하고 싶을 때 `throttle`을 사용한다.  
+무한 스크롤에서 주로 사용된다.
