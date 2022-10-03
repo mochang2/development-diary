@@ -9,7 +9,9 @@
 
 ### 1) memoization
 
-re-rendering 시간을 측정하기 위해 3가지 툴을 비교해봤다.
+[when to use memoization in react](https://im-developer.tistory.com/198) 이런 글들은 수두룩하지만 너무 추상적인 표현인 것 같다.  
+직접 성능을 비교할 방법을 알아보고 싶었다.
+이를 위해 re-rendering 시간을 측정하기 위한 3가지 툴을 비교해봤다.
 
 1. [benchmark](https://www.npmjs.com/package/benchmark)
 
@@ -45,10 +47,9 @@ re-rendering 시간을 측정하기 위해 3가지 툴을 비교해봤다.
 자료 많은게 짱이라고 생각하고, 반복 작업에 자동화를 생각했을 때 `benchmark`가 제일 낫다고 생각했다.
 
 아래는 내가 짠 예제 코드이다.  
-shell script도 이용해보고, 브라우저가 아닌 node로도 돌려봤지만 이게 제일 나은 대안인 것 같다.
+shell script도 이용해보고, 브라우저가 아닌 node.js로도 돌려봤지만 이게 제일 나은 대안인 것 같다.
 
 ```javascript
-// index.js가 변경된 것을 감지하는 hot reloading을 이용(비교할 컴포넌트를 입력)
 // index.js
 
 import React from 'react'
@@ -74,7 +75,8 @@ if (process.env.NODE_ENV === 'development') {
   }
 
   function compare(benchmark1, benchmark2) {
-    return benchmark1.times.elapsed < benchmark2.times.elapsed
+    // elapsed 기준으로 내림차순
+    return benchmark2.times.elapsed - benchmark1.times.elapsed
   }
 
   suite
@@ -82,6 +84,7 @@ if (process.env.NODE_ENV === 'development') {
     .add('wo memo', performanceCheck2, { minSamples: 50 })
     .on('cycle', function (event) {
       // add eventlistener
+      // name, operations/second(Hz), runned samples 출력
       console.log(String(event.target))
     })
     .on('complete', function () {
@@ -147,17 +150,18 @@ export function WithOutMemoization() {
 위 결과를 실행하면 메모이제이션을 한 컴포넌트는 10초 내외의 `elapsed time`을, 메모이제이션을 하지 않는 컴포넌트는 100초 내외의 `elapsed time`을 가진다.
 
 극단적인 결과를 보이기 위해 위와 같이 코드를 짰다.  
-실제로는 컴포넌트에 대략 n번 정도 re-rendering이 될 거 같다\~ 라고 가정하고 `minSamples`를 조정해야겠다.  
+실제로는 컴포넌트에 대략 n번 정도 re-rendering이 될 거 같다\~ 라고 가정하고 `minSamples`를 조정해야 한다.  
 특정 횟수보다 적게 re-rendering되는 컴포넌트는 오히려 메모이제이션을 활용하는 것이 더 느리기 때문이다(예전에 증명한 글을 봤는데 그 글을 못 찾겠다. 그런데 어찌보면 당연한 말이다. 메모이제이션이 일종의 캐싱과 같은 역할을 하기 때문이다).  
-또한 메모리는 무제한으로 사용 가능한 자원이 아니기 때문에 배포 단계에서 react 성능을 체크할 수 있는 사이트나 툴을 다시 이용해보는 것이 좋다.
+또한 메모리는 무제한으로 사용 가능한 자원이 아니기 때문에 배포 단계에서 react 성능을 체크할 수 있는 사이트나 툴을 다시 이용해보는 것이 좋겠다.
 
-#### compare
+#### dependency compare
 
 위 방법을 통해 `memo`, `useCallback`, `useMemo` 등의 메모이제이션을 활용하는 함수, 훅의 성능을 테스트할 수 있었다.  
-다만 확실히 학습하고자 언제 re-rendering 되는지 dependency를 조금 더 뜯어보고자 한다.
+다만 확실히 학습하고자 언제 re-rendering 되는지 dependency를 조금 더 뜯어봤다.
 
-많은 글들을 읽어보면 dependency가 변경되면 re-rendering될 때 해당 내용을 다시 실행되며 react의 불변성 철학 때문인지 dependency도 shallow compare한다(`Object.is()`로 비교한다고 한다).  
-다음 코드로 테스트했다.
+dependency가 변경되면 re-rendering될 때 훅으로 감싼 코드를 다시 실행한다.  
+react는 dependency 변경을 확인하기 위해 shallow compare한다(`Object.is()`로 비교한다고 한다).  
+이를 확인하고자 다음 코드로 테스트했다.
 
 ```jsx
 function App() {
@@ -204,7 +208,7 @@ function App() {
 // 또는
 
 function func() {
-  // App 내부에 선언하면 useMemo가 버튼을 누를 때마다 re-rendering됨
+  // 만약 App 내부에 선언하면, useMemo가 버튼을 누를 때마다 re-rendering됨
 }
 
 function App() {
@@ -228,53 +232,125 @@ function App() {
 
 #### `React.memo` Deep compare
 
-[위]()에서 봤듯이 react에서 모든 비교는 shallow comparison이라고 생각해도 된다.  
+[위](https://github.com/mochang2/development-diary/blob/main/034-react%20performance.md#compare)에서 봤듯이 react에서 모든 비교는 shallow comparison이라고 생각해도 된다(불변성 유지!).  
 `React.memo`도 마찬가지이다.
 
-dependency optimization - deep compare ? shallow compare ? 검색해도안 나오면 useMemo로 직접 let, const 변수도 선언해보고 함수도 컴포넌트 안과 밖에 선언해봐서 체크.
+그래서 아래와 같이 deep compare을 도와주게 하는 방법이 존재한다.
+
+```jsx
+function moviePropsAreEqual(prevMovie, nextMovie) {
+  return (
+    prevMovie.title === nextMovie.title &&
+    prevMovie.releaseDate === nextMovie.releaseDate
+  )
+}
+
+const MemoizedMovie = memo(Movie, moviePropsAreEqual)
+```
+
+[github issue](https://github.com/facebook/react/issues/14463)에 다음과 같은 글이 있다.
+
+> You should always use React.memo LITERALLY, as comparing the tree returned by the Component is always more expensive than comparing a pair of props properties)
+
+[TOAST UI](https://ui.toast.com/weekly-pick/ko_20190731)에 나와있듯이 props가 자주 변경되지 않는 컴포넌트면 사용하는 것이 좋다고 한다.
+
+여기서 궁금증이 생겼다.  
+애초에 렌더링된 컴포넌트는 메모리에 있는 것이기 때문에 `React.memo`의 효율성을 따지기 위해서는 단순히 re-rendering이 효과적인지 따지는 것이 아니라 props comparison의 성능과 메모이제이션의 성능을 비교해야 하지 않을까?  
+만약 deep compare한다면 `React.memo`의 성능은 어떻게 될까?
+
+다음과 같이 코드를 작성한 뒤 `benchmark`를 이용해 테스트했다.
+
+```jsx
+export function ParentComponent1() {
+  // react.memo를 사용한 컴포넌트를 자식으로 가짐
+  const [count, setCount] = useState(0)
+
+  return (
+    <div className="App">
+      <header>I'm parent</header>
+      <main>
+        <button onClick={() => setCount(count + 1)}>+1</button>
+        <div>{count}</div>
+        <MemoizedComponent
+          count1={1}
+          // props 수십 개 선언
+        />
+      </main>
+    </div>
+  )
+}
+
+export function ParentComponent2() {
+  // react.memo를 사용하지 않은 컴포넌트를 자식으로 가짐
+  const [count, setCount] = useState(0)
+
+  return (
+    <div className="App">
+      <header>I'm parent</header>
+      <main>
+        <button onClick={() => setCount(count + 1)}>+1</button>
+        <div>{count}</div>
+        <ChildComponent
+          count1={1}
+          // props 수십 개 선언
+        />
+      </main>
+    </div>
+  )
+}
+
+function ChildComponent({ ...rest }) {
+  return <div>I'm child</div>
+}
+
+function compareProps(prevProps, nextProps) {
+  // not best practice
+  // 일부러 느리게 비교하기 위해서 만듦
+  const prevPropsKeys = Object.keys(prevProps)
+  const nextPropsKeys = Object.keys(nextProps)
+
+  return (
+    prevPropsKeys.length === nextPropsKeys.length &&
+    prevPropsKeys.every((key) => prevProps[key] === nextProps[key]) &&
+    nextPropsKeys.every((key) => prevProps[key] === nextProps[key])
+  )
+}
+
+const MemoizedComponent = memo(ChildComponent, compareProps)
+```
+
+결과는 97번 렌더링하는데 메모이제이션을 사용한 컴포넌트가 11.367s, 메모이제이션을 사용하지 않은 컴포넌트가 11.178s 걸렸다.  
+미세하지만 메모이제이션을 사용하지 않은 게 더 유리했다.  
+물론 이 예시에서는 일부러 느린 compare 함수를 사용했으며 `ChildComponent`가 더 무거웠다면 다른 결과가 나왔을 것이다.
+
+따라서 `React.memo`를 사용하기 전 해당 **컴포넌트의 props가 자주 변경되는지**와 자주 변경되지 않는다면 **메모이제이션이 compare보다 값어치가 있는지**를 확인해야 한다는 결론을 얻었다.
 
 ### 2) key props
 
-key props
+해당 내용과 관련된 것은 자세한 거는 [virtual DOM 파트](https://github.com/mochang2/development-diary/blob/main/029-virtual%20DOM.md#diffing-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98)에 기록해놨다.
+
+간단히만 정리하자면 `key`는 모든 JSX가 기본적으로 갖는 property 값이다.  
+전역적으로 unique할 필요는 없지만 형제 요소들 간에는 unique해야 한다.
+
+보통 `return`에서 `Array.map`을 이용할 때 많이 사용되기 때문에 index를 `key`값으로 주는 경우가 많다.  
+일반적인 경우에서는 문제가 되지 않지만 해당 데이터가 수정될 때 다시 정렬되는 과정을 거친 후에 rendering되는 데이터라면 재조정 과정에서 휴리스틱 알고리즘의 이점을 얻지 못한다.  
+이럴 때는 형제 요소 간 노드의 순서가 변해도 unique하게 노드를 추적할 수 있는 `id` 값 등을 주는 것이 좋다.
 
 ### 3) state 분리
 
-> <렌더링>
-
-리액트는 기본적으로 재귀적으로 컴포넌트를 렌더링 한다. 그러므로, 부모가 렌더링 되면 자식도 렌더링 된다.
-렌더링 그 자체로는 문제가 되지 않는다. 렌더링은 리액트가 DOM의 변화가 있는지 확인하기 위한 절차일 뿐이다.
+리액트는 기본적으로 재귀적으로 컴포넌트를 렌더링 한다.  
+그러므로, 부모가 렌더링 되면 자식도 렌더링 된다.  
+렌더링 그 자체로는 문제가 되지 않는다.  
+렌더링은 리액트가 DOM의 변화가 있는지 확인하기 위한 절차일 뿐이다.  
 그러나 렌더링은 시간이 소요되며, UI 변화가 없는 불필요한 렌더링은 시간을 소비한다.
 
-re-rendering => props.children. memo. useMemo 등
-// 아래 경우 P가 render -> C가 render되므로 memo 의미 x
-
-```jsx
-const MemoizedChildComponent = React.memo(ChildComponent)
-
-function ParentComponent() {
-  const onClick = () => {
-    console.log('Button clicked')
-  }
-
-  const data = { a: 1, b: 2 }
-
-  return <MemoizedChildComponent onClick={onClick} data={data} />
-}
-```
-
-// memo를 사용해서 re-render를 막을 수 있는 상황인지 살펴보기! 특히 props를 전달받지 않는다면 가능하지 않을까
-// memo를 사용하지 말하야 할 경우? https://github.com/facebook/react/issues/14463
-See how your app behaves in production mode, use React's profiling builds and the DevTools profiler to see where bottlenecks are, and strategically use these tools to optimize parts of the component tree that will actually benefit from these optimizations.
-
-### state 분리
+부모에서 관리하던 state를 자식 요소로 내린다면 형제 요소 간의 불필요한 re-rendering을 발생시키지 않을 수 있다.
 
 ```tsx
-// 아래 예시에서 state, setState를 그대로 child component에게 전달해줬는데, 실제로는 저렇게 쓰면 안됨
-
 // 분리 이전
 function App() {
   const [data, setData] = useState<DataType[] | null>(null)
-  const [categoryOption, setCategoryOption] = useState(DEFAULT_OPTION) // DEFAULT_OPTION = '전체'
+  const [categoryOption, setCategoryOption] = useState(DEFAULT_OPTION)
   const [searchText, setSearchText] = useState('')
   const [page, setPage] = useState(1)
 
@@ -312,8 +388,8 @@ function App() {
 }
 ```
 
-category, searchText가 변경될 때 DataList가 re-render되는 것은 어쩔 수 없음.
-하지만 Page가 변경되면서 DataList가 re-render될 때, Filter 부분이 re-render할 필요가 없음.
+`categoryOption`, `searchText`가 변경될 때 `Table`가 re-render되는 것은 어쩔 수 없다.  
+하지만 `page`가 변경되면서 `DataList`가 re-render될 때, `Filter`가 re-render될 필요는 없다.
 
 ```tsx
 // 분리 이후
@@ -337,7 +413,7 @@ function App() {
   )
 }
 
-function DataList({ data, categoryOption, searchText }: DataListProps) {
+function FaqList({ data, categoryOption, searchText }: DataListProps) {
   const filteredData = data.filter(
     (datum) =>
       datum.category.includes(categoryOption) &&
