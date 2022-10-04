@@ -3,7 +3,8 @@
 성능을 향상시키는 적이 있냐는 질문을 많이 들어봤다.  
 미리 방법을 공부한 뒤 프로젝트에 언제든지 도입할 수 있도록 해보고자 한다.
 
-지금부터 진행하는 테스트는 `CRA`(react v18.2.0), `npm run eject`를 실행한 코드를 이용했다.
+지금부터 진행하는 테스트는 `CRA(v5.0.1)`, `npm run eject`를 실행한 코드를 이용했다.  
+webpack은 v5이다.
 
 ## 1. re-rendering
 
@@ -327,7 +328,7 @@ const MemoizedComponent = memo(ChildComponent, compareProps)
 
 ### 2) key props
 
-해당 내용과 관련된 것은 자세한 거는 [virtual DOM 파트](https://github.com/mochang2/development-diary/blob/main/029-virtual%20DOM.md#diffing-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98)에 기록해놨다.
+해당 내용과 관련된 자세한 것은 [virtual DOM 파트](https://github.com/mochang2/development-diary/blob/main/029-virtual%20DOM.md#diffing-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98)에 기록해놨다.
 
 간단히만 정리하자면 `key`는 모든 JSX가 기본적으로 갖는 property 값이다.  
 전역적으로 unique할 필요는 없지만 형제 요소들 간에는 unique해야 한다.
@@ -352,7 +353,7 @@ function App() {
   const [data, setData] = useState<DataType[] | null>(null)
   const [categoryOption, setCategoryOption] = useState(DEFAULT_OPTION)
   const [searchText, setSearchText] = useState('')
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1) // 이 state 분리
 
   useEffect(() => {
     async function fetch() {
@@ -440,36 +441,274 @@ function FaqList({ data, categoryOption, searchText }: DataListProps) {
 
 ## 2. 리소스 크기 줄이기
 
-production mode  
-tree shaking  
-additional html wrapper => <></>  
-content compression
+### 1) minify
 
-성능 향상을 위한 방법 or CSR의 단점 극복하는 방법
+빌드 산출물의 리소스 크기 자체를 줄이는 방법이다.  
+JS나 CSS에서 여백, 빈칸, 주석 등을 제거하고 이름이 긴 변수는 짧게 줄임으로써 브라우저에 전달되는 코드 양을 줄인다.
 
-1. tree shaking: 실제로 쓰지 않는 코드들을 제외함. https://helloinyong.tistory.com/305
+#### style 최소화
 
-2. SSR 도입(항상 성능 향상은 아니다): https://d2.naver.com/helloworld/7804182
+webpack을 사용한 CSS minify는 [terser-webpack-plugin](https://github.com/mochang2/development-diary/blob/main/026-FE%20development%20environment.md#production-mode)을 사용하거나 [css-minimizer-webpack-plugin](https://yamoo9.gitbook.io/webpack/webpack/webpack-plugins/minimize-css-files)을 사용할 수 있다.
 
-3. code splitting(chunk.js): 유저가 당장 필요한 정보에 우선순위를 두어 순서대로 로딩. dynamic import(React.lazy) / 여러 entry points
-   https://velog.io/@y1andyu/React-%EC%BD%94%EB%93%9C-%EB%B6%84%ED%95%A0  
-   https://medium.com/humanscape-tech/react%EC%97%90%EC%84%9C-%ED%95%B4%EB%B3%B4%EB%8A%94-%EC%BD%94%EB%93%9C-%EC%8A%A4%ED%94%8C%EB%A6%AC%ED%8C%85-code-splitting-56c9c7a1baa4
+나는 `styled-components`를 많이 사용하기 때문에 해당 방법에 대해서만 정리하고자 한다.  
+원래는 `babel-plugin-styled-components`을 설치한 뒤 바벨 설정 파일을 수정해야 하지만 v4부터 *babel macro*라는 것을 제공한다고 한다.  
+사용법은 엄청 간단하다.
+
+```jsx
+import styled from 'styled-components'
+
+// 아래처럼만 바꾸기
+
+import styled from 'styled-components/macro'
+```
+
+(스크린샷을 안 찍었지만 실제로 아래 방법을 이용하면 번들 크기가 줄어들었다)
+
+#### comment 제거
+
+CRA에서 기본적인 설정이 되어 있다.
+
+```javascript
+module.exports = function (webpackEnv) {
+  return {
+    // ...
+    optimization: {
+      minimize: isEnvProduction,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            // ...
+            output: {
+              comments: false,
+              // format: { comments: false } 로도 가능
+            },
+          },
+          extractComments: false, // 추가. 하면 LICENSE 파일이 생기지 않음.
+        }),
+      ],
+    },
+  }
+}
+```
+
+![remove comments](https://user-images.githubusercontent.com/63287638/193710169-3bee06d1-0a10-4f7c-88da-b193a3f1ddd8.png)
+
+위는 주석을 제거하기 전, 아래는 주석을 제거한 후이다.
+
+_참고) source map 제거_  
+처음에는 `<hash>.js.map` 파일에 일부 주석이 그대로 남아 있어서 terser plugin이 이상한가 싶었다~해당 프로젝트 github issue도 다 뒤져보고 소스 코드도 다 뒤져봤다 ㅠㅠ~.  
+알고보니 해당 이름의 파일은 source map 파일이고 진짜 빌드 파일은 `<hash>.js` 파일이었다.
+
+source map 파일은 브라우저 내에서 원본 소스 코드를 확인할 수 있도록 도와주는 디버깅 파일이다.  
+따라서 다음과 같은 이유로 실제 배포 시에는 제거되어야 한다.
+
+1. 내부 코드가 노출된다. 난독화한 이유가 없어진다.
+2. 메모리 부족 이슈가 발생할 수 있다. 이는 `devtool` 옵션을 `source-map`이 아닌 (development 모드에서 사용되는)`cheap-module-source-map`으로 바꿔서 해결할 수도 있다.
+
+CRA는 간단히 `package.json`을 바꿔서 해결할 수 있다.
+
+```json
+{
+  "scripts": {
+    "bulld": "GENERATE_SOURCEMAP=false react-scripts build",
+    // 또는
+    "build": "react-scripts build && rm build/static/**/*.map"
+  }
+}
+```
+
+webpack 설정을 바꿀 수도 있다.  
+간단히 `devtool: false` 설정하면 된다.
+
+### 2) mocking 코드 제거
+
+처음에는 `mockServiceWorker.js` 파일이 빌드 산출물에 minify도 되지 않고 그대로 포함돼서 없앨 방법을 찾아봤다.  
+[github issue](https://github.com/mswjs/msw/issues/291)를 확인해보니 public 폴더에 있는 것은 그대로 복사되며, build에 포함된다고 해도 성능에는 문제가 없다고 한다.  
+`index.html`에서 해당 파일을 다운로드 하지 않으므로 당연한 말이었다.
+
+그래도 혹여 편-안하지 않다면 단순히 `package.json`의 scripts 부분에 수동으로 지워주게끔 추가해주자.
+
+### 3) console.~~ 제거
+
+CRA에서는 기본적으로 옵션이 설정되어 있지 않다.  
+다음 옵션으로 제거 가능하다.
+
+```javascript
+module.exports = function (webpackEnv) {
+  return {
+    // ...
+    optimization: {
+      minimize: isEnvProduction,
+      minimizer: [
+        new TerserPlugin({
+          terserOptions: {
+            compress: {
+              drop_console: true,
+            },
+          },
+        }),
+      ],
+    },
+  }
+}
+```
+
+### 4) 안 쓰는 node_modules 제거
+
+[CRA does not have devDependency](https://github.com/npm/npm/issues/2854)에서 알 수 있듯이 빌드할 때 이미 react 동작에 필요한 모듈들만 남는다고 한다.  
+[npm prune --production](https://github.com/serverless/serverless/issues/569)을 통해 해당 동작을 진행하는 것 같다.  
+실제로 안 쓰는 패키지 마구 설치한 뒤 build를 해도 산출물 용량이 동일하다.
+
+### 5) tree shaking
+
+참고: https://medium.com/naver-fe-platform/webpack%EC%97%90%EC%84%9C-tree-shaking-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0-1748e0e0c365 , https://helloinyong.tistory.com/305 , https://jforj.tistory.com/166 , https://huns.me/development/2265
+
+tree shaking이란 코드를 빌드할 때 실제로 쓰지 않는 코드들을 제외한다는 의미이다.
+
+#### side effect
+
+tree shaking을 하기 전에 side effect를 알아야 한다.  
+사용하지 않더라도 다른 코드에 영향을 끼칠 수 있다고 판단하여 빌드 산출물에 포함하는 경우가 있다.  
+다음과 같은 경우이다.
+
+1. 전역 함수를 사용하는 경우(`Object`, `Math`, `String`, `RegExp` 등)
+2. 함수 실행 코드에서 멤버 변수를 변경하고 반환하는 경우
+3. class 내부에서 `static` property를 사용하는 경우(단, static method는 side effect 발생하지 않음)
+
+아래는 webpack3까지는 side effect라고 분류했는데 4부터 tree shaking을 자동으로 진행한다.
+
+1. import한 모듈을 사용한 함수를 사용하지 않는 경우
+2. import한 모듈을 다시 export default한 경우
+
+webpack이 볼 때는 side effect지만 개발자가 볼 때는 아닌 경우가 있다.  
+이런 경우 `package.json`에 이를 명시해줌으로써 export를 제거할 수 있다.
+
+```json
+{
+  // ...
+  "sideEffects": false, // 모든 모듈에서 side effect가 없는 경우
+  "sideEffects": ["./src/somewhere"] // side effect가 존재하지만 tree shaking의 대상으로 지정. regexp 사용 가능
+}
+```
+
+#### import 됐지만 사용 안되는 모듈 제거
+
+**아래 내용은 단순히 참고만 하자. import한 외부 라이브러리에 따라, 상황에 따라 다를 수 있다. 상황에 맞게 설정하자.**
+
+다음과 같은 순서를 적용해야 한다.
+
+1. ES6 모듈을 적용한다.
+
+모든 모듈은 `import`, `export` 키워드를 사용한다.  
+따라서 commonJS는 tree shaking이 되지 않는다.  
+babel 설정도 추가해야 한다.
+
+```javascript
+// babel.config.js
+{
+  //
+  "presets": [
+    [
+        "@babel/preset-env",
+        {
+            "modules": false
+        }
+    ],
+],
+}
+```
+
+2. side effect를 추가한다.
+
+테스트해볼 코드는 다음과 같다.
+
+한참 헤맨 부분인데 외부 라이브러리로 테스트하려고 했는데 [lodash](https://stackoverflow.com/questions/58741044/why-webpack-doesnt-tree-shake-the-lodash-when-using-import-as)나 [moment](https://luke-tofu.tistory.com/entry/Goodbye-Moment-feat-Dayjs)는 commonJS를 사용해 tree shaking이 제공되지 않는다고 한다.
+
+```jsx
+// App.jsx
+import { ParentComponent1, ParentComponent2 } from './components/Memotest'
+import dayjs from 'dayjs'
+import * as utils from './lib/utils'
+
+function App() {
+  const today = utils.getToday()
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <ParentComponent1 />
+        <ParentComponent2 />
+      </header>
+      <main>{today}</main>
+    </div>
+  )
+}
+
+// lib/utils.js
+export const getToday = () => {
+  return new Date().toISOString().slice(0, 10)
+}
+
+export const getDate = (datetime: string) => {
+  return datetime.split(' ')[0]
+}
+```
+
+위 코드에서 `dayjs`와 `utils.getDate`는 사용되고 있지 않다.  
+tree shaking의 효과를 보기 위해 다음과 같은 순서로 실행했다.
+
+**결과 1**  
+tree shaking 미적용
+
+![1](https://user-images.githubusercontent.com/63287638/193747023-e02e258c-7fa8-4ba1-8395-b6d171331efc.png)
+
+**결과 2**
+tree shaking 적용, `"sideEffects": false`, `import * as utils from './lib/utils`  
+tree shaking 적용, `"sideEffects": false`, `import { getToday } from './lib/utils`
+
+![2,3](https://user-images.githubusercontent.com/63287638/193747025-53d02473-375e-4d1d-b118-39616832e918.png)
+
+**결과 3**
+tree shaking 미적용, `import dayjs from 'dayjs` 삭제, `import { getToday } from './lib/utils`
+tree shaking 미적용, `import dayjs from 'dayjs` 삭제, `import * as utils from './lib/utils`
+
+**tree shaking 적용 x, 사용 안 하는 모듈 전부 삭제, default import**
+
+![4,5](https://user-images.githubusercontent.com/63287638/193747026-d6cedcfc-f335-4e48-a510-0a6fcde4caaa.png)
+
+두 가지 결론을 얻었다.
+
+1. tree shaking보다 안 쓰는 코드가 삭제가 더 효과적이다(TODO: 이는 내가 한 실험에서만 편향된 결과일 수 있다. 실전에서 테스트해보고 내용을 추가하자).
+2. default로 `import`하는 것과 부분 `import`가 차이가 없다. 이는 webpack4부터 자동으로 최적화해줘서라고 한다.
+
+_side effects 실험_  
+side effects가 효과가 있는지에 대한 실험은 [stack overflow](https://stackoverflow.com/questions/49160752/what-does-webpack-4-expect-from-a-package-with-sideeffects-false)에 있으니 여기를 참고하자.  
+결론: side effects를 가진 모듈이 적을수록 번들 사이즈가 줄어든다.
+
+## 3. 초기 렌더링 빠르게 하기
+
+additional html wrapper => <></>
 
 > wrapper 최소화
 
 공용 컴포넌트, page 최상단은 wrapper로 감쌈
 나머지는 <></>로 처리하고자 함
-
 https://jelvix.com/blog/is-react-js-fast
 
-## 3. 초기 렌더링 빠르게 하기
+chunk file
 
-chunk file  
+3. code splitting(chunk.js): 유저가 당장 필요한 정보에 우선순위를 두어 순서대로 로딩. dynamic import(React.lazy) / 여러 entry points
+   https://velog.io/@y1andyu/React-%EC%BD%94%EB%93%9C-%EB%B6%84%ED%95%A0  
+   https://medium.com/humanscape-tech/react%EC%97%90%EC%84%9C-%ED%95%B4%EB%B3%B4%EB%8A%94-%EC%BD%94%EB%93%9C-%EC%8A%A4%ED%94%8C%EB%A6%AC%ED%8C%85-code-splitting-56c9c7a1baa4
+
 SSR
+
+2. SSR 도입(항상 성능 향상은 아니다): https://d2.naver.com/helloworld/7804182
 
 ## 4. 서버측 응답 최적화하기
 
 CDN  
 web worker
+content compression
 
 ## 5. 성능 측정 방법
