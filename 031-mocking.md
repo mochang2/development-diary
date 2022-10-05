@@ -159,7 +159,7 @@ MSW가 이러한 역할을 할 수 있는 이유는 Service Worker를 통해 HTT
 ### Service Worker
 
 Service Worker는 웹 애플리케이션의 메인 스레드와 분리된 별도의 백그라운드 스레드에서 실행시킬 수 있는 기술 중 하나이다.  
-Service Worker 덕분에 애플리케이션의 UI(메인 스레드가 처리하는 부분) Block 없이 연산을 처리할 수 있습니다.
+Service Worker 덕분에 애플리케이션의 UI(메인 스레드가 처리하는 부분) Block 없이 연산을 처리할 수 있다.
 
 Service Worker는 다음과 같은 기능에 주로 사용된다.
 
@@ -247,10 +247,9 @@ function Faq() {
 
   return (
     <React.Fragment>
-      {faqs.length !== 0 &&
-        faqs.map((faq) => {
-          // ...
-        })}
+      {faqs.map((faq) => {
+        // ...
+      })}
     </React.Fragment>
   )
 }
@@ -259,5 +258,3 @@ function Faq() {
 `yarn react-scripts start` 또는 `npm run react-scripts start`를 하여 올바르게 요청이 이루어지면 다음과 같은 내용이 console에 출력된다.
 
 ![result](https://user-images.githubusercontent.com/63287638/189372067-290f5db5-0c71-4f6d-b4c6-d8fbd74483e5.jpg)
-
-TODO: 인증 코드가 추가되면 mocking에서 req 다루는 코드 추가하기
