@@ -125,9 +125,9 @@ function ChildComponent({ initialValue }) {
 ~실용적이지 않은 예시지만 그냥 그러려니 하자~  
 위 코드는 1초 뒤 다음과 같은 결과를 보인다.
 
-![state change result1](https://user-images.githubusercontent.com/63287638/191728146-fdf1f08d-31a3-4c07-a1d1-c5f2d3705363.jpg)
+![state change result1](https://user-images.githubusercontent.com/63287638/191727884-56762ba3-976d-4df9-bf1c-20bfca679ec2.jpg)
 
-![state change result2](https://user-images.githubusercontent.com/63287638/191727884-56762ba3-976d-4df9-bf1c-20bfca679ec2.jpg)
+![state change result2](https://user-images.githubusercontent.com/63287638/191728146-fdf1f08d-31a3-4c07-a1d1-c5f2d3705363.jpg)
 
 분명 `useEffect`에서는 `initialValue`가 바뀌었다는 것을 보여주지만 `ChildComponent`의 UI에는 해당 변경이 반영되지 않는다.
 
