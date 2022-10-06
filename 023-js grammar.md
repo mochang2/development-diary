@@ -64,6 +64,28 @@ a = 6
 
 # data type
 
+_cf) TDZ(Temporal Dead Zone)_  
+변수는 선언 -> 초기화 -> 할당 단계를 거쳐서 값이 할당된다.  
+TDZ는 스코프 시작부터 초기화 시작 사이의 구간을 의미한다.  
+즉, 선언 부분을 포함한다.
+
+`var`와 같은 경우는 선언과 초기화가 동시에 일어나 TDZ의 영향을 받지 않지만, `let`, `const`와 같은 경우 선언과 초기화가 따로 발생하여 TDZ의 영향을 받는다.  
+`let`, `const`뿐만 아니라 JS의 `class`나 `super()`, 함수의 매개변수 등도 TDZ의 영향을 받는다(<=> `var`, `function`).
+
+**잘못 알고 있던 부분**
+
+`let`, `const`는 호이스팅이 발생하지 않는다? No  
+아래 예시에서 `10`이 출력되지 않고 Error가 나는 이유는 `let`에 호이스팅이 발생했기 때문이다.
+
+```javascript
+// const여도 마찬가지
+let a = 10
+{
+  console.log(a) // ReferenceError: Cannot access 'a' before initialization
+  let a = 20
+}
+```
+
 1. var vs let(read and write)  
    let은 ES6부터 나온 데이터 타입. 과거에는 var를 썼는데, 이는 안전하지 못함. var hoisting(move declaration from bottom to top)이라고 해서 선언이 아래에 있어도 위로 끌어올리면서 일반적인 컴퓨터 언어와 다르게 선언 전에 사용해도 오류가 발생하지 않음. 또한 var는 block scoping이 되지 않아 지역변수, 전역변수의 개념이 없음. 마지막으로 var는 변수 재선언이 가능함. var a = 1;이라고 선언해놓고 뒤에 가서 var a = 'string';으로 선언해도 에러가 나지 않음. 그 외에 var가 지원했던 기능은 let이 모두 대체가 가능하므로 let을 쓰는 게 옳은 방식.
 
