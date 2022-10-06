@@ -334,7 +334,7 @@ props drilling을 이용해서 props를 따라간다면 코드를 실행하지 �
 하지만 컴포넌트 depth가 증가할수록 이 장점은 희미해진다.  
 특히 다음과 같은 상황을 마주한다면 말이다.
 
-- 일부 데이터의 자료형을 바꾸게 되는 경우 `{ user: { name: 'Joe West' } } -> { user: { firstName: 'Joe', lastName: 'West' } })`
+- 일부 데이터의 자료형을 바꾸게 되는 경우 `{ user: { name: 'Joe West' } } -> { user: { firstName: 'Joe', lastName: 'West' } }`
 - 필요보다 많은 property를 전달하다가 컴포넌트를 분리하는 과정에서 필요 없는 property가 계속 남는 경우
 - 필요보다 적은 property를 전달하면서 동시에 defaultProps를 과용한 결과로 필요한 property가 전달되지 않은 상황을 문제를 인지하지 어려운 경우 (또한 컴포넌트 분리 과정에서도)
 - property의 이름이 중간에서 변경되어서 값을 추적하는데 쉽지 않아지는 경우
