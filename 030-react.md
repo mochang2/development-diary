@@ -236,7 +236,7 @@ function Example() {
 
 대신 함수형 컴포넌트는 공식문서에 나왔듯이 `useEffect` 훅을 이용해 `componentDidMount` 나 `componentDidUpdate`, `componentWillUnmount`를 대체할 수 있다.
 
-#### 성능?
+#### 렌더링 성능
 
 참고: https://djoech.medium.com/functional-vs-class-components-in-react-231e3fbd7108 , https://betterprogramming.pub/react-class-vs-functional-components-2327c7324bdd
 
@@ -244,7 +244,25 @@ function Example() {
 이것 때문에 계속 찾아봤는데 성능이 다르다는 결과가 없었다...
 https://jsfiddle.net/69z2wepo/136096/ 에서 렌더링 속도도 측정했으나 서로 빠른 정도가 왔다갔다한다.
 
-다만 바벨로 컴파일한 결과는 확연한 차이가 있다.
+만~약 함수형 컴포넌트와 클래스형 컴포넌트 간의 성능 차이가 나더라도 구조로 인한 성능 차이 더 크다.  
+따라서 렌더링 성능면에서는 함수형인지 클래스형인지를 신경쓸 필요는 없는 것 같다.
+
+#### 번들 사이즈
+
+간결함으로 인한 이점이 하나 더 있다.  
+바로 번들 사이즈가 줄어드는 것이다.
+
+react, redux, CRA의 저자인 Dan Abramov가 [본인의 블로그](https://medium.com/@dan_abramov/making-sense-of-react-hooks-fdbde8803889)에서 언급한 내용이다.
+
+> In terms of the implementation size, the Hooks support increases React only by ~1.5kB (min+gzip). While this isn’t much, it’s also likely that adopting Hooks could reduce your bundle size because code using Hooks tends to minify better than equivalent code using classes.
+
+이 글을 보고 실제로 4개의 컴포넌트를 함수형 컴포넌트와 클래스형 컴포넌트로 작성한 내용에 대해 빌드를 해봤다(react v18.2, webpack v5).
+
+![build bundle sizes](https://user-images.githubusercontent.com/63287638/194302539-36cdbdcf-ec95-40c9-a0b4-dcc733ab8775.png)
+
+위 사진이 함수형 컴포넌트의 번들 결과물(181,471 byte), 아래 사진이 클래스형 컴포넌트의 번들 결과물(182,957 byte)이다.
+
+바벨로 컴파일한 결과를 통해 봤을 때도 확연한 차이가 있다.
 
 ```jsx
 // 함수형 컴포넌트
@@ -300,12 +318,7 @@ var Welcome = (function (_React$Component) {
 })(_react2.default.Component)
 ```
 
-하지만 바벨로 컴파일한 결과물로 인해 (서버에서 전달하는 데이터의 크기와는 별도로) 렌더링 속도의 차이가 발생하지는 않는 것 같다.
-
-만~약 함수형 컴포넌트와 클래스형 컴포넌트 간의 성능 차이가 나더라도 구조로 인한 성능 차이 더 크다.  
-따라서 성능면에서는 함수형인지 클래스형인지를 신경쓸 필요는 없는 것 같다.
-
-결론적으로 함수형 컴포넌트가 대세인 이유는 **간결함**인 것 같다.
+결과적으로 번들 사이즈 측면에서는 함수형 컴포넌트가 유리하다.
 
 ### Hook
 
