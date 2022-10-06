@@ -587,7 +587,7 @@ webpack이 볼 때는 side effect지만 개발자가 볼 때는 아닌 경우가
 {
   // ...
   "sideEffects": false, // 모든 모듈에서 side effect가 없는 경우
-  "sideEffects": ["./src/somewhere"] // side effect가 존재하지만 tree shaking의 대상으로 지정. regexp 사용 가능
+  "sideEffects": ["./src/somewhere"] // side effect가 존재하는 파일. regexp 사용 가능
 }
 ```
 
@@ -687,25 +687,184 @@ side effects가 효과가 있는지에 대한 실험은 [stack overflow](https:/
 
 ## 3. 초기 렌더링 빠르게 하기
 
-additional html wrapper => <></>
+### 1) additional HTML wrapper 최소화
 
-> wrapper 최소화
+컴포넌트 구역을 나누기 위해 의미없는 `<div>` 등으로 감싸는 것보다 `<React.Fragment>`로 감쌈으로써 화면에 그릴 element를 최소화할 수 있다.  
+단순히 구역을 나눌 때는 해당 방법을 적용할 수 있겠지만, 컴포넌트를 감싸는 wrapper까지 바꿀 필요는 없다고 생각한다.  
+페이지마다 동일한 스타일을 보장해야되는 컴포넌트일 경우 특히 그렇다.
 
-공용 컴포넌트, page 최상단은 wrapper로 감쌈
-나머지는 <></>로 처리하고자 함
-https://jelvix.com/blog/is-react-js-fast
+### 2) SSR
 
-chunk file
+CSR vs SSR로 나눠서 작성하는 것은 너무 길어질 것 같다.  
+정말 좋은 참고 자료이다: https://www.youtube.com/watch?v=YuqB8D6eCKE&t=549s
 
-3. code splitting(chunk.js): 유저가 당장 필요한 정보에 우선순위를 두어 순서대로 로딩. dynamic import(React.lazy) / 여러 entry points
-   https://velog.io/@y1andyu/React-%EC%BD%94%EB%93%9C-%EB%B6%84%ED%95%A0  
-   https://medium.com/humanscape-tech/react%EC%97%90%EC%84%9C-%ED%95%B4%EB%B3%B4%EB%8A%94-%EC%BD%94%EB%93%9C-%EC%8A%A4%ED%94%8C%EB%A6%AC%ED%8C%85-code-splitting-56c9c7a1baa4
+- CSR
+  - 장점
+    - 화면 깜박임이 없음
+    - 초기 로딩 이후 구동 속도가 빠름
+    - TTV(Time To View)와 TTI(Time To Interact) 사이 간극이 없음
+    - 서버 부하 분산
+  - 단점
+    - 초기 로딩 속도가 느림
+    - SEO에 불리
+- SSR
+  - 장점
+    - 초기 구동 속도가 빠름
+    - SEO에 유리함
+  - 단점
+    - 화면 깜빡임이 있음
+    - TTV와 TTI 사이 간극이 있음
+    - 서버 부하가 있음
 
-SSR
+CSR에서 렌더링에 대한 부하를 클라이언트가 나눴던 것을 다시 SSR을 통해 서버에게 부담을 전가할 수 있다.  
+대신 초기 렌더링 때 많은 정적 파일을 클라이언트에 주지 않아도 된다.
 
-2. SSR 도입(항상 성능 향상은 아니다): https://d2.naver.com/helloworld/7804182
+https://medium.com/jspoint/a-beginners-guide-to-react-server-side-rendering-ssr-bf3853841d55 를 참고하면 Express로 SSR을 구현하는 방법이 상세하게 나와 있다.  
+하지만 설정이 너무 복잡하고 백엔드에도 react, babel 관련된 모듈들을 설치해야 한다.  
+공부 목적으로는 상관없겠지만 백엔드와 프론트엔드가 하는 일을 분리하기 위해서라도 나는 Next와 같은 SSR 프레임워크를 쓰는 게 맞다고 생각한다.
+
+### 3) code splitting
+
+code splitting은 SPA라 해도 해당 페이지에서 필요한 모듈만 브라우저에서 로딩할 수 있도록 코드를 chunk 단위로 분해하는 것이다.
+
+_참고 chunk_  
+chunk란 하나의 덩어리라는 뜻으로, 코드 스플리팅 시 생성되는 JS 파일 조각을 의미한다.
+
+#### require.ensure
+
+```javascript
+require.ensure(
+  ['dependency'],
+  function (require) {
+    var module = require('경로 또는 모듈') // 이렇게 require해서 사용하면 됨
+  },
+  'chunk name'
+)
+```
+
+코드 아무 곳에서 `require.ensure`로 시작하는 함수를 호출할 수 있다.  
+commonJS 방식이므로 이런 것만 있다는 것만 알고 넘어가겠다.
+
+#### import
+
+webpack을 이용한 code splitting 방식이다.  
+`@babel/plugin-syntax-dynamic-import` 모듈을 설치하여 바벨 설정에 적용한 뒤 다음과 같이 코드를 짠다.
+
+```javascript
+import('./math').then((math) => {
+  console.log(math.add(16, 26))
+})
+```
+
+CRA를 하면 기본적으로 사용할 수 있는 방식이라고 한다.  
+해당 방식을 사용하면 `catch`를 붙여서 에러 핸들링을 할 수 있는 장점이 있다.  
+또한 webpack이 해당 코드가 필요할 때마다 비동기적으로 로딩해주므로 추가적으로 설정할 부분이 적다.
+
+webpack chunk 파일에 대한 캐시 방법에 대해서는 https://www.zerocho.com/category/Webpack/post/58ad4c9d1136440018ba44e7 를 참고하자.  
+hash와 chunkhash의 옵션을 제공한다.
+
+#### React.lazy()
+
+react에서 기본적으로 제공해주는 `React.lazy()`가 있다.  
+[공식 문서](https://reactjs.org/docs/code-splitting.html)에서 3가지 상황에 대해서 추천한다.
+
+1. App 최상단에서 page 컴포넌트(routing)
+2. user interaction으로 화면에 보이는 컴포넌트
+3. 페이지가 길어서 처음 viewport에 나오지 않는 컴포넌트
+
+##### 테스트
+
+나는 간단하게 page routing에 대해 code splitting을 적용해봤다.
+
+코드는 엄청 간단하다.  
+기존 코드를 주석처리하고 `pages`에서 import한 컴포넌트를 `lazy`로 감싸줬다.  
+아쉽게도 아직까지는 `lazy`로 감싸는 컴포넌트는 default export된 컴포넌트에 대해서만 기능을 제공한다고 한다.
+
+```tsx
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+// import {
+//   Coupon,
+//   Faq,
+//   FaqCategoryManagement,
+//   FaqDetail,
+//   FaqRegister,
+//   FaqUpdate,
+//   Inquiry,
+//   Main,
+//   Notice,
+//   Page404
+// } from 'pages'
+import ROUTE from 'routes/routeMap'
+import { Suspense, lazy } from 'react'
+
+const Coupon = lazy(() => import('pages/Coupon'))
+const Faq = lazy(() => import('pages/Faq'))
+const FaqCategoryManagement = lazy(() => import('pages/FaqCategoryManagement'))
+const FaqDetail = lazy(() => import('pages/FaqDetail'))
+const FaqRegister = lazy(() => import('pages/FaqRegister'))
+const FaqUpdate = lazy(() => import('pages/FaqUpdate'))
+const Inquiry = lazy(() => import('pages/Inquiry'))
+const Main = lazy(() => import('pages/Main'))
+const Notice = lazy(() => import('pages/Notice'))
+const Page404 = lazy(() => import('pages/Page404'))
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Suspense fallback={<div>loading...</div>}>
+        <Routes>
+          <Route path={ROUTE.main} element={<Main />} />
+          <Route path={ROUTE.coupon} element={<Coupon />} />
+          <Route path={ROUTE.notice} element={<Notice />} />
+          <Route path={ROUTE.faqRegister} element={<FaqRegister />} />
+          <Route path={ROUTE.faqUpdate} element={<FaqUpdate />} />
+          <Route path={ROUTE.faqDetail} element={<FaqDetail />} />
+          <Route path={ROUTE.faq} element={<Faq />} />
+          <Route
+            path={ROUTE.faqCategoryManagement}
+            element={<FaqCategoryManagement />}
+          />
+          <Route path={ROUTE.inquiry} element={<Inquiry />} />
+          <Route path="*" element={<Page404 />} />
+        </Routes>
+      </Suspense>
+    </BrowserRouter>
+  )
+}
+```
+
+lazy loading을 적용하는 부분을 `<Suspense>`로 감싸준다.  
+`fallback`은 chunk 파일을 불러오는 도중 보여줄 로딩과 같은 요소를 넣는다.  
+에러 핸들링은 [여기](https://reactjs.org/docs/code-splitting.html#error-boundaries)를 참고하자.
+
+코드를 수정한 후 빌드하니 다음과 같은 chunk 파일들이 엄청 많이 생겼다.
+
+![build result](https://user-images.githubusercontent.com/63287638/194357358-13f97bbf-3862-4ffc-b976-ee6f861bc5a2.jpg)
+
+**빌드 산출물 비교**
+
+1. Chrome Dev Tools
+   ctrl + shift + p를 눌러 'show coverage'를 검색하면 현재 페이지에서 쓰이지 않지만 파싱된 코드의 비율을 볼 수 있다.
+
+![before code splitting(coverage)](https://user-images.githubusercontent.com/63287638/194357371-2cc498fe-8334-4ab2-ac63-497602beb9be.jpg)
+
+![after code splitting(coverage)](https://user-images.githubusercontent.com/63287638/194357350-063529b0-9c3a-4eac-95dd-e8fc5a78bb98.jpg)
+
+위 사진은 code spliiting 전, 아래 사진은 code splitting 후이다.  
+(예제 코드가 `<Main>`은 비어있는 컴포넌트고 `<Faq>`만 구현된 거라 좀 편향되긴 했지만) 99%나 되던 비율이 46%까지 떨어졌다.
+
+2. `@babel/webpack-bundle-analyzer`
+   [eject 없이 webpack-bundle-analyzer 사용하기](https://velog.io/@code-bebop/eject-%EC%97%86%EC%9D%B4-CRA%EC%9D%98-webpack.config-%EC%88%98%EC%A0%95%ED%95%98%EA%B8%B0)를 참조했다.
+
+![before bundle analyzer](https://user-images.githubusercontent.com/63287638/194357375-acf32d69-1287-480f-becf-f7f9178fed38.jpg)
+
+![after bundle analyzer](https://user-images.githubusercontent.com/63287638/194357365-a6a972f5-7765-45c1-ae69-6d1aeb817913.jpg)
+
+841KB나 되던 main 번들이 689KB까지 줄어들었다.
 
 ## 4. 서버측 응답 최적화하기
+
+TODO: 다뤄본 부분이 아니라서 서비스 배포한 뒤에 추가하자
 
 CDN  
 web worker
