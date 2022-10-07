@@ -781,6 +781,7 @@ react에서 기본적으로 제공해주는 `React.lazy()`가 있다.
 아쉽게도 아직까지는 `lazy`로 감싸는 컴포넌트는 default export된 컴포넌트에 대해서만 기능을 제공한다고 한다.
 
 ```tsx
+import { Suspense, lazy } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 // import {
 //   Coupon,
@@ -795,7 +796,6 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 //   Page404
 // } from 'pages'
 import ROUTE from 'routes/routeMap'
-import { Suspense, lazy } from 'react'
 
 const Coupon = lazy(() => import('pages/Coupon'))
 const Faq = lazy(() => import('pages/Faq'))
@@ -871,3 +871,85 @@ web worker
 content compression
 
 ## 5. 성능 측정 방법
+
+### 1) 성능과 관련된 키워드
+
+- FPS(Frame Per Second)
+  - 초당 화면에 그려지는 프레임의 개수. 60 이상이 사람이 느끼기에 불편하지 않은 수치라고 함.
+- FTTB(First Time To Byte)
+  - HTTP를 요청했을 때 처음 byte(정보)가 브라우저에 도달하는 시간. 작을수록 유저 경험과 SEO에 유리.
+- LCP(Largest Content Paint)
+  - 사용에 불편이 없을 정도로 주요 컨텐츠들이 로드된 시점.
+- FID(First Input Delay)
+  - 버튼 클릭 등 interaction이 발생할 때, 그에 따른 반응이 일어나는데 얼만큼의 시간이 걸리는지.
+- CLS(Cumulative Layout Shift)
+  - 레이아웃이 얼마나 안정되어 있는지를 나타내는 지표. 텍스트를 읽고 있는데 갑자기 높이를 차지해 버린 이미지 때문에 스크롤을 내리는 등 차례차례 다른 시점에 생성되는 요소들 때문에 자꾸만 요소들이 기존의 위치에서 벗어나는 일 등이 발생하면 수치가 커짐.
+
+### 1) Chrome Devtools
+
+[공식 문서](https://developer.chrome.com/docs/devtools/evaluate-performance/)가 너무 잘 나와 있어서 간단히 정리만 하겠다.
+
+1. 녹화를 한다.
+2. CPU 윗 파트(FPS)가 붉은 줄이거나 CPU 파트가 보라색, 초록색으로 가득차 있다면 해당 부분을 위주로 분석한다.
+3. Main 파트를 확인한 뒤 spread를 클릭하면 bottleneck과 해당 bottleneck을 발생시키는 코드 위치를 파악할 수 있다.
+
+예시 코드는 다음 부분에서 bottleneck이 발생한다.
+
+```javascript
+app.update = function (timestamp) {
+  for (var i = 0; i < app.count; i++) {
+    var m = movers[i] // movers = document.querySelectorAll('.mover')
+    if (!app.optimize) {
+      var pos = m.classList.contains('down')
+        ? m.offsetTop + distance
+        : m.offsetTop - distance
+      if (pos < 0) pos = 0
+      if (pos > maxHeight) pos = maxHeight
+      m.style.top = pos + 'px'
+      if (m.offsetTop === 0) {
+        m.classList.remove('up')
+        m.classList.add('down')
+      }
+      if (m.offsetTop === maxHeight) {
+        m.classList.remove('down')
+        m.classList.add('up')
+      }
+    } else {
+      var pos = parseInt(m.style.top.slice(0, m.style.top.indexOf('px')))
+      m.classList.contains('down') ? (pos += distance) : (pos -= distance)
+      if (pos < 0) pos = 0
+      if (pos > maxHeight) pos = maxHeight
+      m.style.top = pos + 'px'
+      if (pos === 0) {
+        m.classList.remove('up')
+        m.classList.add('down')
+      }
+      if (pos === maxHeight) {
+        m.classList.remove('down')
+        m.classList.add('up')
+      }
+    }
+  }
+  frame = window.requestAnimationFrame(app.update)
+}
+```
+
+위 코드에서 비효율성을 초래하는 부분은 높이를 확인할 때 `pos`를 확인하냐 `offsetTop`을 확인하냐의 차이인 것 같다.  
+혹시 `offsetTop`과 관련된 비효율성이 있는지 싶어서 검색해봤는데 해당 내용은 없다.  
+결국 모든 `mover`에 대해 `offsetTop`을 알기 위해 지속적으로 DOM에 접근해서 느려진 것 같다.
+
+#### FPS
+
+원래 FPS가 performance 탭에 바로 존재한다고 하는데, (정확히 언제인지는 모르겠지만) 언젠가부터 사라진 것 같다.  
+지금은 확인하기 위해서는 ctrl + shift + p를 누른 후 'show frame per second'를 입력하면 현재 화면의 FPS를 확인할 수 있다.
+
+![fps](https://user-images.githubusercontent.com/63287638/194481200-f051cb7a-7e4c-4b9d-8b72-183b1e1c34db.jpg)
+
+### 2) React Developer Tools
+
+[블로그](https://medium.com/wantedjobs/react-profiler%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EC%97%AC-%EC%84%B1%EB%8A%A5-%EC%B8%A1%EC%A0%95%ED%95%98%EA%B8%B0-5981dfb3d934)에 사용법은 상세히 나와 있다.  
+Profiler와 General을 이용하면 어느 컴포넌트를 렌더링할 때 느린지, 어떤 state가 변경될 때 불필요한 렌더링이 발생하는지 알 수 있다.
+
+하지만 블로그 예시처럼 두 개의 컴포넌트를 직접적으로 비교하는 것은 자주 사용하지 못할 것 같다.  
+테스트하기 위해 수정해야될 코드가 너무 많기 때문이다.  
+그리고 렌더링 시간이 매번 달라지기 때문에 절대적인 렌더링 시간보다 bottleneck을 찾는데 사용해야 될 것 같다.
