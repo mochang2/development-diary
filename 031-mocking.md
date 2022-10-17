@@ -258,3 +258,7 @@ function Faq() {
 `yarn react-scripts start` 또는 `npm run react-scripts start`를 하여 올바르게 요청이 이루어지면 다음과 같은 내용이 console에 출력된다.
 
 ![result](https://user-images.githubusercontent.com/63287638/189372067-290f5db5-0c71-4f6d-b4c6-d8fbd74483e5.jpg)
+
+다만 HMR될 때 가끔 맛탱이가 갈 때가 있다.  
+내부 동작 방식까지는 잘 모르겠어서 이유는 모르겠다.  
+그럴 때는 refresh하거나 수동으로 해당 페이지를 다시 들어가야겠다.
