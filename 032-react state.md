@@ -324,7 +324,7 @@ props drilling을 사용했다는 뜻이다.
 
 전역 상태 관리에 들어가기 전에 props drilling의 단점을 먼저 짚고 넘어가고자 한다.
 
-### Props Drilling
+### 1) Props Drilling
 
 props drilling이란 react의 컴포넌트 트리에서 데이터를 전달하기 위해 상위 컴포넌트에서 하위 컴포넌트로 props를 계속해서 내려주는 것을 의미한다.
 
@@ -355,15 +355,15 @@ props drilling을 이용해서 props를 따라간다면 코드를 실행하지 �
 
 > (3번) 예를 들어, `A` > `B` > `C` > `D` 순서의 컴포넌트 트리가 있다고 가정해보자. `B`에 카운터를 올리는 버튼이 있고, 이를 클릭했다고 가정해보자.
 
-`B`의 `setState()`가 호출되어, `B`의 리렌더링이 렌더링 큐로 들어간다.
-리액트는 트리 최상단에서 부터 렌더링 패스를 시작한다.
+`B`의 `setState()`가 호출되어, `B`의 리렌더링이 렌더링 queue로 들어간다.
+리액트는 트리 최상단부터 렌더링 path를 시작한다.
 `A`는 업데이트가 필요하다고 체크 되어 있지 않을 것이므로, 지나간다.
 `B`는 업데이트가 필요한 컴포넌트로 체크되어 있으므로, `B`를 리렌더링 한다. `B`는 `C`를 리턴한다.
 `C`는 원래 업데이트가 필요한 것으로 간주되어 있지 않았다. 그러나, 부모인 `B`가 렌더링 되었으므로, 리액트는 그 하위 컴포넌트인 `C`를 렌더링 한다. `C`는 `D`를 리턴한다.
 `D`도 마찬가지로 렌더링이 필요하다고 체크되어 있지 않았지만, `C`가 렌더링된 관계로, 그 자식인 `D`도 렌더링 한다.
 컴포넌트를 렌더링 하는 작업은, 기본적으로, 하위에 있는 모든 컴포넌트 또한 렌더링 하게 된다.
 
-> 일반적인 렌더링의 경우, 리액트는 props가 변경되어 있는지 신경쓰지 않는다. 부모 컴포넌트가 렌더링 되어 있기 때문에, 자식 컴포넌트도 무조건 리렌더링 된다.
+위와 같은 경우 경우, 리액트는 props가 변경되었는지 신경쓰지 않는다. 부모 컴포넌트가 렌더링 되어 있기 때문에, 자식 컴포넌트도 무조건 리렌더링 된다.
 
 위 3번은 react의 [diffing 알고리즘](https://ko.reactjs.org/docs/reconciliation.html#motivation) 때문에 발생하며 이를 간단하게 증명할 수 있다.
 
@@ -402,7 +402,7 @@ function Title({ message }: TitleProps) {
 
 위와 같은 경우는 `message`를 바꾸면 두 번째 `<Title />`은 props를 전달받지 않더라도 `<App />`과 두 개의 `<Title />` 모두에서 re-rendering 발생한다(`re-render app` -> `re-render title` -> `re-render title`).
 
-#### Re-render 코드로 살펴보기 - Props Drilling
+#### re-render 코드로 살펴보기 - Props Drilling
 
 props drilling을 사용할 때 중간에 단순히 `props`를 전달받는 컴포넌트는 어떻게 될까?  
 앞서 이야기했듯이 `props`가 바뀌거나 부모가 re-render 되면서 본인도 re-render 된다.
@@ -457,9 +457,9 @@ function Button({ count, onChange }: ButtonProps) {
 }
 ```
 
-`onChange`가 실행될 때마다 세 컴포넌트 모두 re-render 된다.
+`handleCount`가 실행될 때마다 세 컴포넌트 모두 re-render 된다.
 
-#### Re-render 코드로 살펴보기 - Recoil
+#### re-render 코드로 살펴보기 - Recoil
 
 그렇다면 `recoil`을 사용한다면 어떻게 될까?
 
@@ -550,7 +550,7 @@ function Main() {
 
 ![부모에서 전역 변수에 대해 변화를 발생시킨 뒤 자식에서만 해당 값을 구독하기](https://user-images.githubusercontent.com/63287638/189563570-a2eeaeca-b99a-4d8b-bc71-43e8938f453d.jpg)
 
-`handleCount`가 발생해도 `<Button >`만 re-render 된다.
+`handleCount`가 발생해도 `<Button>`만 re-render 된다.
 
 3. 자식에서 변화를 발생시킨 뒤 부모에서 해당 값 구독하기
 
@@ -607,22 +607,374 @@ function Button() {
 결론적으로 '전역 상태 관리 라이브러리가 re-render 효율성을 가진다'는 말이 틀린 말은 아니다.  
 다만 특정한 구조가 아니고서는 '반드시 더 효율적이다'고 얘기할 수는 없는 것 같다.
 
-### Context API
+### 2) Context API
 
-built-in  
-provider로 감싸져 있으면 값을 사용하지 않는 컴포넌트도 리렌더링 => children을 감싼 패턴으로 변경하면 hocs 같은 느낌? 다만 provider hell이 될 수 있다고 함.
+참고  
+https://dev.rase.blog/21-10-07-context-and-state-management/  
+https://codemacaw.com/2021/11/21/prevent-unnecessary-re-rendering-when-using-context-api/  
+https://chatoo2412.github.io/javascript/react/react-context-as-a-state-management-tool/  
+https://velog.io/@velopert/react-context-tutorial#context-%EC%97%90%EC%84%9C-%EC%83%81%ED%83%9C-%EA%B4%80%EB%A6%AC%EA%B0%80-%ED%95%84%EC%9A%94%ED%95%9C-%EA%B2%BD%EC%9A%B0  
+https://hong-jh.tistory.com/m/entry/Context-API%EB%8A%94-%EC%99%9C-%EC%93%B0%EA%B3%A0-%EA%B7%B8%EB%A0%87%EB%8B%A4%EB%A9%B4-Redux%EB%8A%94-%ED%95%84%EC%9A%94%EC%97%86%EC%9D%84%EA%B9%8C  
+https://velopert.com/3606  
+https://stackoverflow.com/questions/67467924/how-to-reduce-react-context-hell
 
-https://dev.rase.blog/21-10-07-context-and-state-management/
-context api 는 상태관리 도구로 사용하면 props drilling 을 회피한다는 장점보다 잃는 것이 더 많다.
-단지 props drilling을 해결하기 위한 방법 정도.
+우선 확실히 짚고 넘어가야 할 점은 context api는 **상태 관리 도구가 아니다.**  
+실제로 [공식 문서](https://reactjs.org/docs/context.html)에도 context api에 대해 state management라는 용어는 등장하지도 않는다.  
+context api는 props drilling을 해결하기 위한 방법으로 등장했다.  
+오직 전역적으로 상태를 공유해주기 위해서 사용되며 **상태 관리를 하지 않는다.**
 
-context API - https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwjEiOa1-4v6AhWZm1YBHVHtBCsQFnoECAcQAQ&url=https%3A%2F%2Fcodemacaw.com%2F2021%2F11%2F21%2Fprevent-unnecessary-re-rendering-when-using-context-api%2F&usg=AOvVaw0hmf6N2lhTO0csUEhcV7L5 ,
+_cf) 참고_  
+`redux`, `react-dom-router`, `styled-component` 등이 이 context api를 활용하여 구현됐다.
 
-https://chatoo2412.github.io/javascript/react/react-context-as-a-state-management-tool/
+#### 상태 관리의 특징
+
+`redux`와 많이 비교되기 때문에 `redux`의 예시를 들겠다.
+
+1. 초기 값을 저장한다. `redux`에서 `store`의 초기값을 지정할 수 있다.
+2. 현재 값을 읽을 수 있다. `redux`에서 `mapStateToProps`나 `useSelector`를 통해서 state를 읽을 수 있다.
+3. 값 업데이트가 가능하다. `redux`에서 reducer에 action을 dispatch해서 state를 업데이트할 수 있다.
+
+context api는 이러한 기능을 제공해주지 않는다(사용자가 직접 이러한 기능을 제공하게끔 만드는 것이다).
+
+[velopert 블로그](https://velog.io/@velopert/react-context-tutorial#context%EA%B0%80-%EA%BC%AD-%EC%A0%84%EC%97%AD%EC%A0%81%EC%9D%B4%EC%96%B4%EC%95%BC-%ED%95%9C%EB%8B%A4%EB%8A%94-%EC%83%9D%EA%B0%81%EC%9D%84-%EB%B2%84%EB%A6%AC%EC%9E%90)의 말을 인용하자면
+
+> Context는 전역 상태 관리를 할 수 있는 수단일 뿐이고, 상태 관리 라이브러리는 상태 관리를 더욱 편하고, 효율적으로 할 수 있게 해주는 기능들을 제공해주는 도구입니다.
+
+#### Context
+
+그렇다면 context란 무엇일까?  
+context란 단순히 react component에서 props가 아닌 또 다른 방식으로 컴포넌트 간 값을 전달하는 방법이다.
+
+주로 사용자 로그인 정보, 애플리케이션 설정, 테마 등 전역적으로 데이터가 사용될 때 사용된다.
+
+#### 장단점
+
+아래 코드 예시를 보기 전에 장단점을 먼저 정리하고자 한다.
+
+- 장점
+  - built in이기 때문에 별도의 서드 파티 라이브러리 설치가 필요 없다. 이 때문에 애플리케이션이 가벼워질 수 있다.
+  - 러닝 커브가 낮다.
+  - (전역 상태에 대해서도 공유가 가능하지만) 전역적이지 않고 특정 컴포넌트 간 상태를 공유할 때 다루기에 용이하다.
+- 단점
+  - 불필요한 리렌더링이 발생한다.
+    - 메모이제이션이나 `children`을 감싼 형태를 통해 극복할 수 있다.
+    - 또한 context를 나눔(context 간 관심사 분리)으로써 해결 가능하다.
+    - 이는 또다른 문제점인 provider hell(또는 wrapper hell)이라는 문제점을 야기한다.
+    - provider hell은 `reduce`를 통해 해결할 수 있다(현재는 이 방법에 **best practice**라고 생각한다).
+    - 결국 불필요한 리렌더링 발생이 단점이라고 말하기 좀 애매한 것 같다.
+  - 특정 '컴포넌트 간'이 아닌 전역적으로 상태를 공유해야 한다면 이미 다른 훌륭한 라이브러리가 많다.
+
+#### 코드 예시
+
+![context api component structure](https://user-images.githubusercontent.com/63287638/196319728-a7e7a17d-575a-41c5-b22f-0c4ae3405577.png)
+
+위 사진은 코드 예시로 사용한 컴포넌트 구조이다.
+
+![screen](https://user-images.githubusercontent.com/63287638/196320189-88939ad8-cd00-48a0-906f-c7a8f9411056.jpg)
+
+위 사진은 실제 화면이다.
+
+##### 불필요한 re-rendering 발생
+
+`ChildComponent3`와 `GrandChildComponent2`의 공통 조상이 `ParentComponent`이므로 `ParentComponent`에서 `CounterContext.Provider`로 감싸줬다.
+
+```javascript
+// Context.js
+import { useState, useEffect, createContext, useContext } from 'react'
+
+const CounterContext = createContext()
+
+export function ParentComponent() {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    console.log('re-render parent')
+  })
+
+  return (
+    <CounterContext.Provider value={[count, setCount]}>
+      <div>
+        여기는 메인 페이지입니다.
+        <ChildComponent1 />
+        <ChildComponent2 />
+        <ChildComponent3 />
+      </div>
+    </CounterContext.Provider>
+  )
+}
+
+function ChildComponent1() {
+  useEffect(() => {
+    console.log('re-render child1')
+  })
+
+  return (
+    <div>
+      <span>여기는 child1입니다.</span>
+      <GrandChildComponent1 />
+      <GrandChildComponent2 />
+    </div>
+  )
+}
+
+function ChildComponent2() {
+  useEffect(() => {
+    console.log('re-render chlid2')
+  })
+
+  return (
+    <div>
+      <span>여기는 child2입니다.</span>
+    </div>
+  )
+}
+
+function ChildComponent3() {
+  const [, setCount] = useContext(CounterContext)
+
+  useEffect(() => {
+    console.log('re-render child3')
+  })
+
+  return (
+    <div>
+      <span>여기는 child3입니다.</span>
+      <button onClick={() => setCount((prev) => prev + 1)}>click me!</button>
+    </div>
+  )
+}
+
+function GrandChildComponent1() {
+  useEffect(() => {
+    console.log('re-render grandchild1')
+  })
+
+  return (
+    <div>
+      <span>여기는 grandchild1입니다.</span>
+    </div>
+  )
+}
+
+function GrandChildComponent2() {
+  const [count] = useContext(CounterContext)
+
+  useEffect(() => {
+    console.log('re-render grandchild2')
+  })
+
+  return (
+    <div>
+      <span>여기는 grandchild1입니다. count: {count}</span>
+    </div>
+  )
+}
+```
+
+```javascript
+// App.js
+
+function App() {
+  return (
+    <div className="App">
+      <ParentComponent />
+    </div>
+  )
+}
+```
+
+위 예시에서 `ChildComponent3`의 `button`을 누르면 `ParentComponent`를 제외하고 전부 re-rendering된다.
+
+![context api re rendering](https://user-images.githubusercontent.com/63287638/196320057-1fcac460-5f78-4d9b-924f-6f90d3f08de4.jpg)
+
+위와 같은 상황에서 `ChildComponent1`, `ChildComponent2`, `GrandChildComponent1`은 사용하지도 않는 context 때문에 불필요하게 re-rendering됐다.  
+이러한 상황을 막기 위한 해결책 중 하나가 memoization이다(실제로 많은 블로그에서 그렇게 이야기한다).  
+다만 나는 이 방법이 완벽한 해결책이라고 생각하지 않는다.  
+왜냐하면 결국 메모이제이션은 props를 비교하기 위한 비용이 발생하기 때문이다.
+
+##### 불필요한 re-rendering 제거
+
+아래는 또다른 해결책이다.  
+`CounterProvider`라는 컴포넌트로 `ParentComponent`를 감싼 뒤 `props.children`을 이용하여 rendering하는 것이다.
+
+```javascript
+// Context.js
+import { useState, useEffect, createContext, useContext } from 'react'
+
+const CounterContext = createContext()
+
+export function CounterProvider({ children }) {
+  const [count, setCount] = useState(0)
+
+  return (
+    <CounterContext.Provider value={[count, setCount]}>
+      {children}
+    </CounterContext.Provider>
+  )
+}
+
+export function ParentComponent() {
+  useEffect(() => {
+    console.log('re-render parent')
+  })
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-around',
+      }}
+    >
+      여기는 메인 페이지입니다.
+      <ChildComponent1 />
+      <ChildComponent2 />
+      <ChildComponent3 />
+    </div>
+  )
+}
+
+function ChildComponent1() {
+  useEffect(() => {
+    console.log('re-render child1')
+  })
+
+  return (
+    <div>
+      <span>여기는 child1입니다.</span>
+      <GrandChildComponent1 />
+      <GrandChildComponent2 />
+    </div>
+  )
+}
+
+function ChildComponent2() {
+  useEffect(() => {
+    console.log('re-render chlid2')
+  })
+
+  return (
+    <div>
+      <span>여기는 child2입니다.</span>
+    </div>
+  )
+}
+
+function ChildComponent3() {
+  const [, setCount] = useContext(CounterContext)
+
+  useEffect(() => {
+    console.log('re-render child3')
+  })
+
+  return (
+    <div>
+      <span>여기는 child3입니다.</span>
+      <button onClick={() => setCount((prev) => prev + 1)}>click me!</button>
+    </div>
+  )
+}
+
+function GrandChildComponent1() {
+  useEffect(() => {
+    console.log('re-render grandchild1')
+  })
+
+  return (
+    <div>
+      <span>여기는 grandchild1입니다.</span>
+    </div>
+  )
+}
+
+function GrandChildComponent2() {
+  const [count] = useContext(CounterContext)
+
+  useEffect(() => {
+    console.log('re-render grandchild2')
+  })
+
+  return (
+    <div>
+      <span>여기는 grandchild1입니다. count: {count}</span>
+    </div>
+  )
+}
+```
+
+```javascript
+// App.js
+
+function App() {
+  return (
+    <div className="App">
+      <CounterProvider>
+        <ParentComponent />
+      </CounterProvider>
+    </div>
+  )
+}
+```
+
+![context api re rendering](https://user-images.githubusercontent.com/63287638/196320893-ec43293f-581c-4bd6-9c2c-0e6f5b0c9b60.jpg)
+
+위와 같은 방법으로 `ChildComponent1`, `ChildComponent2`, `GrandChildComponent1`에서의 불필요한 렌더링을 막을 수 있다.  
+다만 이러한 방법은 또 다른 문제점을 야기할 수 있다.  
+바로 provider hell이다.
+
+불필요한 re-rendering을 막기 위해서는 다음과 같은 방법이 필요하다.
+
+1. context의 관심사를 분리해야 한다. 예를 들어 style 테마 context와 인증 토큰 context를 분리하지 않는다면 style 테마가 변경될 때 인증 토큰을 사용하는 component도 re-render된다.
+2. provider component로 감싸줘야 한다.
+
+극단적일 경우 아래와 같은 상황도 발생한다고 한다.
+
+![provider hell](https://user-images.githubusercontent.com/63287638/196321524-99fb2ba9-4d7b-453b-a0f5-4d7da3b165fe.jpeg)
+
+##### provider hell 해결
+
+다행히 위와 같이 극단적으로 depth가 깊어지는 것을 해결하는 방법이 있다.  
+`Array.prototype.reduce`을 사용해서 Provider를 하나로 묶을 수 있다.
+
+```javascript
+import { SampleProvider } from './contexts/sample'
+import { AnotherProvider } from './contexts/another'
+
+const AppProvider = ({ contexts, children }) =>
+  contexts.reduce(
+    (prev, context) =>
+      React.createElement(context, {
+        children: prev,
+      }),
+    children
+  )
+
+const App = () => {
+  return (
+    <AppProvider contexts={[SampleProvider, AnotherProvider]}>
+      <div className="panes">
+        <SomeComponents />
+      </div>
+    </AppProvider>
+  )
+}
+```
+
+#### 결론
+
+다시 한 번 말하지만 context api는 전역 상태 관리 도구는 아니다.  
+하지만 전역 상태를 공유하기 위해 props drilling 대신 사용할 수 있는 훌륭한 built-in 도구이다.
+
+### Redux
 
 redux
+
+### Recoil
+
 recoil - https://velog.io/@yiyb0603/TypeScript-React-Recoil%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-TodoList-%EB%A7%8C%EB%93%A4%EC%96%B4%EB%B3%B4%EA%B8%B0
 2022.09 현재 1 버전이 출시되지 않음. 1점대가 아니기 때문에 변경 사항이 많이 생김. migration 하는 것은 개발자가 감당해야 할 몫. 1점대가 아니면 real에서는 잘 안 씀.
+
+### Jotai
+
 jotai - 1버전이 넘음
 
 언제 re-rendering 되는지. 어떠한 철학을 가지고 만들었는지.
