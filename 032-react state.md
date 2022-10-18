@@ -636,16 +636,16 @@ _cf) 참고_
 
 context api는 이러한 기능을 제공해주지 않는다(사용자가 직접 이러한 기능을 제공하게끔 만드는 것이다).
 
-[velopert 블로그](https://velog.io/@velopert/react-context-tutorial#context%EA%B0%80-%EA%BC%AD-%EC%A0%84%EC%97%AD%EC%A0%81%EC%9D%B4%EC%96%B4%EC%95%BC-%ED%95%9C%EB%8B%A4%EB%8A%94-%EC%83%9D%EA%B0%81%EC%9D%84-%EB%B2%84%EB%A6%AC%EC%9E%90)의 말을 인용하자면
-
-> Context는 전역 상태 관리를 할 수 있는 수단일 뿐이고, 상태 관리 라이브러리는 상태 관리를 더욱 편하고, 효율적으로 할 수 있게 해주는 기능들을 제공해주는 도구입니다.
-
 #### Context
 
 그렇다면 context란 무엇일까?  
 context란 단순히 react component에서 props가 아닌 또 다른 방식으로 컴포넌트 간 값을 전달하는 방법이다.
 
-주로 사용자 로그인 정보, 애플리케이션 설정, 테마 등 전역적으로 데이터가 사용될 때 사용된다.
+[velopert 블로그](https://velog.io/@velopert/react-context-tutorial#context%EA%B0%80-%EA%BC%AD-%EC%A0%84%EC%97%AD%EC%A0%81%EC%9D%B4%EC%96%B4%EC%95%BC-%ED%95%9C%EB%8B%A4%EB%8A%94-%EC%83%9D%EA%B0%81%EC%9D%84-%EB%B2%84%EB%A6%AC%EC%9E%90)를 인용하자면
+
+> Context는 전역 상태 관리를 할 수 있는 수단일 뿐이고, 상태 관리 라이브러리는 상태 관리를 더욱 편하고, 효율적으로 할 수 있게 해주는 기능들을 제공해주는 도구입니다.
+
+주로 사용자 로그인 정보, 애플리케이션 설정, 테마 등 전역적으로 state가 사용될 때 사용된다.
 
 #### 장단점
 
@@ -659,7 +659,7 @@ context란 단순히 react component에서 props가 아닌 또 다른 방식으�
   - 불필요한 리렌더링이 발생한다.
     - 메모이제이션이나 `children`을 감싼 형태를 통해 극복할 수 있다.
     - 또한 context를 나눔(context 간 관심사 분리)으로써 해결 가능하다.
-    - 이는 또다른 문제점인 provider hell(또는 wrapper hell)이라는 문제점을 야기한다.
+    - 이는 또다른 문제점인 provider hell(또는 wrapper hell)을 야기한다.
     - provider hell은 `reduce`를 통해 해결할 수 있다(현재는 이 방법에 **best practice**라고 생각한다).
     - 결국 불필요한 리렌더링 발생이 단점이라고 말하기 좀 애매한 것 같다.
   - 특정 '컴포넌트 간'이 아닌 전역적으로 상태를 공유해야 한다면 이미 다른 훌륭한 라이브러리가 많다.
@@ -923,7 +923,7 @@ function App() {
 
 불필요한 re-rendering을 막기 위해서는 다음과 같은 방법이 필요하다.
 
-1. context의 관심사를 분리해야 한다. 예를 들어 style 테마 context와 인증 토큰 context를 분리하지 않는다면 style 테마가 변경될 때 인증 토큰을 사용하는 component도 re-render된다.
+1. context의 관심사를 분리해야 한다. 예를 들어 style 테마 context와 인증 토큰 context를 분리하지 않는다면 style 테마가 변경될 때 인증 토큰을 사용하는 component도 re-render된다. 위 코드에서도 state와 setState의 context를 분리해줬다면 버튼 클릭 시 `ChildComponent3`가 re-rendering되는 것까지 막을 수 있다.
 2. provider component로 감싸줘야 한다.
 
 극단적일 경우 아래와 같은 상황도 발생한다고 한다.
@@ -939,22 +939,73 @@ function App() {
 import { SampleProvider } from './contexts/sample'
 import { AnotherProvider } from './contexts/another'
 
-const AppProvider = ({ contexts, children }) =>
-  contexts.reduce(
+const AppProvider = ({ contexts, children }) => {
+  return contexts.reduce(
     (prev, context) =>
       React.createElement(context, {
         children: prev,
       }),
     children
   )
+}
 
 const App = () => {
   return (
     <AppProvider contexts={[SampleProvider, AnotherProvider]}>
-      <div className="panes">
+      <div>
         <SomeComponents />
       </div>
     </AppProvider>
+  )
+}
+```
+
+#### provider scope
+
+consumer는 가장 가까운 조상 provider를 참조한다.  
+만약 조상 provider가 없다면 default로 fall back된다.
+
+```javascript
+const defaultValue = { name: 'unknown' }
+const SectionContext = createContext(defaultValue)
+const SectionProvider = SectionContext.Provider
+const SectionConsumer = SectionContext.Consumer
+
+const App = () => (
+  <div>
+    <SectionProvider value={{ name: 'header' }}>
+      <header>
+        <Link />
+        <SectionProvider value={{ name: 'floating bar' }}>
+          <aside>
+            <Link />
+          </aside>
+        </SectionProvider>
+      </header>
+    </SectionProvider>
+
+    <SectionProvider value={{ name: 'content' }}>
+      <article />
+      <div>
+        <Link />
+      </div>
+    </SectionProvider>
+  </div>
+)
+
+const Link = () => {
+  const sendAnalyticsEvent = (sectionName) => {
+    /*
+     * Link 컴포넌트가 어느 provider 안에 위치하는지에 따라
+     * 'unknown' | 'header' | 'floating bar' | 'content' 가 출력됨
+     */
+    console.log(`Link in ${sectionName} has clicked.`)
+  }
+
+  return (
+    <SectionConsumer>
+      {({ name }) => <a onClick={() => sendAnalyticsEvent(name)}>click me</a>}
+    </SectionConsumer>
   )
 }
 ```
@@ -991,18 +1042,18 @@ https://redux.js.org/usage/structuring-reducers/prerequisite-concepts#note-on-im
 
 1. 하나의 애플리케이션 안에는 하나의 store만 사용
 
-- 애플리케이션의 디버깅이 쉬워지고 서버와의 직렬화가 될 수 있고 쉽게 클라이언트에서 데이터를 받아올 수 있다.
+덕분에 애플리케이션 디버깅이 쉽다.
 
-2. 상태를 변화시키는 방법은 오직 action을 통해서
+2. state 업데이트는 오직 action을 통해서
 
-- 상태를 변화시키는 의도를 정확하게 표현할 수 있고, 상태 변경에 대한 추적이 용이해진다.
+상태를 변화시키는 의도를 정확하게 표현할 수 있고, 상태 변경에 대한 추적이 용이해진다.
 
-3. 변화를 일으키는 reducer는 순수 함수
+3. state 업데이트를 일으키는 reducer는 순수 함수
 
-- reducer는 이전 state와 action 객체를 파라미터로 받는다.
-- 파라미터 외의 값에는 의존하면 안 된다.
-- state의 불변성을 유지해야 한다. 그렇지 않으면 원하는 대로 re-rendering이 되지 않거나 불필요한 re-rendering이 발생할 수 있다.
-- 같은 파라미터로 호출된 reducer는 같은 output을 반환해야 한다.
+reducer는 이전 state와 action 객체를 파라미터로 받는다.  
+파라미터 외의 값에는 의존하면 안 된다.  
+`useState`로 관리하는 state처럼 불변성을 유지해야 한다.  
+같은 파라미터로 호출된 reducer는 같은 output을 반환해야 한다.
 
 #### 장점
 
@@ -1031,8 +1082,7 @@ API 요청 시 (다만 이제는 `swr`, `react-query` 등의 등장으로 사용
 
 4. 바뀐 값을 읽는 component에 대해서만 re-rendering
 
-context api는 context를 분리해야 한다.  
-불변성을 유지하면(redux 또한 shallow comparison) 불필요한 re-rendering을 방지할 수 있다.
+context를 분리해야 하는 context api와 달리 불변성을 유지하면(redux 또한 shallow comparison) 불필요한 re-rendering을 방지할 수 있다.
 
 #### 단점
 
@@ -1042,7 +1092,7 @@ context api는 context를 분리해야 한다.
 
 2. 러닝 커브
 
-`redux`를 제대로 사용하기 위해서는 위에서 이야기한 미들웨어를 필수적이다.
+`redux`를 제대로 사용하기 위해서는 위에서 이야기한 미들웨어가 필수적이다.
 
 #### useReducer
 
@@ -1051,7 +1101,7 @@ context api는 context를 분리해야 한다.
 다만 차이점은 `useState`가 컴포넌트 내부에서 state를 다뤘다면 `useReducer`는 state 업데이트 로직을 컴포넌트로부터 분리한다.  
 그래서 컴포넌트 내부 state가 많아지거나 state의 타입이 복잡해질 때 사용하면 좋다고 한다(개인적인 생각으로는 그 전에 컴포넌트 분리를 우선하는 게 좋을 거 같다).
 
-다음과 같이 사용할 수 있으며 `redux`와 매우 비슷한 사용법을 보인다.
+다음에서 볼 수 있듯이 `redux`와 매우 비슷한 사용법을 보인다.
 
 ```jsx
 function reducer(state, action) {
@@ -1081,16 +1131,14 @@ function Main() {
 
 #### 코드 예시(middleware는 없음)
 
-[context api](https://github.com/mochang2/development-diary/blob/main/032-react%20state.md#context)와 같은 컴포넌트 구조이지만 얼마나 더 많은 코드를 필요로 하는지 보여주기 위한 예시이다.
-
-`useSelector`, `useDispatch` 등의 hook이 등장하기 전에는 `connect`라는 HoC를 사용했었다(사실 방금까지 그 코드 예시로 다 작성해놓고 이러한 hook의 존재를 알고 다시 작성중이다).  
+`useSelector`, `useDispatch` 등의 hook이 등장하기 전에는 `connect`라는 HoC를 사용했었다.  
 HoC는 [HoC](https://github.com/mochang2/development-diary/blob/main/030-react.md#cf-hochigher-order-component)에서 정리했듯이 hook이 나오기 전에 재사용이나 conditional rendering을 위해 사용했었다.
 
-내가 생각하기에 `redux`에서 HoC와 hook의 장단점은 다음과 같다.
+내가 생각하기에 `redux`에서 HoC와 hook의 특징은 다음과 같다.
 
 - HoC
   - component에서 state 초기화, state 업데이트 로직을 분리할 수 있다.
-  - 부모 컴포넌트가 re-rendering되면 컴포넌트의 props가 바뀌지 않았다면 re-rendering을 자동으로 방지한다.
+  - 부모 컴포넌트가 re-rendering될 때 컴포넌트의 props가 바뀌지 않았다면 re-rendering을 자동으로 방지한다.
   - 코드의 양이 좀 더 많다.
 - hook
   - 코드의 양이 좀 더 적다.
@@ -1098,6 +1146,8 @@ HoC는 [HoC](https://github.com/mochang2/development-diary/blob/main/030-react.m
   - 부모 컴포넌트가 re-rendering될 때 props가 바뀌지 않았다면 `React.memo`를 사용해서 re-rendering을 방지해야 한다.
 
 취향에 따라 하나의 프로젝트에서 하나의 방법으로 통일해서 사용하는 것이 좋은 것 같다.
+
+아래 예시는 [context api](https://github.com/mochang2/development-diary/blob/main/032-react%20state.md#context)와 같은 컴포넌트 구조를 사용했다.
 
 ```jsx
 // index.js
@@ -1213,7 +1263,7 @@ export const increase = () => ({
 
 `state`에 변화가 있을 때 context 분리 등의 작업을 하지 않아도 `GrandChildComponent3`만 re-rendering된다는 장점이 있다.
 다만 확실히 `count`, `setCount(count + 1)` 이러한 간단한 작업을 하는데 말도 안되게 많은 양의 코드가 필요하다.  
-그리고 미들웨어가 추가되면 훨씬 더 늘어날 것이다.
+그리고 만약 미들웨어가 추가되면 코드 양이 훨씬 늘어날 것이다.
 
 #### useSelector 효율적으로 사용하기
 
@@ -1252,18 +1302,132 @@ const App = () => {
 왜냐하면 첫 번째 `App`은 `state.User.number`이 변경되어도 re-rendering된다.  
 반면 두 번째 `App`은 `state.User.number`이 변경되어도 re-rendering되지 않는다.
 
-### Recoil
+### Recoil, Jotai
 
-recoil - https://velog.io/@yiyb0603/TypeScript-React-Recoil%EC%9D%84-%EC%9D%B4%EC%9A%A9%ED%95%9C-TodoList-%EB%A7%8C%EB%93%A4%EC%96%B4%EB%B3%B4%EA%B8%B0
-2022.09 현재 1 버전이 출시되지 않음. 1점대가 아니기 때문에 변경 사항이 많이 생김. migration 하는 것은 개발자가 감당해야 할 몫. 1점대가 아니면 real에서는 잘 안 씀.
+참고 및 사진 출처  
+http://blog.hwahae.co.kr/all/tech/tech-tech/6099/  
+https://velog.io/@turret1234/React-Jotai%EB%84%8C-%EB%88%84%EA%B5%AC%EB%83%90  
+https://blog.logrocket.com/jotai-vs-recoil-what-are-the-differences/  
+https://recoiljs.org/  
+https://jotai.org/  
+https://programming119.tistory.com/m/263
 
-### Jotai
+`recoil` 코드 예시는 [위](https://github.com/mochang2/development-diary/blob/main/032-react%20state.md#1-props-drilling)에서 props drilling의 비효율성을 증명할 때 썼고, `jotai`도 기본적인 사용법은 크게 다르지 않으므로 생략하겠다.
 
-jotai - 1버전이 넘음
+`recoil`의 특징 중에 동시성 모드 등 여러 react 기능들과 호환이 가능하다는 것이 있는데, 현재는 동시성 모드가 정식으로 출시된 것이 아니기 때문에 해당 내용은 제외했다.
 
-언제 re-rendering 되는지. 어떠한 철학을 가지고 만들었는지.
+#### 공통점
+
+`jotai`는 `recoil`의 영향을 받아 만들어진 모듈이다.  
+그래서 철학이나 사용법에 공통점이 존재한다.
+
+1. atomic
+
+![atom](https://user-images.githubusercontent.com/63287638/196420157-5fb81821-6c8d-4a15-bb3f-81480dd3ddcc.png)
+
+context api는 컴포넌트의 state를 공통된 상위 요소까지 끌어올려야만 공유할 수 있으며, 이 과정에서 거대한 트리가 re-rendering되는 것을 야기하기도 한다.  
+또한 context는 단일 값만 저장할 수 있으며, 여러 값들의 집합을 담을 수 없다.
+
+이와 반대로 `recoil`과 `jotai`는 state를 atom이라는 작고 가벼운 것으로 잘게 쪼개 관리한다.  
+각각의 atom들은 원할 때(on-demand) 독립적으로 사용될 수 있다(다만 `recoil`의 selector를 쓴다면 atom 간 종속적인 관계가 생길 수는 있다).  
+이러한 atomic한 특징(state가 점진적이고 분산되어 있음) 덕분에 code splitting에 유리하다.
+
+2. 낮은 러닝 커브
+
+`useState` 또는 `useReducer`를 사용하는 것과 사용법이 많이 다르지 않다.  
+단순히 컴포넌트 간 상태 공유를 위해서 사용한다면 가장 쉽다(selector 등의 기능이 추가되면 나름 복잡해지긴 하지만).
+
+3. async query
+
+`recoil`과 `jotai` 모두 async query를 제공한다.
+
+```javascript
+// recoil
+const currentUserNameQuery = selector({
+  key: 'CurrentUserName',
+  get: async ({ get }) => {
+    const response = await myDBQuery({
+      userID: get(currentUserIDState),
+    })
+    return response.name
+  },
+})
+```
+
+```javascript
+// jotai
+const fetchCountAtom = atom(
+  (get) => get(countAtom),
+  async (_get, set, url) => {
+    const response = await fetch(url)
+    set(countAtom, (await response.json()).count)
+  }
+)
+```
+
+#### 차이점
+
+[jotai 공식 문서](https://jotai.org/docs/basics/comparison)에 있는 내용을 포함해 각종 블로그들에 나와 있는 내용을 같이 정리했다.
+
+1. 버전
+
+2022년 10월 기준으로 `recoil`의 버전은 0.7.6이 최신이다.  
+`jotai`는 1.8.6이 최신이다.  
+`jotai`가 훨씬 빠르게 업데이트 되고 있다.  
+만약 `recoil`를 사용한다면 v1 이전이기 때문에, 만약 v1이 되어 많은 변경 사항이 생기면 migration을 전부 개발자가 감당해야 하는 문제가 존재한다.  
+(근데 v1 겁나게 안 내놓는게 페이스북에서 만드는 라이브러리들의 특징이기도 하단다)
+
+2. 번들 사이즈
+
+`recoil` v0.7.6의 번들 사이즈(unpacked)는 2.2MB이다.  
+`jotai` v1.8.6의 번들 사이즈는 901KB이다.  
+atom 상태의 변경불가능한 스냅샷을 찍는 기능들이 `recoil`에는 내장되어 있는 반면 `jotai`는 없다(순전히 전역 상태 관리를 위한 기능은 크게 다른 것 같진 않다).  
+대신 공식적으로 `Immer`, `Optics`, `Redux`, `Zustand`와 같은 모듈과 같이 사용할 수 있는 방법들을 제공한다.
+
+_cf) `jotai`가 강조하는 두가지 특징_
+Primitive: 리액트 기본 state 함수인 `useState` 와 유사한 인터페이스
+Flexible: atom들끼리 서로 결합 및 상태에 관여할 수 있고, *다른 라이브러리들과 원할한 결합을 지원*한다.
+
+3. 다운로드 횟수
+
+일반적으로 다운로드 횟수가 많으면 커뮤니티가 더 활성화 되어 있고, best practice에 대한 좋은 자료들이 많다.  
+2022년 10월 기준으로 recoil이 조금 더 많이 다운로드되고 있다.
+
+4. key 사용 여부
+
+```javascript
+// recoil
+const counterState = atom({ key: 'counter', default: 0 })
+```
+
+```javascript
+// jotai
+const counterAtom = atom(0)
+```
+
+`recoil`은 atom을 선언할 때 key 값이 전역적으로 unique한 값이어야 한다.  
+`jotai`는 atom을 선언할 때 key 값이 필요 없어서 보일러 플레이트 양이 미세하게 더 적다.  
+[atoms in atom](https://jotai.org/docs/guides/atoms-in-atom)에 따르면 `jotai`는 atom들을 referential equality를 통해 구분한다고 한다.
+이는 다음과 같은 잠재적인 문제를 가지고 있다.
+
+> This could be a potential issue. For example, if you want to identify an atom for debugging, you are going to add `counterAtom.debugLabel = "counter"` anyway. One other difference is that if your module with atoms was updated, React Fast Refresh will not be able to preserve the old state, since all new atoms are no longer referentially equal to old ones (which works in Recoil because it compares the key string).
+
+React Fast Refresh는 HMR를 대체할 react 기능이라고 한다.
+
+~추후에 `jotai`를 사용하다가 문제를 겪게 되면 실제 사례를 추가하자.~
+
+5. Provider
+
+`recoil`은 최상위 component에서 `RecoilRoot`로 감싸줘야 한다.  
+반면 `jotai`는 기본적으로 Provider를 사용하지 않아도 된다.  
+Provider가 없더라도 atom을 선언할 때 설정된 기본 값을 가진 atom을 전역적으로 사용할 수 있다.
+이는 `jotai` 가 내부적으로 react 의 context api를 이용하기 때문에 가능한 것인데, context api도 사실 Provider 없이 사용 가능하다.  
+다만, Provier가 없다면 하위 component들에서 구독하는 context들이 re-rendering이 되지 않지만, `jotai` 는 이것을 가능하게 만들었으며, Provider 하위 component 전체가 re-rendering되는 (혹은 메모이제이션을 추가적으로 해주어야하는) 불편함을 개선했다.
+`jotai`에서 만약 Provider를 사용하면 해당 state를 공유할 component를 범위를 제한할 수 있다.
 
 ## 3. 서버 상태 vs 클라이언트 상태
+
+swr vs react-query 특징만 비교하고 best practice는 추후에 추가.
 
 axios(fetch) vs react-query(swr)을 비교하는 게 아님. 각자 하는 역할이 다른 것임.
 
