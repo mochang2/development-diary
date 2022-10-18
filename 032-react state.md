@@ -678,7 +678,7 @@ context란 단순히 react component에서 props가 아닌 또 다른 방식으�
 
 `ChildComponent3`와 `GrandChildComponent2`의 공통 조상이 `ParentComponent`이므로 `ParentComponent`에서 `CounterContext.Provider`로 감싸줬다.
 
-```javascript
+```jsx
 // Context.js
 import { useState, useEffect, createContext, useContext } from 'react'
 
@@ -771,7 +771,7 @@ function GrandChildComponent2() {
 }
 ```
 
-```javascript
+```jsx
 // App.js
 
 function App() {
@@ -797,7 +797,7 @@ function App() {
 아래는 또다른 해결책이다.  
 `CounterProvider`라는 컴포넌트로 `ParentComponent`를 감싼 뒤 `props.children`을 이용하여 rendering하는 것이다.
 
-```javascript
+```jsx
 // Context.js
 import { useState, useEffect, createContext, useContext } from 'react'
 
@@ -901,7 +901,7 @@ function GrandChildComponent2() {
 }
 ```
 
-```javascript
+```jsx
 // App.js
 
 function App() {
@@ -935,7 +935,7 @@ function App() {
 다행히 위와 같이 극단적으로 depth가 깊어지는 것을 해결하는 방법이 있다.  
 `Array.prototype.reduce`을 사용해서 Provider를 하나로 묶을 수 있다.
 
-```javascript
+```jsx
 import { SampleProvider } from './contexts/sample'
 import { AnotherProvider } from './contexts/another'
 
@@ -966,7 +966,291 @@ const App = () => {
 
 ### Redux
 
-redux
+참고 및 사진 출처  
+https://ridicorp.com/story/how-to-use-redux-in-ridi/  
+https://devlog-h.tistory.com/m/26  
+https://velog.io/@404/%EB%A6%AC%EB%8D%95%EC%8A%A4-2.-%EB%A6%AC%EB%8D%95%EC%8A%A4%EB%A5%BC-%EC%82%AC%EC%9A%A9%ED%95%98%EB%8A%94-%EC%9D%B4%EC%9C%A0  
+https://amyhyemi.tistory.com/m/103  
+https://yong-nyong.tistory.com/m/12  
+https://medium.com/js-imaginea/best-practices-with-react-and-redux-application-1e94a6f214a0  
+https://velog.io/@seongkyun/useSelector-%EC%A0%9C%EB%8C%80%EB%A1%9C-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0  
+https://velog.io/@kim6515516/useSelector%EC%83%81%ED%83%9C%EC%A1%B0%ED%9A%8C-useDispatch%EC%95%A1%EC%85%98-%EB%94%94%EC%8A%A4%ED%8C%A8%EC%B9%98  
+https://redux.js.org/usage/structuring-reducers/prerequisite-concepts#note-on-immutability-side-effects-and-mutation
+
+[redux 공식 문서](https://redux.js.org/)에 따르면 redux는 다음과 같은 상황에 사용하기 좋다고 한다.
+
+- 앱의 여러 위치에서 필요한 많은 양의 state들이 존재할 때 (전역 상태가 필요하다고 느껴질 때)
+- state가 자주 업데이트 될 때
+- state를 업데이트 하는 로직이 복잡할 때
+- 앱이 중간 또는 큰 사이즈의 코드를 갖고 있고 많은 사람들에 의해 코드가 관리될 때
+- 상태가 업데이트되는 시점을 관찰할 필요가 있을 때
+
+특히 react를 사용할 때 많이 나타나는 현상들이다.
+
+#### 원칙
+
+1. 하나의 애플리케이션 안에는 하나의 store만 사용
+
+- 애플리케이션의 디버깅이 쉬워지고 서버와의 직렬화가 될 수 있고 쉽게 클라이언트에서 데이터를 받아올 수 있다.
+
+2. 상태를 변화시키는 방법은 오직 action을 통해서
+
+- 상태를 변화시키는 의도를 정확하게 표현할 수 있고, 상태 변경에 대한 추적이 용이해진다.
+
+3. 변화를 일으키는 reducer는 순수 함수
+
+- reducer는 이전 state와 action 객체를 파라미터로 받는다.
+- 파라미터 외의 값에는 의존하면 안 된다.
+- state의 불변성을 유지해야 한다. 그렇지 않으면 원하는 대로 re-rendering이 되지 않거나 불필요한 re-rendering이 발생할 수 있다.
+- 같은 파라미터로 호출된 reducer는 같은 output을 반환해야 한다.
+
+#### 장점
+
+1. 데이터 흐름 파악이 쉬움
+
+[아키텍처](https://github.com/mochang2/development-diary/blob/main/028-architecture.md#%EC%82%AC%EC%A0%84%EC%A7%80%EC%8B%9D-flux%EC%99%80-redux)에서 다룬 적 있지만 간단히만 다루겠다.  
+`redux`(flux 패턴)는 MVC 패턴의 단점을 극복하기 위해 사용되었다.
+
+![mvc](https://user-images.githubusercontent.com/63287638/196336237-d0cdd816-20e7-4270-8263-cc1fb12e0f38.jpg)
+
+위 사진에서 볼 수 있듯이 MVC는 **양방향 데이터 흐름**이 가장 큰 문제였다.  
+따라서 데이터 흐름을 파악하기 힘든 구조였다.
+
+이와 달리 flux 패턴은 단방향 데이터 흐름을 가지고 있기에 데이터 흐름을 파악하기 쉽다.
+
+2. 미들웨어
+
+API 요청 시 (다만 이제는 `swr`, `react-query` 등의 등장으로 사용할 필요가 줄어듦), Next 없이 SSR 사용 시(`recoil`이나 `jotai`에는 없는 안정성이 있음) 미들웨어의 도움을 받을 수 있다.
+
+~직접 프로젝트에서 사용한 적이 없기 때문에 코드 예시에서는 제외했다.~
+
+3. 안정성
+
+현재(2022.10) [react-redux](https://www.npmjs.com/package/react-redux)의 버전은 8.0.4이다.  
+충분히 많은 버전이 나와서 안정성이 검증됐으며 커뮤니티도 넓어서 best practice를 찾기 쉽다.
+
+4. 바뀐 값을 읽는 component에 대해서만 re-rendering
+
+context api는 context를 분리해야 한다.  
+불변성을 유지하면(redux 또한 shallow comparison) 불필요한 re-rendering을 방지할 수 있다.
+
+#### 단점
+
+1. 많은 양의 보일러 플레이트
+
+아래 코드 예시를 보면서 더 알아보자.
+
+2. 러닝 커브
+
+`redux`를 제대로 사용하기 위해서는 위에서 이야기한 미들웨어를 필수적이다.
+
+#### useReducer
+
+`redux`를 이해하기 전 `useReducer`라는 훅에 대해 정리하고자 한다.  
+`useReducer`는 build-in hook으로 `useState`의 대체이다.  
+다만 차이점은 `useState`가 컴포넌트 내부에서 state를 다뤘다면 `useReducer`는 state 업데이트 로직을 컴포넌트로부터 분리한다.  
+그래서 컴포넌트 내부 state가 많아지거나 state의 타입이 복잡해질 때 사용하면 좋다고 한다(개인적인 생각으로는 그 전에 컴포넌트 분리를 우선하는 게 좋을 거 같다).
+
+다음과 같이 사용할 수 있으며 `redux`와 매우 비슷한 사용법을 보인다.
+
+```jsx
+function reducer(state, action) {
+  switch (action.type) {
+    case 'decrement':
+      return { ...state, count: state.count - 1 }
+    case 'increment':
+      return { ...state, count: state.count + 1 }
+    default:
+      throw new Error('Unsupported action type:', action.type)
+  }
+}
+
+function Main() {
+  const [number, dispatch] = useReducer(reducer, { count: 0 })
+  // 사용법 [state, dispatch] = useReducer(reducer, initialState, init)
+
+  return (
+    <>
+      <h1>Count: {number.count}</h1>
+      <button onClick={() => dispatch({ type: 'decrement' })}>-</button>
+      <button onClick={() => dispatch({ type: 'increment' })}>+</button>
+    </>
+  )
+}
+```
+
+#### 코드 예시(middleware는 없음)
+
+[context api](https://github.com/mochang2/development-diary/blob/main/032-react%20state.md#context)와 같은 컴포넌트 구조이지만 얼마나 더 많은 코드를 필요로 하는지 보여주기 위한 예시이다.
+
+`useSelector`, `useDispatch` 등의 hook이 등장하기 전에는 `connect`라는 HoC를 사용했었다(사실 방금까지 그 코드 예시로 다 작성해놓고 이러한 hook의 존재를 알고 다시 작성중이다).  
+HoC는 [HoC](https://github.com/mochang2/development-diary/blob/main/030-react.md#cf-hochigher-order-component)에서 정리했듯이 hook이 나오기 전에 재사용이나 conditional rendering을 위해 사용했었다.
+
+내가 생각하기에 `redux`에서 HoC와 hook의 장단점은 다음과 같다.
+
+- HoC
+  - component에서 state 초기화, state 업데이트 로직을 분리할 수 있다.
+  - 부모 컴포넌트가 re-rendering되면 컴포넌트의 props가 바뀌지 않았다면 re-rendering을 자동으로 방지한다.
+  - 코드의 양이 좀 더 많다.
+- hook
+  - 코드의 양이 좀 더 적다.
+  - component 내부에 state 업데이트 로직이 존재한다.
+  - 부모 컴포넌트가 re-rendering될 때 props가 바뀌지 않았다면 `React.memo`를 사용해서 re-rendering을 방지해야 한다.
+
+취향에 따라 하나의 프로젝트에서 하나의 방법으로 통일해서 사용하는 것이 좋은 것 같다.
+
+```jsx
+// index.js
+import { Provider } from 'react-redux'
+import store from './stores/reducers/reducer'
+
+const root = ReactDOM.createRoot(document.getElementById('root'))
+
+root.render(
+  <React.StrictMode>
+    <Provider store={store}>
+      <App />
+    </Provider>
+  </React.StrictMode>
+)
+```
+
+```jsx
+// components/App.js
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { increase } from '../stores/actions/actions'
+
+export function ParentComponent() {
+  return (
+    <div>
+      여기는 메인 페이지입니다.
+      <ChildComponent1 />
+      <ChildComponent2 />
+      <ChildComponent3 />
+    </div>
+  )
+}
+
+function ChildComponent1() {
+  return (
+    <div>
+      <span>여기는 child1입니다.</span>
+      <GrandChildComponent1 />
+      <GrandChildComponent2 />
+    </div>
+  )
+}
+
+function ChildComponent2() {
+  return (
+    <div>
+      <span>여기는 child2입니다.</span>
+    </div>
+  )
+}
+
+function ChildComponent3() {
+  const dispatchCount = useDispatch()
+
+  return (
+    <div>
+      <span>여기는 child3입니다.</span>
+      <button onClick={() => dispatchCount(increase())}>click me!</button>
+    </div>
+  )
+}
+
+function GrandChildComponent1() {
+  return (
+    <div>
+      <span>여기는 grandchild1입니다.</span>
+    </div>
+  )
+}
+
+function GrandChildComponent2() {
+  const count = useSelector((state) => state.count)
+
+  return (
+    <div>
+      <span>여기는 grandchild2입니다. count: {count}</span>
+    </div>
+  )
+}
+```
+
+```jsx
+// stores/reducers/reducer.js
+import { legacy_createStore } from 'redux'
+// createStore은 deprecated
+// 공식 문서는 redux toolkit의 configureStore 사용을 권장함
+
+const initialState = {
+  count: 0,
+}
+
+const rootReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case 'INCREASE':
+      return { ...state, count: state.count + 1 }
+    default:
+      return state
+  }
+}
+
+export default legacy_createStore(rootReducer)
+```
+
+```jsx
+// stores/actions/actions.js
+
+export const increase = () => ({
+  type: 'INCREASE',
+  // payload를 이용해서 reducer에서 action.payload를 이용해 업데이트 하기도 함
+})
+```
+
+`state`에 변화가 있을 때 context 분리 등의 작업을 하지 않아도 `GrandChildComponent3`만 re-rendering된다는 장점이 있다.
+다만 확실히 `count`, `setCount(count + 1)` 이러한 간단한 작업을 하는데 말도 안되게 많은 양의 코드가 필요하다.  
+그리고 미들웨어가 추가되면 훨씬 더 늘어날 것이다.
+
+#### useSelector 효율적으로 사용하기
+
+```jsx
+const App = () => {
+  const state = useSelector((state) => state)
+  const name = state.User.name
+  const age = state.User.age
+  const address = state.User.address
+  // const number = state.User.number // User안에 number 값도 있음
+
+  return (
+    <div>
+      {`회원인 ${name}씨의 나이는 ${age}세이고, ${address}에 거주한다.`}
+    </div>
+  )
+}
+```
+
+```jsx
+const App = () => {
+  const name = useSelector((state) => state.User.name)
+  const age = useSelector((state) => state.User.age)
+  const address = useSelector((state) => state.User.address)
+  // const number = useSelector((state)=> state.User.number); User안에 number 값도 있음
+
+  return (
+    <div>
+      {`회원인 ${name}씨의 나이는 ${age}세이고, ${address}에 거주한다.`}
+    </div>
+  )
+}
+```
+
+코드는 첫 번째가 더 깔끔해보이지만 두 번째 `App` 컴포넌트가 더 효율적이다.  
+왜냐하면 첫 번째 `App`은 `state.User.number`이 변경되어도 re-rendering된다.  
+반면 두 번째 `App`은 `state.User.number`이 변경되어도 re-rendering되지 않는다.
 
 ### Recoil
 
