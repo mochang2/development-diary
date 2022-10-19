@@ -936,8 +936,7 @@ function App() {
 `Array.prototype.reduce`을 사용해서 Provider를 하나로 묶을 수 있다.
 
 ```jsx
-import { SampleProvider } from './contexts/sample'
-import { AnotherProvider } from './contexts/another'
+import { SampleProvider, AnotherProvider } from 'myContexts/index'
 
 const AppProvider = ({ contexts, children }) => {
   return contexts.reduce(
@@ -1427,43 +1426,90 @@ Provider가 없더라도 atom을 선언할 때 설정된 기본 값을 가진 at
 
 ## 3. 서버 상태 vs 클라이언트 상태
 
-swr vs react-query 특징만 비교하고 best practice는 추후에 추가.
-
-axios(fetch) vs react-query(swr)을 비교하는 게 아님. 각자 하는 역할이 다른 것임.
-
 참고  
-https://fe-developers.kakaoent.com/2022/220224-data-fetching-libs/
+https://fe-developers.kakaoent.com/2022/220224-data-fetching-libs/  
+https://goongoguma.github.io/2021/11/04/React-Query-vs-SWR/  
+https://velog.io/@seohee0112/React-Query-vs-SWR  
+https://tech.madup.com/react-query-vs-swr/
 
-react 상태관리
+~react-query의 코드 예시나 best practice에 대한 내용은 추후에 추가 예정~
 
-client side state - local state + global state
-server side state(서버로부터 받아오는 데이터)
+프론트엔드에서 다루는 state는 크게 두 종류가 있다.
 
-기존에는 리덕스와 같은 상태 관리 라이브러리에 Global State와 Server State를 전부 포함하는 방법으로 프로그래밍을 했었는데요(그래서 비동기 로직이 포함되었으면 thunk나 saga와 같은 미들웨어 사용했음), 위와 같은 data fetching 라이브러리를 사용함으로써 상태 관리 라이브러리에서 비동기 로직을 제거하여 관심사가 분리되고 선언적으로 프로그래밍할 수 있게 되었습니다.
+- client side state
+  - `isLoading`, `modalOpen`와 같은 local state
+  - theme, token과 같은 global state
+- server side state
+  - DB에서 가져온 뒤 어떤 처리를 마친 정보, 메타 데이터 등
 
-##
+기존에 `redux`와 같은 전역 상태 관리 라이브러리는 이 둘을 구분하지 않고 전역적으로 사용할 상태를 전부 포함했다.  
+하지만 `swr`이나 `react-query`와 같은 data fetching 라이브러리가 등장하면서 관심사를 분리하고 선언적으로 프로그래밍할 수 있게 되었다.
 
-data fetching 라이브러리는 위에서 말한 리덕스의 단점들을 해결합니다.
+### 장점
 
-- 선언적으로 프로그래밍 할 수 있음(장황하지 않은 코드)
+`swr`이나 `react-query`는 다음과 같은 장점들이 있다.
+
+- 관심사를 분리함으로써 선언적으로 프로그래밍 가능(장황하지 않은 코드) <- 리덕스의 경우 비동기 로직을 위해서는 `redux-thunk`, `redux-saga` 등을 이용하여 하나하나 기술해야 했음
 - 동일한 API 요청이 여러 번 호출될 경우 한 번만 실행
 - 데이터가 dirty 해진 경우 적절한 시점에 알아서 업데이트
-- Global State와 Server State의 관심사를 분리
+- Global State와 Server State의 관심사를 분리(서버 데이터에 대해 `useState` 등의 훅을 사용하지 않아도 됨)
+- 자동 캐싱
 
-+) 비동기 처리 필요 x. 자동 캐싱. 서버 데이터에 대해서는 useState 훅 사용 안 해도 됨.
+### vs axios, vs fetch
 
-##
+data-fetching 라이브러리라고 해서 처음에 착각했던 것은 `axios`나 `fetch`와 비교했던 것이다.  
+그러나 context api와 redux의 차이처럼 `swr`, `react-query`와 `axios`, `fetch`의 목적이 다르다.
 
-swr vs react-query
+`axios`와 `fetch`는 데이터를 '가져오는데' 초점이 맞춰져 있다.  
+그래서 로딩, 에러 핸들링, 캐싱, 페이지네이션, re-validation 등은 개발자가 직접 구현해줘야 한다.  
+반면 `swr`, `react-query`는 데이터를 가져온 뒤 '데이터에 대한 관리, 즉 fetch, cache, update'하는데 초점이 맞춰져 있다.  
+`swr`, `react-query`도 데이터를 '가져와야' 하므로, 쿼리할 때 두 번째 인자로 `Promise` 객체를 반환하는 함수가 필요하다.  
+이때 보통 해당 함수에서 `axios`나 `fetch`가 사용된다.
 
-공통적으로
-query, caching, polling, parallel queries, initial data, window focus re-fetching, network status re-fetching
-제공
+### 상태 관리
 
-swr: 가벼움. dev-tool 사용하려면 서드 파티 라이브러리 필요. 전역 에러 핸들링 제공. 데이터를 조작할 수 있지만 mutation이 불편. 캐시 GC 기능 없음.
+`swr`, `react-query`는 자체적인 상태 관리 기능이 없다.  
+그래서 `swr`이나 `react-query`는 보통 `redux`, `recoil` 등 상태 관리 라이브러리들과 같이 사용된다.
 
-react-query: dev tool. 전역 에러 핸들링 제공. mutation 훅 제공. 캐시 GC 기능.
+### swr vs react-query
 
-https://goongoguma.github.io/2021/11/04/React-Query-vs-SWR/
-https://velog.io/@seohee0112/React-Query-vs-SWR
-https://tech.madup.com/react-query-vs-swr/
+**두 라이브러리르 직접 사용해보진 않았고 블로그 글들을 토대로 요약한 것. 추후에 추가할 예정**
+
+`swr`과 `react-query`는 같은 지향점 서로에게 영향을 준 라이브러리이다 보니 대개 함수 이름만 대체하면 변경할 수 있다.
+공통적으로 query, caching, polling, parallel queries, initial data, window focus re-fetching, network status re-fetching, global error handling 등의 기능을 제공한다.
+
+다만 다음 기능들에서 큰 차이가 있다.
+
+#### devtools
+
+`react-query`는 [devtools](https://react-query-v3.tanstack.com/devtools#_top)가 내장되어 있다.  
+그래서 floating mode나 embedded mode를 사용할 수 있다.  
+반면 `swr`은 devtool을 사용하려면 서드 파티 라이브러리가 필요하다.
+
+#### bi-directional infinite query
+
+`react-query`는 `getPreviousPageParam`, `fetchPreviousPage`, `hasPreviousPage`, `isFetchingPreviousPage` 프로퍼티들을 통해 이전 페이지 데이터를 쉽게 핸들링할 수 있다.  
+반면 `swr`은 개발자가 직접 코드를 작성해야 한다.
+
+#### lagged query data
+
+`react-query`는 다음 데이터를 불러오기 전까지 (서버에 요청 중에) 보여줄 데이터가 없다면 현재 캐싱되어 있는 데이터를 자동으로 렌더링한다.  
+반면 `swr`은 개발자가 직접 코드를 작성해야 한다.
+
+#### mutation hook
+
+`react-query`는 mutation hook을 기본적으로 제공한다.  
+`swr`은 `useSWRConfig` hook을 통해 수동으로 조작해줘야 한다(좀더 불편하다고 한다).
+
+#### GC
+
+`react-query`는 쿼리가 지정된 시간(default는 5분) 동안 쿼리가 사용되지 않을 경우 자동으로 GC된다.  
+`swr`은 GC가 필요하다면 직접 캐시를 조작해야 한다.
+
+#### 번들 사이즈
+
+`react-query`가 내장된 기능이 훨씬 많기 때문에 사이즈가 압도적으로 크다.  
+v3.39.2를 기준으로 unpacked size는 2.27MB이다.  
+`swr`은 v1.3.0을 기준으로 231KB이다.
+
+그래서 내 선택은... 프로젝트 성격에 따라 결정될 거 같은데 아직은 미정.
