@@ -166,7 +166,7 @@ tensorflow-crawling
 - 문제점
 
 다만 이러한 방식은 간단한 방식에 대한 크롤링밖에 진행할 수 없고 user interaction이 필요하다면 다른 방법을 찾았어야 한다.  
-내가 원하던 내용 중 하나는 skt membership 사이트(https://sktmembership.tworld.co.kr/mps/pc-bff/benefitbrand/detail.do?brandId=0)에서 브랜드 별로 혜택을 가져오는 것이다.  
+내가 원하던 내용 중 하나는 [skt membership 사이트](https://sktmembership.tworld.co.kr/mps/pc-bff/benefitbrand/detail.do?brandId=0)에서 브랜드 별로 혜택을 가져오는 것이다.  
 ![메인 화면](https://user-images.githubusercontent.com/63287638/162609628-94c5f6a2-6527-41a1-9825-998a795a38e4.png)  
 \[skt membership에서 혜택 브랜드를 고를 수 있는 부분\]
 <br/><br/>
