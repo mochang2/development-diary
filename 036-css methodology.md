@@ -9,7 +9,8 @@ https://www.smashingmagazine.com/2011/12/an-introduction-to-object-oriented-css-
 https://jmjmjm.tistory.com/44  
 https://dev.to/nouran96/oocss-methodology-92d  
 https://wit.nts-corp.com/2015/04/16/3538
-https://blog.illunex.com/css-%EB%B0%A9%EB%B2%95%EB%A1%A0-oocss/
+https://blog.illunex.com/css-%EB%B0%A9%EB%B2%95%EB%A1%A0-oocss/  
+http://smacss.com/
 
 ## 1. 공통점
 
@@ -187,7 +188,263 @@ CSS의 space selector나 '>' selector 보다는 content 스타일을 container�
 
 ## 3. BEM
 
-## 4. SMACSS
+## 4. SMACSS(Scalable and Modulalr Architecture for CSS)
+
+CSS에 대한 확장형 모듈식 구조의 형태로 5개의 구분된 카테고리로 CSS 코딩 기법 제시하는 방법이다.  
+어떤 카테고리에 스타일이 속하는지 결정하는데 고민과 숙고가 요구된다.
+
+해당 카테고리들은 다음과 같다.
+
+- base
+  - base 규칙은 기본값이다. base는 해당 엘리먼트가 페이지 어디에 존재하든 기본적으로 가질 값을 나타낸다.
+- layout
+  - page를 section으로 나눈다. 하나 이상의 module을 포함하고 있다.
+- module
+  - module은 재사용 가능한 부분을 말한다.
+- state
+  - layout이나 module이 어떤 상태인지 묘사하는데 사용된다(`is-hidden`, `is-active` 등).
+- theme
+  - state과 같이 layout이나 module에서 어떻게 보일지를 나타낸다.
+
+### Base
+
+```css
+body,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+table,
+th,
+td,
+form,
+fieldset,
+legend,
+input,
+textarea,
+button,
+select {
+  margin: 0;
+  padding: 0;
+}
+body,
+input,
+textarea,
+select,
+button,
+table {
+  font-size: 14px;
+  line-height: 1.25;
+}
+body {
+  position: relative;
+  background-color: #fff;
+  color: #000;
+}
+img,
+fieldset {
+  border: 0;
+}
+ul,
+ol {
+  list-style: none;
+}
+table {
+  border-collapse: collapse;
+}
+em,
+address {
+  font-style: normal;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+```
+
+위와 같이 속성 선택자, 가상 선택자, 자식 선택자 등을 사용할 순 있지만 거의 대부분 single element selector(`span`, `body` 등)을 사용한다.  
+CSS 재설정(reset)은 기본 여백, 패딩 및 기타 속성을 제거하거나 재설정하도록 설계된 기본 스타일 세트다.
+
+다음과 같은 특징이 있다.
+
+- class나 id는 전혀 사용하지 않는다.
+- `!important`를 사용하지 않는다.
+
+### Layout
+
+```css
+#article {
+  width: 80%;
+  float: left;
+}
+
+#sidebar {
+  width: 20%;
+  float: right;
+}
+
+.l-fixed #article {
+  width: 600px;
+}
+
+.l-fixed #sidebar {
+  width: 200px;
+}
+```
+
+layout style은 재사용 여부에 따라 major / minor 스타일로 나뉜다.  
+`header`, `footer`, `aside`, `container`, `content`와 같은 것을 위해 id를 사용할 수도 있다(그리고 SMACSS에서 유일하다).
+
+다음과 같은 특징이 있다.
+
+- id, class를 활용하여 오직 하나의 selector만 사용한다(다만 id를 사용할 때는 꼭 필요한지 고민하자). 예를 들어 유저에 따른 페이지 설정을 조정한다면 id가 필요할 수도 있다.
+- 접두사로 `l-`을 사용한다.
+
+### Module
+
+버튼, 배너, 아이콘, 박스 등 페이지에서 재사용 가능한 요소들을 이야기한다.
+
+다음과 같은 특징이 있다.
+
+- 재사용을 위해 id, element selector를 사용하지 않는다. 오직 class로만 지정한다.
+- 반드시는 아니지만 `module-`이라는 접두사를 붙인다.
+
+같은 module이 다른 section이 사용되는데 약간 차이가 있을 때 부모에 스타일을 지정하면 `!important`를 사용하거나 많은 selector를 사용해야 되는 문제가 있다.  
+subclass를 활용하면 이를 방지할 수 있다.  
+공식 문서에 나온 예시 상황이다.
+
+> Expanding on our example pod, we have an input with two different widths. Throughout the site, the input has a label beside it and therefore the field should only be half the width. In the sidebar, however, the field would be too small so we increase it to 100% and have the label on top. All looks well and good. Now, we need to add a new component to our page. It uses most of the same styling as a .pod and so we re-use that class. However, this pod is special and has a constrained width no matter where it is on the site. It is a little different, though, and needs a width of 180px.
+
+```css
+.pod {
+  width: 100%;
+}
+.pod input[type='text'] {
+  width: 50%;
+}
+#sidebar .pod input[type='text'] {
+  width: 100%;
+}
+
+.pod-callout {
+  width: 200px;
+}
+#sidebar .pod-callout input[type='text'],
+.pod-callout input[type='text'] {
+  width: 180px;
+}
+```
+
+위 방식은 너무 많은 selector가 사용된다.  
+`.pod-constrained`와 `.pod-callout`이라는 subclass를 활용하면 아래와 같이 selector를 줄일 수 있다.
+
+```css
+.pod {
+  width: 100%;
+}
+.pod input[type='text'] {
+  width: 50%;
+}
+.pod-constrained input[type='text'] {
+  width: 100%;
+}
+
+.pod-callout {
+  width: 200px;
+}
+.pod-callout input[type='text'] {
+  width: 180px;
+}
+```
+
+```html
+<!-- HTML에서 사용 예시 -->
+<div class="pod pod-constrained">...</div>
+<div class="pod pod-callout">...</div>
+```
+
+### state
+
+```css
+.tab {
+  background-color: purple;
+  color: white;
+}
+
+.is-tab-active {
+  background-color: white;
+  color: black;
+}
+```
+
+다음과 같은 특징이 있다.
+
+- `!important`를 사용해도 되며 이 방식이 추천된다.
+- single class selector를 이용해야 한다.
+- state가 module에 의존적인 경우가 있다. 이러한 경우 state의 class 이름을 `is-tab-active`와 같이 module을 포함한다.
+- class 이름으로 `is-`라는 접두사를 가진다.
+
+### Theme
+
+```css
+/* in module-name.css */
+.mod {
+  border: 1px solid;
+}
+
+/* in theme.css */
+.mod {
+  border-color: blue;
+}
+```
+
+자주 사용되지는 않는다.  
+전반적인 look and feel을 정의한다.  
+사용자가 선택 가능하도록 스타일을 재선언하여 사용한다.  
+`background`, `color`, `border` 등을 불변하는 스타일과 분리한다.
+
+- `theme-`이라는 접두사를 가지거나 `theme/`과 같은 디렉토리로 계층을 분리한다.
+- 나라마다 다른 언어를 사용해야 하는 경우 각 locale을 제공해야 하며 한글이나 한자는 크기가 작으면 사용자 경험이 좋지 않다. 폰트와 같은 경우는 `f-`라는 접두사를 붙일 수 있다. 웹 사이트는 보통 3~6개 정도의 폰트 크기만 가지고 있는게 좋다. 그 이상 존재하면 유지 보수가 힘들다.
+
+### 장단점
+
+- 장점
+  - 클래스명을 통한 예측 용이성.
+  - 재사용을 통한 코드의 간결화.
+  - 확장의 용이성.
+- 단점
+  - 카테고리를 나누는 기준이 불분명.
+  - 코드를 나누어서 작성하기 때문에 오히려 CSS가 복잡해질 수 있음.
+
+### 추가 사항
+
+[공식 문서]()에서 저자가 추가한 본인의 좋은 습관(?)이다.
+
+1. CSS 특성마다 그루핑한다. 가독성이 더 좋아진다.
+
+```css
+.class {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border: 1px solid black;
+
+  position: relative;
+  top: 0;
+}
+```
+
+2. color 관련 속성은 `#fff;`처럼 3digit으로 표현 가능하면 3digit으로 표현해라. 그리고 `hex`나 `rgb`는 사용하지 않는다. 왜냐면 `#`속성이 더 짧기 때문이다.
 
 ## 5. 결론
 
