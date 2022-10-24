@@ -1,25 +1,28 @@
 ## 0. 공부하게 된 계기
 
-[motion](https://github.com/mochang2/motion) (노션 클린 코딩 프로젝트)를 진행하기 전 컨벤션을 정하다가 CSS에도 컨벤션이 존재한다는 것을 알았다.  
+[motion](https://github.com/mochang2/motion) (노션 클린 코딩 프로젝트)을 진행하기 전 컨벤션을 정하다가 CSS에도 컨벤션이 존재한다는 것을 알았다.  
 가장 많이 사용되는 OOCSS, BEM, SMACSS를 정리한 뒤 프로젝트에 사용할 컨벤션을 정하고자 공부를 시작했다.
 
-참고  
+참고 및 사진 출처  
 https://github.com/stubbornella/oocss/wiki  
 https://www.smashingmagazine.com/2011/12/an-introduction-to-object-oriented-css-oocss/  
 https://jmjmjm.tistory.com/44  
 https://dev.to/nouran96/oocss-methodology-92d  
 https://wit.nts-corp.com/2015/04/16/3538
 https://blog.illunex.com/css-%EB%B0%A9%EB%B2%95%EB%A1%A0-oocss/  
-http://smacss.com/
+http://smacss.com/  
+https://getbem.com/introduction/  
+https://en.bem.info/methodology/  
+https://nykim.work/15
 
 ## 1. 공통점
 
-같은 지향점을 가지고 있다.
+OOCSS, BEM, SMACSS는 같은 지향점을 가지고 있다.
 
 - 코드의 재사용성을 높이기.
 - 쉬운 유지보수.
 - 확장 가능성.
-- 클래스명 만으로도 무슨 의미인지 예측 가능하도록 하기.
+- class 이름만으로도 무슨 의미인지 예측 가능하도록 하기.
 
 ## 2. OOCSS(Object Oriented CSS)
 
@@ -92,9 +95,9 @@ skin은 `color`, `font` 등 visible style을 의미한다.
 }
 ```
 
-좀 더 적은 코드로 이루어지고 재사용성이 늘어난다.
+더 적은 코드로 이루어지고 재사용성이 늘어난다.
 
-좀 다른 예시로 HTML에서는 다음과 같이 사용할 수도 있다.
+(다른 예시)HTML에서는 다음과 같이 사용할 수도 있다.
 
 ```html
 <a href="#" class="btn-base cart">장바구니</a>
@@ -186,7 +189,91 @@ CSS의 space selector나 '>' selector 보다는 content 스타일을 container�
 
 ~막상 정리하고 나니까 그닥 뭐 별거 없는거 같기도...~
 
-## 3. BEM
+## 3. BEM(Block Element Modifier)
+
+block / element / modifier 로 나누는 개발 접근법이다.  
+UI를 독립된 여러 개의 블록으로 분리하자는 목표를 가지고 있다.
+
+전반적으로 다음과 같은 특징이 있다.
+
+- tag selector나 id는 사용하지 않고 class만 사용한다.
+- 모든 이름을 간단하고 직관적으로 만듦으로써 selector만으로도 무엇을 하는지 유추 가능하게 class 이름을 작성해야 한다.
+- `.block__element--modifier` 형식을 가진다.
+- 이름을 연결할 때는 `block-name`처럼 하이픈 하나만 사용한다.
+- '어떻게 보이는가'가 아닌 '어떤 목적인가'에 초점을 맞춘다. 예를 들어 경고를 표시할 때 클래스 이름을 `red`가 아닌 `error`로 작성한다.
+
+### Block
+
+![BEM block](https://user-images.githubusercontent.com/63287638/197430432-5441b0f5-716a-41d4-a23e-15e7bb447551.jpg)
+
+block은 문단 전체에 적용된 element, 또는 element를 담고 있는 container이다.
+조금 구체적으로 설명하자면, 재사용 가능한 기능적으로 독립적인 페이지 컴포넌트(A functionally independent page component that can be reused)이다(react스러운 느낌이 남).  
+`header`, `footer`, `sidebar`, `content` 등이 각각의 block이며 참고로 block은 다른 block을 감쌀 수 있다.
+
+### Element
+
+![BEM element](https://user-images.githubusercontent.com/63287638/197430434-66e0e711-fb9e-4c24-bdd8-186adaf7c34e.jpg)
+
+element는 block을 구성하며 block 안에 특정 기능을 수행하는 컴포넌트를 의미한다.
+block은 독립적인 형태인 반면, element는 의존적인 형태다.  
+element는 자신이 속한 block 내에서만 의미를 가진다.
+
+```html
+<form class="search-form">
+  <input class="search-form__input" />
+  <button class="search-form__button">Search</button>
+</form>
+```
+
+위 예시에서 `.search-form`은 block이고, `.search-form__input`과 `.search-form__button`은 element이다.
+`.search-form`은 여러 페이지에서 반복적으로 사용될 수 있다.  
+하지만 내부의 `input`과 `button`은 `.search-form` 안에서만 의미가 있는 element이다.
+
+### Modifier
+
+![BEM modifier](https://user-images.githubusercontent.com/63287638/197433121-d436534e-0076-47c3-82b7-d5e4d198a4e1.png)
+
+modifier는 block이나 element의 속성을 담당한다.  
+block 또는 element의 외관이나 상태를 변화시켜 다르게 동작하는 block이나 element를 만들 때 사용하면 된다.
+
+```html
+<ul class="tab">
+  <li class="tab__item tab__item--focused">탭 01</li>
+  <li class="tab__item">탭 02</li>
+  <li class="tab__item">탭 03</li>
+</ul>
+```
+
+위 코드에서 `--focused`가 modifier다.
+
+아래처럼 `key-value` 타입도 '-'을 사용해서 표시 가능하다.
+
+```html
+<!-- color-gray, theme-normal이 key-value 타입 -->
+<div class="column">
+  <strong class="title">일반 로그인</strong>
+  <form class="form-login form-login--theme-normal">
+    <input type="text" class="form-login__id" />
+    <input type="password" class="form-login__password" />
+  </form>
+</div>
+
+<div class="column">
+  <strong class="title title--color-gray">VIP 로그인 (준비중)</strong>
+  <form class="form-login form-login--theme-special form-login--disabled">
+    <input type="text" class="form-login__id" />
+    <input type="password" class="form-login__password" />
+  </form>
+</div>
+```
+
+### 장단점
+
+- 장점
+  - 직관적인 클래스 명으로 마크업 구조를 직접 보지 않아도 구조의 파악이 쉬움.
+- 단점
+  - 클래스명이 상대적으로 길어질 수밖에 없는 구조이기 때문에 코드가 길어지고 복잡해짐.
+  - 기존 마크업에서 새롭게 기능이 추가되었을 경우 클래스명 재수정이 불편.
 
 ## 4. SMACSS(Scalable and Modulalr Architecture for CSS)
 
@@ -448,4 +535,34 @@ subclass를 활용하면 이를 방지할 수 있다.
 
 ## 5. 결론
 
-motion 프로젝트에 어울리는, 나에게 어울리는 컨벤션은 무엇일까?
+motion 프로젝트에서 OOCSS와 BEM을 합쳐서 사용할 예정이다.  
+(개인적으로 BEM은 `styled-component`와 같은 느낌이 나서 react스럽다라고 느껴졌다)
+
+내가 생각한 notion은 다음과 같은 특징이 있다.
+
+1. 페이지는 결국 하나다.
+2. sidebar, nav, content는 컴포넌트를 선언해서 반복하여 사용한다.
+
+```css
+.d-flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.m-0 {
+  margin: 0;
+}
+
+.f-16 {
+  font-size: 16px;
+}
+```
+
+위와 같은 코드들은 모든 컴포넌트에서 사용할 수 있을 만한 속성들이다.  
+반복적인 요소들이기 때문에 따로 선언할 예정이다.  
+다만 이 때문에 overkill이 나지 않도록 3번 이상 반복적인 요소들에 대해서만 추가할 예정이다.
+
+특정 컴포넌트들은 어떤 컴포넌트 안에서만 의미를 갖는 경우가 있다.  
+예를 들면 상단 아이콘, private page list 등이다.  
+class 이름이 길어지는 단점이 생길 수 있지만 해당 컴포넌트가 하는 기능의 명확성을 표시하기 위해 사용할 예정이다.
