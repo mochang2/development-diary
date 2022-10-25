@@ -678,7 +678,7 @@ tree shaking 미적용, `import dayjs from 'dayjs` 삭제, `import * as utils fr
 
 두 가지 결론을 얻었다.
 
-1. tree shaking보다 안 쓰는 코드가 삭제가 더 효과적이다(TODO: 이는 내가 한 실험에서만 편향된 결과일 수 있다. 실전에서 테스트해보고 내용을 추가하자).
+1. tree shaking을 안 쓰는 코드가 삭제가 더 효과적이다(TODO: 이는 내가 한 실험에서만 편향된 결과일 수 있다. 실전에서 테스트해보고 내용을 추가하자).
 2. default로 `import`하는 것과 부분 `import`가 차이가 없다. 이는 webpack4부터 자동으로 최적화해줘서라고 한다.
 
 _side effects 실험_  
