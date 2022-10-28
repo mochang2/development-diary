@@ -108,7 +108,7 @@ Ignition은 인터프리터로 AST를 **바이트 코드** 로 변환시키고 �
 일반적으로 훨씬 빠르다고 생각되는 '기계어'가 아닌 '바이트 코드'이다.
 
 ~이 부분은 컴파일러를 만들어 보지 않는 이상 이해하기가 힘드니 그런갑다 하고 넘어가도 될 것 같다~  
-JS는 동적 타이핑 언어이기 때문에 소스 코드를 실행하기 전에 알 수 없는 값들이 너무 많다고 한다.  
+JS는 동적 타이핑 언어이기 때문에 소스 코드를 실행하기 전에 알 수 없는 값들이 너무 많다.  
 그래서 Ignition이 모든 소스 코드를 한 번에 해석하는 컴파일 방식이 아닌 한 줄씩 실행하는 인터프리터 방식을 사용함으로써 다음 세 가지 이점을 얻었다고 한다.
 
 > 1. 메모리 사용량 감소. 자바스크립트 코드에서 기계어로 컴파일하는 것보다 바이트 코드로 컴파일하는 것이 더 편하다.
@@ -157,12 +157,11 @@ OptimizationReason RuntimeProfiler::ShouldOptimize(JSFunction function, Bytecode
 
 ## 3. Node.js의 이벤트 루프
 
-참고: https://www.korecmblog.com/node-js-event-loop/#nodejs%EC%9D%98-%EA%B5%AC%EC%A1%B0 , https://evan-moon.github.io/2019/08/01/nodejs-event-loop-workflow/  
-사진출처: https://www.korecmblog.com/node-js-event-loop/#nodejs%EC%9D%98-%EA%B5%AC%EC%A1%B0
+참고 및 사진 출처: https://www.korecmblog.com/node-js-event-loop/#nodejs%EC%9D%98-%EA%B5%AC%EC%A1%B0 , https://evan-moon.github.io/2019/08/01/nodejs-event-loop-workflow/
 
-Node.js는 JS와 마찬가지로 싱글 스레드 논 블로킹이라고 한다.  
+Node.js는 JS와 마찬가지로 싱글 스레드 논 블로킹이다.  
 Node.js는 하나의 스레드로 동작하지만 I/O 작업이 발생하는 경우 이를 비동기적으로 처리하는 로직을 가지고 있어 블로킹 없이 수행할 수 있으며 이를 도와주는 것이 이벤트 루프이다.  
-다만 좀 헷갈릴 수 있는 점은 Node.js는 싱글 스레드이지만 작업을 처리하는 별도의 스레드풀을 가지고 있다는 것이다(무슨 말인지는 아래를 보면 이해할 수 있다).
+다만 좀 헷갈릴 수 있는 점은 Node.js는 싱글 스레드이지만 작업을 처리하는 별도의 스레드풀을 가지고 있다(무슨 말인지는 아래를 보면 이해할 수 있다).
 
 ### Node.js 이벤트 루프에 관한 궁금한 점 요약
 
@@ -177,9 +176,9 @@ Node.js는 하나의 스레드로 동작하지만 I/O 작업이 발생하는 경
 ![노드의 내부 구조](https://user-images.githubusercontent.com/63287638/179388041-6c07a1a1-1249-4d60-a199-f2bc59a77bf1.png)
 
 위 구조에서 핵심은 libuv와 비동기 I/O이다.  
-libuv는 c++로 작성된 비동기 I/O 라이브러리로, 운영체제의 커널을 추상화한 Wrapping 라이브러리이다.  
+libuv는 c++로 작성된 비동기 I/O 라이브러리로, 운영체제의 커널을 추상화한 라이브러리이다.  
 만약 소스 코드에서 즉, Node.js에서 비동기 작업을 요청하면 libuv는 이 작업을 커널이 지원하는지 확인한다.  
-만약 지원한다면 Node.js 대신 커널에게 비동기적으로 요청했다가 응답이 오면 그 응답을 Node.js에게 전달해준다.  
+만약 지원한다면 Node.js 대신 커널에게 비동기적으로 요청했다가 응답이 오면 그 응답을 Node.js에게 전달한다.  
 만약 요청한 작업이 커널에서 지원하지 않는다면 워커 스레드가 담긴 풀에 이 요청을 처리할 것을 명령한 뒤, 응답을 전달받는다.  
 실제로 node를 실행한 뒤 `ps` 등의 명령어로 확인해보면 여러 개의 node 스레드가 존재하는 것을 확인할 수 있다.  
 스레드 풀에는 기본적으로 4개의 스레드가 있는데 최대 128개까지 늘릴 수 있다.  
@@ -209,7 +208,7 @@ Node.js로 어떠한 JS 파일을 실행할 때의 과정은 다음과 같다.
 `Timer Phase` -> `Pending Callbacks Phase` -> `Idle, Prepare Phase` -> `Poll Phase` -> `Check Phase` -> `Close Callbacks Phase` 이러한 순서를 거치며 한 Phase를 넘어가는 것을 Tick이라고 표현한다.  
 점선으로 된 `nextTickQueue`나 `microTaskQueue`는 정확히 말하자면 이벤트 루프에 속한 큐는 아니며 [아래](https://github.com/mochang2/development-diary/edit/main/027-V8%20engine.md#nexttickqueue-micortaskqueue)에서 더 설명하겠다.
 
-참고로 '시스템의 실행 한도에 다다르면' 이라는 표현을 쓴 이유는 스레드가 가리키고 있는 어떤 Phase에서 작업을 하고 있을 때 해당 작업을 완료하기 전에 다른 작업이 계속 들어올 경우 다른 Phase로 넘어가지 못하는 상황을 막기 위해 존재하는 limit(?) 기능이다.
+참고로 '시스템의 실행 한도에 다다르면' 이라는 표현을 쓴 이유는 스레드가 가리키고 있는 어떤 Phase에서 작업을 하고 있을 때 해당 작업을 완료하기 전에 다른 작업이 계속 들어올 경우 다른 Phase로 넘어가지 못하는 상황을 막기 위해 존재하는 limit 기능이다.
 
 #### Timer Phase
 
@@ -248,13 +247,13 @@ watcher_queue 내부에 파일 읽기의 응답 콜백, HTTP 응답 콜백 등�
 
 #### Close Callbacks Phase
 
-이벤트 루프가 Close callback들과 함께 종료되고나면 이벤트 루프는 다음에 돌아야할 루프가 있는지 다시 체크 하게 된다.  
+이벤트 루프가 Close callback들과 함께 종료되면 이벤트 루프는 다음에 돌아야할 루프가 있는지 다시 체크 하게 된다.  
 만약 아니라면 그대로 이벤트 루프는 종료된다.  
-하지만 만약 더 수행해야할 작업들이 남아 있다면 이벤트 루프는 다음 순회를 돌기 시작하고 다시 `Timer Phase`부터 시작하게 된다.
+하지만 만약 더 수행해야할 작업들이 남아 있다면 이벤트 루프는 다음 순회를 돌기 시작하고 다시 `Timer Phase`부터 시작한다.
 
 #### NextTickQueue, microTaskQueue
 
-Node.js의 버전에 따라 동작 방식이 달라지지만 아래 설명하는 방식은 v11 이후의 동작 방식이다.
+아래 설명하는 방식은 Node.js v11 이후의 동작 방식이다.
 
 이 두 개의 큐는 이벤트 루프의 일부가 아니라 libuv에 구현되어 있지 않고 Node.js에 구현되어 있다.  
 또한 이 큐들은 '시스템의 실행 한도'에 영향받지 않고 큐가 비워질 때까지 콜백들을 실행한다(따라서 이를 이용한 재귀 함수는 무한 반복되지 않도록 특히 조심해야 한다).  
@@ -406,7 +405,7 @@ _출처: https://deepu.tech/memory-management-in-v8/_
 - **New Space**: 대부분의 새 object들이 존재. Scavenger라는 minor GC가 관리하는 두 개의 작은 semi space(from-space와 to-space)가 존재. 새 object에 대한 메모리를 할당하고자 할 때 메모리가 부족하면, fragmentation을 없앰으로써 새 object를 compact하고 clean하게 관리하기 위해 사용됨.
 - **Old Space**: new Space에서 오래 남아있는 object들이 옮겨짐. Mark and Sweep 알고리즘을 사용하는 major GC에 의해 관리됨. 다른 object에 대한 포인터를 가지고 있는 Old pointer space와 데이터만 가지고 있는 Old data space로 이루어짐.
 - **Large object space**: 크기가 큰 object가 저장됨.
-- **Code space**: JIT(Just In Time) compiler가 complie된 code block을 저장. V8 Engine 중에서 유일하게 실행 가능한 메모리.
+- **Code space**: JIT(Just In Time) compiler가 compile된 code block을 저장. V8 Engine 중에서 유일하게 실행 가능한 메모리.
 
 ### 스택
 
