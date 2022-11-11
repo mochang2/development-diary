@@ -71,7 +71,7 @@ body.innerHTML =
 DOM 요소를 삽입할 때 쓰인다.  
 [MDN](https://developer.mozilla.org/ko/docs/Web/API/Element/insertAdjacentHTML)과 https://dev.to/jeannienguyen/insertadjacenthtml-vs-innerhtml-4epd 에 따르면
 
-> `insertAdjacentHTML` 메서드는 HTML or XML 같은 특정 텍스트를 파싱하고, 특정 위치에 DOM tree 안에 원하는 node들을 추가 한다. 이미 사용중인 element 는 다시 파싱하지 않는다. 그러므로 element 안에 존재하는 element를 건드리지 않는다. `innerHtml`보다 작업이 덜 드므로 빠르다.
+> `insertAdjacentHTML` 메서드는 HTML or XML 같은 특정 텍스트를 파싱하고, 특정 위치에 DOM tree 안에 원하는 node들을 추가한다. 이미 사용중인 element 는 다시 파싱하지 않는다. 그러므로 element 안에 존재하는 element를 건드리지 않는다. `innerHtml`보다 작업이 덜 드므로 빠르다.
 
 > `insertAdjacentHTML` 메서드는 호출된 element를 reparse하지 않으므로 요소를 손상시키지 않는다. `insertAdjacentHTML`는 element를 연속적으로 serialize하고 reparse하지 않기 때문에 콘텐츠가 많을 때마다 추가 속도가 느려지는 `innerHtml`보다 훨씬 빠르다.
 
@@ -278,9 +278,6 @@ Element의 closest() 메서드는 주어진 CSS 선택자(`querySelector`와 같
       // div 안에 놓인 div인 가장 가까운 조상
       console.log(el.closest('div div')) // <div id="div-03">
 
-      // div
-      console.log(el.closest('div div')) // <div id="div-03">
-
       // div면서 article을 부모로 둔 가장 가까운 조상
       console.log(el.closest('article > div')) // <div id="div-01">
 
@@ -307,9 +304,9 @@ event delegation의 장점은 다음과 같다.
 4. 메모리 누수 가능성도 줄어든다. 등록 핸들러 자체가 줄어들기 때문에 메모리 누수 가능성도 줄어든다.
 
 ```javascript
-const element = document.getElementById('parent') // 상위 element
+const parent = document.getElementById('parent') // 상위 element
 
-element.addEventListener('click', (e) => {
+parent.addEventListener('click', (e) => {
   const child = e.target.closest('#child') //
 
   if (!child) {
@@ -344,7 +341,7 @@ element.addEventListener('click', (e) => {
       const modal = document.querySelector('div.modal')
 
       modal.addEventListener('click', (e) => {
-        console.log(e.target) // 가장 안에 있는 div를 클릭하면 <div>공간</div>. div.modal을 클릭하면 <div class="modal">...</div>
+        console.log(e.target) // 가장 안에 있는 div를 클릭하면 <div>공간공간</div>. div.modal을 클릭하면 <div class="modal">...</div>
         console.log(e.currentTarget) // 항상 <div class="modal">...</div>
       })
     </script>
@@ -359,7 +356,7 @@ element.addEventListener('click', (e) => {
 `keypress`는 그 중간에서 발생하는 event이다.
 
 `keydown`과 `keyup`은 물리적인 키들을 다루지만 `keypress` 그렇지 않다.  
-무슨 뜻이냐면 delete, arrows, esc, ctrol, alt, shift 등은 `keypress`가 감지할 수 없다는 의미이다.  
+무슨 뜻이냐면 delete, arrows, esc, ctrl, alt, shift 등은 `keypress`가 감지할 수 없다는 의미이다.  
 그래서 esc 키를 감지하고 싶다면 아래와 같은 방식으로 사용해야 된다.
 
 ```javascript
