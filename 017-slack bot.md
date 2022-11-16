@@ -16,14 +16,14 @@ slack에 Heytaco라는 앱이 있다.
 1. 앱이 특정 채널에 추가될 때 추가된 채널을 사용자에게 보여준다(이 채널에서는 칭찬을 하면 칭찬 스티커가 소모됨을 알려주기 위해). 앱이 해당 채널에서 삭제되면 해당 정보도 삭제된다.
 2. 동시에 해당 채널의 사용자들의 정보를 DB 테이블에 업데이트한다.
 3. 앱이 추가된 채널에서 사용자가 조건에 맞는 칭찬 문구를 입력하면 본인이 가진 칭찬 스티커는 감소하고, 칭찬을 들은 사람이 보유한 스티커는 늘어난다.
-4. 이 때, 여러 사용자를 동시에 멘션하거나, 칭찬 스티커를 한 번에 여러 개를 줄 수 있으며, 본인이 가지고 있는 칭찬 스티커를 초과하면 더 이상의 칭찬 스티커를 줄 수 없어야 한다.
+4. 칭찬 스티커를 한 번에 한 명에게 여러 개를 줄 수 있다. 하지만 여러 사용자를 동시에 멘션하거나, 본인이 가지고 있는 칭찬 스티커를 초과하면 더 이상의 칭찬 스티커를 줄 수 없어야 한다.
 5. 앱이 추가된 채널에서 사용자를 추가하면 DB 테이블에 해당 사용자 정보가 업데이트된다.
 6. 칭찬 스티커를 받은 개수를 한 눈에 볼 수 있는 리더보드가 존재한다.
 7. 매일 줄 수 있는 칭찬 스티커는 5개로 제한되어 있기 때문에 매일 12시에 칭찬 스티커의 개수가 5개로 리셋된다.
 8. 특정 시기마다(분기별) 칭찬 스티커를 받은 사람의 등수를 csv 파일로 저장한 뒤 DB에서 칭찬을 받은 누적 개수는 0개로 리셋된다.
 
 7, 8번 기능 때문에 다양한 방법을 고민했는데, 속편히 크론잡을 만들기로 했다.  
-setTimeout 같은 함수는 오차가 크기 때문에 사용하지 않았다.
+`setTimeout` 같은 함수는 오차가 크기 때문에 사용하지 않았다.
 
 ## 2. 삽질1 - app 메인 화면 띄우기
 
@@ -139,7 +139,24 @@ const messageChannel = async (event: MessageEvent, client) => {
 `@slack/bolt` 파일을 타고 들어가면 다음과 같이 선언되어 있다.
 
 ```typescript
-export declare type MessageEvent = GenericMessageEvent | BotMessageEvent | ChannelArchiveMessageEvent | ChannelJoinMessageEvent | ChannelLeaveMessageEvent | ChannelNameMessageEvent | ChannelPostingPermissionsMessageEvent | ChannelPurposeMessageEvent | ChannelTopicMessageEvent | ChannelUnarchiveMessageEvent | EKMAccessDeniedMessageEvent | FileShareMessageEvent | MeMessageEvent | MessageChangedEvent | MessageDeletedEvent | MessageRepliedEvent | ThreadBroadcastMessageEvent;
+export declare type MessageEvent =
+  | GenericMessageEvent
+  | BotMessageEvent
+  | ChannelArchiveMessageEvent
+  | ChannelJoinMessageEvent
+  | ChannelLeaveMessageEvent
+  | ChannelNameMessageEvent
+  | ChannelPostingPermissionsMessageEvent
+  | ChannelPurposeMessageEvent
+  | ChannelTopicMessageEvent
+  | ChannelUnarchiveMessageEvent
+  | EKMAccessDeniedMessageEvent
+  | FileShareMessageEvent
+  | MeMessageEvent
+  | MessageChangedEvent
+  | MessageDeletedEvent
+  | MessageRepliedEvent
+  | ThreadBroadcastMessageEvent
 ```
 
 `MessageEvent` 타입을 사용하려면 뒤에 선언된 이벤트가 가진 모든 property를 139번째 줄에서 선언한 변수인 `event`가 가지고 있어야 한다.  
