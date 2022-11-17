@@ -206,9 +206,15 @@ export default function App() {
 
 - 장점
   - style이 해당 컴포넌트에만 적용된다(unique한 class name이 생겨 style 간에 충돌이 날 일이 없다).
+  - 클래스 이름을 최소화할 수 있다(경량화).
   - css가 js object가 되기 때문에 export, reuse, extend가 가능하다.
+  - 미사용 코드 검출이 가능하다.
+  - css와 js의 상태 공유가 가능하다.
+  - 현재 사용중인 스타일만 DOM에 포함한다.
 - 단점
   - third-party js library를 추가적으로 설치해야 해서 프로젝트가 무거워질 수 있다.
+  - 러닝 커브가 존재한다.
+  - css in css(css 모듈 방식)에 비해 속도가 느리다.
 
 다양한 방법으로 구현이 가능하지만 많이 사용되는 tailwind css / styled component / emotion 3가지에 관해 간단한 차이점 위주로 정리해보고자 한다.  
 추가적으로 전부 dev dependency에 설치할 줄 알았지만 tailwind css는 dependency에 설치하라고 공식문서에 나와 있었다.
