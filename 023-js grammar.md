@@ -70,6 +70,7 @@ TDZ는 스코프 시작부터 초기화 시작 사이의 구간을 의미한다.
 즉, 선언 부분을 포함한다.
 
 `var`와 같은 경우는 선언과 초기화가 동시에 일어나 TDZ의 영향을 받지 않지만, `let`, `const`와 같은 경우 선언과 초기화가 따로 발생하여 TDZ의 영향을 받는다.  
+JS에서 TDZ는 ReferenceError를 발생시켜 선언 전에 변수 사용을 허용하지 않는다.  
 `let`, `const`뿐만 아니라 JS의 `class`나 `super()`, 함수의 매개변수 등도 TDZ의 영향을 받는다(<=> `var`, `function`).
 
 **잘못 알고 있던 부분**
@@ -392,7 +393,7 @@ const user1 = new User('Steve', 'Jobs', -1)
 console.log(user1.age)
 ```
 
-누누히 얘기했듯이 js는 interpreter처럼 작동. constructor에서 this.age = age; 라는 부분이 쓰이면 object가 생성되길 기다리는 것이 아니라, 'this.age'는 get을 '= age;'는 set을 부르게 됨.  
+누누이 얘기했듯이 js는 interpreter처럼 작동. constructor에서 this.age = age; 라는 부분이 쓰이면 object가 생성되길 기다리는 것이 아니라, 'this.age'는 get을 '= age;'는 set을 부르게 됨.  
 만약 getter와 setter에서 this.\_age가 아닌 this.age를 썼다면 다시 this.age = value;는 getter와 setter를 호출하게 되어 결과적으로 callstack이 다 찼다는 에러 메시지가 나옴.
 
 2.  public, private
