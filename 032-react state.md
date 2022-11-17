@@ -789,8 +789,7 @@ function App() {
 
 위와 같은 상황에서 `ChildComponent1`, `ChildComponent2`, `GrandChildComponent1`은 사용하지도 않는 context 때문에 불필요하게 re-rendering됐다.  
 이러한 상황을 막기 위한 해결책 중 하나가 memoization이다(실제로 많은 블로그에서 그렇게 이야기한다).  
-다만 나는 이 방법이 완벽한 해결책이라고 생각하지 않는다.  
-왜냐하면 결국 메모이제이션은 props를 비교하기 위한 비용이 발생하기 때문이다.
+어차피 컴포넌트를 re-rendering 해야 하는지 비교하는 비용은 발생되기 때문이다.
 
 ##### 불필요한 re-rendering 제거
 
