@@ -102,7 +102,7 @@ nav {
     color: #000;
     /* .... */
 
-    &: list-child {
+    &:last-child {
       text-decoration: underline;
       /* ..... */
     }
@@ -368,7 +368,7 @@ _cf) sass(scss) 컴파일 방식에 대해서 궁금하다면 [Ruby를 통한 sc
 3. `npm install --dev sass-loader` 또는 `yarn add -D sass-loader`을 실행한다.  
    `sass-loader`는 webpack에 필요한 loader이다.
 
-4. webpack.config.js를 수정한다.
+4. `webpack.config.js`를 수정한다.
 
 ```javascript
 module.exports = {
