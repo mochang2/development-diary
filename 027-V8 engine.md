@@ -168,7 +168,7 @@ Node.js는 하나의 스레드로 동작하지만 I/O 작업이 발생하는 경
 **1. 이벤트 루프는 JS 엔진 내부에 있지 않다.** 이벤트 루프는 단지 JS 코드를 실행하기 위해 JS 엔진을 이용하는 것이다. 실제로 V8 엔진에는 이벤트 루프를 관리하는 코드가 없다.  
 **2. 이벤트 루프에는 스택은 존재하지 않고 여러 개의 큐만 존재한다.**  
 **3. 이벤트 루프는 단 하나의 스레드로 실행된다.**  
-**4. setTimeout을 0으로 지정해도 최소 1ms 이상은 sleep하게 된다.**
+**4. setTimeout을 0으로 지정해도 최소 1ms 이상은 sleep하게 된다.**  
 **5. Node.js는 I/O 작업을 자신의 메인 스레드가 아닌 다른 스레드에게 위임함으로써 논 블로킹 I/O를 지원한다.**
 
 ### Node.js의 내부 구조
@@ -251,7 +251,7 @@ watcher_queue 내부에 파일 읽기의 응답 콜백, HTTP 응답 콜백 등�
 만약 아니라면 그대로 이벤트 루프는 종료된다.  
 하지만 만약 더 수행해야할 작업들이 남아 있다면 이벤트 루프는 다음 순회를 돌기 시작하고 다시 `Timer Phase`부터 시작한다.
 
-#### NextTickQueue, microTaskQueue
+#### NextTickQueue, MicroTaskQueue
 
 아래 설명하는 방식은 Node.js v11 이후의 동작 방식이다.
 
@@ -395,7 +395,7 @@ setTimeout(foo, 2)
 
 V8 Engine의 메모리 구조는 아래 사진과 같다.
 
-![v8 memory structure](https://user-images.githubusercontent.com/63287638/180597792-1d9feead-6d75-4b9a-bd9b-3dff72336404.png)
+![v8 memory structure](https://user-images.githubusercontent.com/63287638/180597792-1d9feead-6d75-4b9a-bd9b-3dff72336404.png)  
 _출처: https://deepu.tech/memory-management-in-v8/_
 
 ### 힙
