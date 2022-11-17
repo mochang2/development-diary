@@ -814,7 +814,7 @@ class Parent {
 class Parent {
   constructor() {
     this.getName = () => {
-      console.log('my name is 심재철')
+      console.log('parent')
     }
   }
 }
