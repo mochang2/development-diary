@@ -173,7 +173,7 @@ const element = {
 ```
 
 위 `element`는 `ReactDOM.render`라는 함수에 의해서 실제 DOM 요소가 된다.  
-react의 element는 DOM 요소의 가상 버전으로, light & immutable && stateless하다는 특징을 가지고 있다.
+react의 element는 DOM 요소의 가상 버전으로, light && immutable && stateless하다는 특징을 가지고 있다.
 
 ### diffing
 
@@ -210,11 +210,11 @@ react에서 state나 props가 갱신되면 `render` 함수는 새로운 React �
 
 O(n)의 시간 복잡도를 가진 diffing 알고리즘은 루트 노드부터 DOM tree를 bfs의 일종인 level-by-level로 탐색하여 html element 타입에 따라 다르게 행동한다.
 
-**1) 비교하는 두 element 타입이 다른 경우**
+**1) 비교하는 두 element 타입이 다른 경우**  
 각 HTML 태그마다 자기만의 규칙이 있어서 그 아래 들어가는 자식 태그가 한정적이다.  
 예를 들어 `<ul>`이나 `<ol>` 태그 바로 밑에는 `<li>` 태그만 담기게 되거나 `<img>`나 `<iframe>`는 자식 element를 절대 갖지 않는다.
 
-만일 `<div>` 태그 안에 `<p>` 태그가 있었는데 `<div>`가 `<span>` 태그로 바뀐다면, 설령 자식 태그가 그대로라 할지라도 CSSOM(`display: block;`)이 변하기 때문에 렌더링 결과물은 어차피 달라진다.  
+만일 `<div>` 태그 안에 `<p>` 태그가 있었는데 `<div>`가 `<span>` 태그로 바뀐다면, 설령 자식 태그가 그대로라 할지라도 CSSOM(`display: block -> inline-block;`)이 변하기 때문에 렌더링 결과물은 어차피 달라진다.  
 이런 점을 생각했을 때, 부모 태그의 타입이 바뀌는 순간 그 아래 모든 자식 태그들은 굳이 탐색할 것 없이 새로 render하는 편이 더 효율적이라고 가정한다.
 
 물론 이러한 가정 때문에 비효율적일 수도 있다.  
