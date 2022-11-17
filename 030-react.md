@@ -97,7 +97,7 @@ vanilla.js는 아마 `const header2 = document.createElement('h1')`를 선언한
 1. 가독성이 좋다(이거는 내가 단순히 jsx에 익숙해져서 그럴 수도 있는 것 같다).
 2. 추상화를 이용하기 때문에 재사용하기 쉽다.
 3. 결과 예측이 쉽다. 위 예시에서 vanilla.js는 최소 둘 이상의 변수가 필요하지만, react는 변수가 전혀 필요가 없다. 변수에 어떤 값들이 저장되었는지 트래킹을 해야되는데, 변수가 많이 사용되면 디버깅이 어려워진다.
-4. 유지보수가 좋다(위 예시에서는 와닿지 않을 수도 있지만 많은 데이터를 갖는 object 형식을 사용한다고 생각하면 와닿을 것이다)
+4. 유지보수가 좋다(위 예시에서는 와닿지 않을 수도 있지만 많은 데이터를 갖는 object 형식을 사용한다고 생각하면 와닿을 것이다).
 
 +) 추가사항  
 만약 react에서 DOM을 변경할 때 기존 element를 완전히 제거하고 새로운 element를 생성한다면 다음과 같은 문제가 발생한다.
@@ -328,7 +328,7 @@ react v16.8에서 hook이라는 개념이 등장하면서 함수형 컴포넌트
 그래서 그 당시에 굳이 함수형 컴포넌트를 쓰고 싶었다면 별도로 클래스형 컴포넌트를 생성하거나 부모 컴포넌트로 'lift the state up'한 뒤 자식 컴포넌트에서 받아쓰는 방법으로 구현해야 됐다고 한다.
 
 `useState` 훅이 등장하면서 함수형 컴포넌트에서 별도로 state 관리가 가능해졌고 'lift the state up'과 같은 방법을 사용하지 않을 수 있게 되었다.  
-`useState`는 JS의 [클로져](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#3-closure)라는 개념을 활용하여 구현했다고 한다.
+`useState`는 JS의 [클로저](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#3-closure)라는 개념을 활용하여 구현했다고 한다.
 
 _참고) hook 사용 규칙_
 
