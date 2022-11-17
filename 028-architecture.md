@@ -3,7 +3,7 @@
 React를 개발하다 보면 매번 좋은 구조가 무엇인지 헷갈린다.  
 좋은 구조에는 정답이 없고 프로젝트의 성격마다 좋은 구조가 다르다는 것은 알지만 그럼에도 어떤 구조가 좋은지 끊임없이 고민하게 되고 시간을 소비하게 된다.  
 심지어 vanilla js로 개발할 때도 비슷한 고충을 겪는다.  
-프론트엔드 아키텍처의 전반적인 흐름을 공부하면 그러한 시간을 줄까 싶어 일단 공부를 시작했다.
+프론트엔드 아키텍처의 전반적인 흐름을 공부하면 그러한 시간을 줄일 수 있을까 싶어 일단 공부를 시작했다.
 
 아래 코드들은 대부분 예전에 쓴 코드를 고쳐서 간단하게만 썼고, 자세한 문법은 공식 문서나 각종 커뮤니티를 찾아보는 것이 더 좋다.
 
@@ -342,6 +342,27 @@ class UserList extends React.Component {
 
 ```javascript
 // 분리한 뒤
+// UserListContainer.js
+import React from 'react'
+
+class UserListContainer extends React.Component {
+  constructor() {
+    this.state = {
+      users: [],
+    }
+  }
+
+  componentDidMount() {
+    fetchUsers('/users')
+      .then((res) => res.json())
+      .then((res) => this.setState({ users: res.users }))
+  }
+
+  render() {
+    return <UserList users={this.state.users} />
+  }
+}
+
 // UserList.js
 import React from 'react'
 
@@ -353,33 +374,12 @@ class UserList extends React.Component {
   render() {
     return (
       <ul>
-        {this.state.users.map(user => {
+        {this.state.users.map((user) => {
           return <li key={user.id}>{user.name}</li>
         })}
       </ul>
     )
   }
-}
-
-// UserListContainer.js
-import React from 'react'
-
-class UserListContainer extends React.Component {
-  constructor() {
-    this.state = {
-      users: []
-    }
-  }
-
-	componentDidMount() {
-		fetchUsers("/users")
-			.then(res => res.json())
-			.then(res => this.setState({ users: res.users }))
-	}
-
-	render() {
-		return <UserList users={this.state.users}>
-	}
 }
 ```
 
@@ -396,7 +396,7 @@ View에서는 Dispatch를 통해 Action을 전달하면 Action은 Reducer를 통
 
 ### MVI(상태 관리 아키텍처)
 
-사용자가 한 행동을 서로 다르지만 같은 결과를 만들어내기도 한다.
+사용자가 한 행동이 서로 다르지만 같은 결과를 만들어내기도 한다.
 예를 들어, 사용자가 마우스 휠을 돌리는 행위와 (foucs된 창에서) 키보드 방향키를 누르는 행위는 결과적으로 같은 결과를 야기한다.  
 이를 토대로 비즈니스 로직을
 
