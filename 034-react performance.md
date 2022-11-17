@@ -662,14 +662,14 @@ tree shaking 미적용
 
 ![1](https://user-images.githubusercontent.com/63287638/193747023-e02e258c-7fa8-4ba1-8395-b6d171331efc.png)
 
-**결과 2**
+**결과 2**  
 tree shaking 적용, `"sideEffects": false`, `import * as utils from './lib/utils`  
 tree shaking 적용, `"sideEffects": false`, `import { getToday } from './lib/utils`
 
 ![2,3](https://user-images.githubusercontent.com/63287638/193747025-53d02473-375e-4d1d-b118-39616832e918.png)
 
-**결과 3**
-tree shaking 미적용, `import dayjs from 'dayjs` 삭제, `import { getToday } from './lib/utils`
+**결과 3**  
+tree shaking 미적용, `import dayjs from 'dayjs` 삭제, `import { getToday } from './lib/utils`  
 tree shaking 미적용, `import dayjs from 'dayjs` 삭제, `import * as utils from './lib/utils`
 
 **tree shaking 적용 x, 사용 안 하는 모듈 전부 삭제, default import**
