@@ -575,7 +575,7 @@ console.dir(aa) // 아래와 같이 [[Scopes]] 내부에 closure 존재
 
 ### 클로저 장점 1. 은닉화
 
-ES6에서 class 문법이 생기면서 private을 사용할 수 있지만, [prototype](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#2-prototype)처럼 JS는 여전히 프로토타입 기반의 언어이며 내부 동작 방식이 같지 않다.
+ES6에서 class 문법이 생기면서 private을 사용할 수 있지만, 그 전에는 변수 앞에 `_`를 붙여서 private property라는 것을 표현했다.
 
 ```javascript
 function hello(name) {
