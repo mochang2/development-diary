@@ -1472,7 +1472,7 @@ data-fetching 라이브러리라고 해서 처음에 착각했던 것은 `axios`
 
 ### swr vs react-query
 
-**두 라이브러리르 직접 사용해보진 않았고 블로그 글들을 토대로 요약한 것. 추후에 추가할 예정**
+**두 라이브러리를 직접 사용해보진 않았고 블로그 글들을 토대로 요약한 것. 추후에 추가할 예정**
 
 `swr`과 `react-query`는 같은 지향점 서로에게 영향을 준 라이브러리이다 보니 대개 함수 이름만 대체하면 변경할 수 있다.
 공통적으로 query, caching, polling, parallel queries, initial data, window focus re-fetching, network status re-fetching, global error handling 등의 기능을 제공한다.
