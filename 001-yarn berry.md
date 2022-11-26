@@ -67,7 +67,7 @@ _참고: https://developer0809.tistory.com/128_
 
 [위키피디아](<https://ko.wikipedia.org/wiki/Yarn_(%ED%8C%A8%ED%82%A4%EC%A7%80_%EA%B4%80%EB%A6%AC%EC%9E%90)>)에 따르면 yarn은 Node.js 런타임 환경을 위해 페이스북이 개발한 소프트웨어 패키지 시스템이다.
 
-다음은 npm과 비교했을 때의 yarn의 장점이 있다.
+다음은 npm과 비교했을 때의 yarn의 장점이다.
 
 - yarn은 로컬 캐시로부터 패키지를 설치할 수 있다.
 - yarn은 데이터 무결성 보장을 위해 체크섬을 사용하는 반면 npm은 SHA-512를 사용하여 다운로드된 패키지의 데이터 무결성을 검사한다.
