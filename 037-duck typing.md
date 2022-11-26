@@ -19,8 +19,6 @@ duck typing은 dynamic typing의 한 종류로, 객체의 변수 및 메소드�
 
 ### 수도 코드 예시
 
-아래는 duck typing을 JS로 최대한 나타낸 본 것이다.
-
 ```text
 function calculate(a, b, c) => return (a+b)*c
 ```
