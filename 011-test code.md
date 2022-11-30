@@ -157,6 +157,95 @@ afterAll(() => {
 5. toMatch('문자열 또는 정규표현식'): 문자열과 일치하는지 또는 정규표현식에 일치하는지 쓰인다.
 6. toThrow(argument?): 함수는 인자도 받는데 문자열을 넘기면 예외 메세지를 비교하고 정규식을 넘기면 정규식 체크를 해준다.
 
+### tset.each
+
+테스트 코드도 유지보수의 대상이다.  
+최대한 사람의 직접적인 수정이 덜 필요하게 만들어야 하기 때문에 다음과 같이 반복문적인 부분을 제공한다.
+
+```javascript
+test.each([[999], [0], [-123], [NaN], ['string'], [12.34]])(
+  `옵션이 ~~이 아니라면 에러를 반환한다.`,
+  (command) => {
+    expect(() => {
+      // 함수 실행
+    }).toThrow()
+  }
+)
+```
+
+### Mocking
+
+###### 우테코 프리코스의 코드를 이용한 예제. 참고로 `MissionUtils`는 우테코에서 제공하는 모듈이다.
+
+#### jest.fn
+
+사용자 입력이나 랜덤값 등 테스트를 진행하기 위해 필요한 동작을 하는 가짜(mock) 함수로 만들어준다.
+
+```javascript
+// 원래는 콘솔의 입력을 받는 함수
+const mockQuestions = (answers) => {
+  MissionUtils.Console.readLine = jest.fn()
+  answers.reduce((acc, input) => {
+    return acc.mockImplementationOnce((_, callback) => {
+      callback(input)
+    })
+  }, MissionUtils.Console.readLine)
+}
+
+// 원래는 범위 안에 있는 숫자 중에서 랜덤하게 선택해서 반환하는 함수
+const mockRandoms = (numbers) => {
+  MissionUtils.Random.pickNumberInRange = jest.fn()
+  numbers.reduce((acc, number) => {
+    return acc.mockReturnValueOnce(number)
+  }, MissionUtils.Random.pickNumberInRange)
+}
+
+test('횟수 1번만에 성공한다.', () => {
+  mockRandoms([1, 0, 1])
+  mockQuestions(['3', 'U', 'D', 'U'])
+
+  const app = new App()
+  app.play()
+
+  // ...
+})
+```
+
+#### jest.spyOn
+
+어떤 객체에 속한 함수의 구현을 가짜로 대체하지 않고, 해당 함수의 호출 여부와 어떻게 호출되었는지만을 알아내야 할 때가 사용한다.  
+아래와 같이 콘솔에 출력된 내용을 확인하는 용도로 사용할 수 있다.
+
+```javascript
+const getLogSpy = () => {
+  const logSpy = jest.spyOn(MissionUtils.Console, 'print')
+  logSpy.mockClear()
+  return logSpy
+}
+
+const expectLogContains = (received, logs) => {
+  logs.forEach((log) => {
+    expect(received).toEqual(expect.stringContaining(log))
+  })
+}
+
+test('횟수 1번만에 성공한다.', () => {
+  const logSpy = getLogSpy()
+
+  const app = new App()
+  app.play()
+
+  const log = getOutput(logSpy)
+  expectLogContains(log, [
+    '최종 게임 결과',
+    '[ O |   | O ]',
+    '[   | O |   ]',
+    '게임 성공 여부: 성공',
+    '총 시도한 횟수: 1',
+  ])
+})
+```
+
 ## 5. 후기
 
 ### 오류 났던 부분들
