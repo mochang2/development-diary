@@ -188,14 +188,14 @@ var userModule = (function () {
   }
 })()
 
-console.log(userModule.create('Julia', 'hello123'))
-console.log(userModule.create('Julia', 'hello123'))
-console.log(userModule.create('Julia', 'hello123'))
-console.log(userModule.create('Paul', 'hello456'))
+console.log(userModule.create('Julia', 'hello123')) // { id: 0, username: 'Julia', password: 'hello123' }
+console.log(userModule.create('Julia', 'hello123')) // { id: 0, username: 'Julia', password: 'hello123' }
+console.log(userModule.create('Julia', 'hello123')) // { id: 0, username: 'Julia', password: 'hello123' }
+console.log(userModule.create('Paul', 'hello456')) // { id: 1, username: 'Paul', password: 'hello456' }
 
-console.log(userModule.get('Julia'))
-console.log(userModule.get('Paul'))
-console.log(userModule.get('Mike'))
+console.log(userModule.get('Julia')) // { id: 0, username: 'Julia', password: 'hello123' }
+console.log(userModule.get('Paul')) // { id: 1, username: 'Paul', password: 'hello456' }
+console.log(userModule.get('Mike')) // null
 ```
 
 ES7 이후에는 `static`이라는 너무 간단한 명령어가 생겼다.
