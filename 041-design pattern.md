@@ -22,8 +22,7 @@
 https://joshua1988.github.io/web-development/javascript/javascript-pattern-design/#%ED%8C%A9%ED%86%A0%EB%A6%AC-%ED%8C%A8%ED%84%B4  
 https://sangcho.tistory.com/entry/%EC%9B%B9%EA%B0%9C%EB%B0%9C%EC%9E%90%EA%B0%80%EC%95%8C%EC%95%84%EC%95%BC%ED%95%A07%EA%B0%80%EC%A7%80%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4  
 https://im-developer.tistory.com/141  
-https://www.devh.kr/2021/Design-Patterns-In-JavaScript/  
-https://gyoogle.dev/blog/design-pattern/Singleton%20Pattern.html
+https://www.devh.kr/2021/Design-Patterns-In-JavaScript/
 
 ## 1. 디자인 패턴이란
 
@@ -44,6 +43,9 @@ https://gyoogle.dev/blog/design-pattern/Singleton%20Pattern.html
 
 ### Singleton
 
+참고  
+https://gyoogle.dev/blog/design-pattern/Singleton%20Pattern.html
+
 한 클래스 안에 하나의 객체만 유지하도록 하여 race condition 문제를 해결하기 위한 패턴이다.
 
 생성자가 여러 번 호출되어도 실제로 생성되는 객체는 하나이며 최초로 생성된 이후에 호출된 생성자는 이미 생성한 객체를 반환하도록 만든다.  
@@ -55,6 +57,8 @@ https://gyoogle.dev/blog/design-pattern/Singleton%20Pattern.html
 - 단점
   - 혼자 너무 많은 일을 하거나 많은 데이터를 공유하면 개방-폐쇄 원칙에 위배된다.
   - 결합도가 높아지면 유지 보수나 테스트가 힘들어진다.
+
+#### 코드 예시
 
 `class` 문법이 나오기 전까지는 다음과 같이 사용했다.
 
@@ -128,3 +132,106 @@ class UserModule {
 ### Mediator
 
 ### Observer
+
+참고  
+https://velog.io/@haero_kim/%EC%98%B5%EC%A0%80%EB%B2%84-%ED%8C%A8%ED%84%B4-%EA%B0%9C%EB%85%90-%EB%96%A0%EB%A8%B9%EC%97%AC%EB%93%9C%EB%A6%BD%EB%8B%88%EB%8B%A4  
+https://velog.io/@hanna2100/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4-2.-%EC%98%B5%EC%A0%80%EB%B2%84-%ED%8C%A8%ED%84%B4-%EA%B0%9C%EB%85%90%EA%B3%BC-%EC%98%88%EC%A0%9C-observer-pattern  
+https://gyoogle.dev/blog/design-pattern/Observer%20Pattern.html
+
+publisher / subscriber 패턴이라고도 불린다.  
+객체 간의 결합도를 낮추는 것이 주요 목적인 디자인 패턴이다.
+
+어떠한 객체의 상태가 변경될 때마다 다른 객체들도 변하거나, 특정 동작을 유도하고 싶을 때 보통 사용된다.  
+observer는 subject의 변화 상태를 구독하다가 변화가 발생되었다는 이벤트를 받으면 등록된 동작을 수행한다.
+
+다음과 같은 특징이 있다.
+
+- 장점
+  - 실시간으로 한 객체의 변경 사항을 다른 객체에 전파할 수 있다.
+  - 느슨한 결합으로 subject, observer를 독립적으로 사용할 수 있다. 이로 인해 언제든지 observer를 새로 추가, 삭제가 가능하며 변경되어도 서로에게 영향을 미치지 않을 수 있다.
+- 단점
+  - 상태 관리가 힘들 수도 있다.
+  - 데이터 배분을 잘 해야 한다.
+
+JS의 `addEventlistener`가 이러한 패턴을 응용했다고 볼 수 있다.  
+콜백을 전달함으로써 observer 패턴을 구현할 수도 있지만 다음 예제에서는 subject가 observer의 주소값을 내부적으로 가지고 있는 형태로 구현했다.\
+
+#### 코드 예시
+
+날씨 정보를 다루는 클래스가 있다고 가정하자.
+
+```javascript
+class WeatherController {
+  measureChanges() {
+    const temperature = getTemperature()
+    const humidity = getHumidity()
+    const pressure = getPressure()
+
+    currentWeatherView.update(temp, humidity, pressure)
+    forecastWeatherView.update(temp, humidity, pressure)
+    staticsticView.update(temp, humidity, pressure)
+  }
+}
+```
+
+만약 위의 코드에서 풍향과 같은 새로운 정보를 추가하고자 하면 `measureChanges` 메서드 또한 변경해야 하는 불편함이 존재한다.
+
+observer 패턴은 주로 interface를 많이 사용하지만 JS는 없는 문법이니 base 클래스로 강제화했다.
+
+```javascript
+const ERROR = '상속받은 클래스는 해당 메서드를 구현해야 합니다.'
+
+class ViewController {
+  registerView(view) {
+    throw new Error(ERROR)
+  }
+
+  removeView(view) {
+    throw new Error(ERROR)
+  }
+
+  updateViews() {
+    throw new Error(ERROR)
+  }
+}
+
+class View {
+  update({ temperature, humidity, pressure }) {
+    throw new Error(ERROR)
+  }
+}
+```
+
+```javascript
+class WeatherController extends ViewController {
+  constructor() {
+    super()
+
+    this.views = []
+  }
+
+  registerView(view) {
+    // view 추가
+  }
+
+  removeView(view) {
+    // view 삭제
+  }
+
+  updateViews() {
+    // this.views 순회하며 update 호출
+  }
+}
+
+class CurrentWeatherView extends View {
+  constructor(controller) {
+    super()
+
+    controller.registerView(this)
+  }
+
+  update({ temperature, humidity, pressure }) {
+    // 화면 업데이트
+  }
+}
+```
