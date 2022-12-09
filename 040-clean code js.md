@@ -508,7 +508,7 @@ console.log(name) // 'Ryan McDermott';
 console.log(newName) // ['Ryan', 'McDermott'];
 ```
 
-**side effect를 피하라(part1).**
+**side effect를 피하라(part2).**
 
 input만을 이용해서 (메모리 값을 바꾸지 않고) output을 만들도록 함수를 구현하라.
 
