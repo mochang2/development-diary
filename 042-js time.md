@@ -259,10 +259,10 @@ console.log(new Intl.DateTimeFormat('en-US', options).format(date))
 
 ## 5. `moment.js`
 
-개인적인 생각으로 시간 표시가 많지 않고 중요하지 않은 웹 페이지면 안 사용하는 게 더 좋은 것 같다.  
+개인적인 생각으로 시간 표시가 많지 않고 중요하지 않은 웹 페이지면 서드 파티 라이브러리를 사용하지 않는 게 더 좋은 것 같다.  
 어플리케이션이 무거워지기 때문이다.
 
-하지만 클린한 코드를 위해서 datetime 관련 라이브러리를 사용해야 한다면 적어도 `moment.js`는 피해야된다.  
+하지만 클린한 프로젝트를 위해서 datetime 관련 라이브러리를 사용해야 한다면 적어도 `moment.js`는 피해야된다.  
 [공식 문서에서도 deprecated 된다고 한다](https://momentjs.com/docs/)
 
 사용하지 말아야 할 이유는 다음과 같다.
