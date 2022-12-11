@@ -255,7 +255,7 @@ observer는 subject의 변화 상태를 구독하다가 변화가 발생되었�
   - 데이터 배분을 잘 해야 한다.
 
 JS의 `addEventlistener`가 이러한 패턴을 응용했다고 볼 수 있다.  
-콜백을 전달함으로써 observer 패턴을 구현할 수도 있지만 다음 예제에서는 subject가 observer의 주소값을 내부적으로 가지고 있는 형태로 구현했다.\
+콜백을 전달함으로써 observer 패턴을 구현할 수도 있지만 다음 예제에서는 subject가 observer의 주소값을 내부적으로 가지고 있는 형태로 구현했다.
 
 #### 코드 예시
 
