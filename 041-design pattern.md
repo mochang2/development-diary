@@ -19,7 +19,7 @@
 [Observer](#observer)
 
 참고  
-https://joshua1988.github.io/web-development/javascript/javascript-pattern-design
+https://joshua1988.github.io/web-development/javascript/javascript-pattern-design  
 https://sangcho.tistory.com/entry/%EC%9B%B9%EA%B0%9C%EB%B0%9C%EC%9E%90%EA%B0%80%EC%95%8C%EC%95%84%EC%95%BC%ED%95%A07%EA%B0%80%EC%A7%80%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4  
 https://im-developer.tistory.com/141  
 https://www.devh.kr/2021/Design-Patterns-In-JavaScript/
@@ -40,6 +40,46 @@ https://www.devh.kr/2021/Design-Patterns-In-JavaScript/
 생성 패턴은 **인스턴스 만드는 절차를 추상화**하는 패턴이다.  
 생성 패턴에 속하는 패턴들은 객체를 생성, 합성하는 방법이나 객체의 표현 방법을 시스템과 분리한다.  
 생성 패턴을 이용하면 무엇이 생성되고, 누가 이것을 생성하며, 이것이 어떻게 생성되는지, 언제 생성할 것인지 결정하는 데 유연성을 확보할 수 있게 된다.
+
+#### 객체
+
+참고  
+https://ko.wikipedia.org/wiki/%EA%B0%9D%EC%B2%B4_(%EC%BB%B4%ED%93%A8%ED%84%B0_%EA%B3%BC%ED%95%99)  
+http://klausbreaktime.blogspot.com/2017/07/blog-post.html  
+https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=tipsware&logNo=221029211791
+
+생성 패턴에서 공통적으로 사용되는 '객체'의 개념을 먼저 정리하고자 한다.  
+가장 중요한 오해인 `객체 지향 = 클래스`를 해소하기 위한 장이다.  
+클래스는 객체 타입을 정의하기 위한 한 가지 문법일 뿐이다.  
+~공부하면서 느끼는 건데 나중에 꼭 '객체지향의 사실과 오해'를 정독해야겠다.~
+
+관점에 따라 '객체'에 대한 정의가 달라진다.
+
+- 모델링 관점에서는 명확한 의미를 담고 있는 대상 또는 개념
+- 프로그래머 관점에서는 클래스에서 생성된 변수
+- 소프트웨어 개발 관점에서는 객체의 상태를 나타내는 데이터(property)와 그 데이터를 처리하거나 참조하는 함수(method)
+- 객체지향 프로그래밍 관점에서는 소프트웨어 관점에서 본 데이터를 속성으로 변경하여 속성과 메서드 형태로 구현
+
+쉽지는 않지만 한 마디로 객체를 정의하자면 **행위나 작업을 표준화시켜서 메모리에 표현된 것** 정도로 이야기할 수 있다.
+
+객체 지향의 핵심은 책임을 적절히 분배 받은(단일 책임 원칙) 객체 간의 협력이다.
+
+객체의 책임은 크게 '하는 것'과 '아는 것'의 두 가지 범주로 분류된다.
+
+- 하는 것
+  - 객체를 생성하거나 계산을 하는 등의 스스로 하는 것
+  - 다른 객체의 행동을 시작시키는 것
+  - 다른 객체의 활동을 제어하고 조절하는 것
+- 아는 것
+  - 개인적인 정보에 관해 아는 것
+  - 관련된 객체에 관해 아는 것
+  - 자신이 유도하거나 계산할 수 있는 것에 관해 아는 것
+
+객체의 특징은 다음과 같다.
+
+1. 객체는 동작해야 한다.
+2. 객체는 자율적이어야 한다. 자신이 어떤 책임을 수행하는 지만 공개하고 어떻게 수행하는지는 자신이 스스로 결정해서 감춰야 한다(은닉). 상태는 그저 객체가 적절히 행동할 수 있게 도와주는 용도일 뿐이다.
+3. 객체는 자율적인 존재이다. 객체지향의 세계에서 객체는 다른 객체의 상태에 직접적으로 접근할 수도, 상태를 변경할 수도 없다. 자율적인 객체는 스스로 자신의 상태를 책임져야 한다.
 
 ### Builder
 
