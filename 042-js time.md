@@ -29,7 +29,7 @@ https://yceffort.kr/2020/12/why-moment-has-been-deprecated
 *초*라는 시간 단위가 1967년 바뀌면서 현재는 GMT를 국제 표준으로 삼고 있지 않다.
 
 그래서 *초*의 개념을 세슘 원자의 진동수를 기준으로 재정립했다.  
-그리고 바뀐 초의 정의를 기반으로 만든 시간 체계를 **IAT(International Atomic Time)**라고 불렀다.
+그리고 바뀐 초의 정의를 기반으로 만든 시간 체계를 **IAT(International Atomic Time)** 라고 불렀다.
 
 이후 윤초를 추가함으로써 초의 정의를 바꾸지 않고 시간을 보정할 수 있는 UTC의 개념을 정립했다.
 
