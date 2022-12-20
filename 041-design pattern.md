@@ -43,7 +43,7 @@ http://klausbreaktime.blogspot.com/2017/07/blog-post.html
 https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=tipsware&logNo=221029211791
 
 공통적으로 사용되는 '객체'의 개념을 먼저 정리하고자 한다.  
-가장 중요한 오해인 `객체 지향 = 클래스`를 해소하기 위한 장이다.  
+가장 중요한 오해인 `객체 지향 = 클래스`를 해소하기 위한 내용이다.  
 클래스는 객체 타입을 정의하기 위한 한 가지 문법일 뿐이다.  
 ~공부하면서 느끼는 건데 나중에 꼭 '객체지향의 사실과 오해'를 정독해야겠다.~
 
@@ -79,6 +79,11 @@ https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=tipsware&log
 생성 패턴은 **인스턴스 만드는 절차를 추상화**하는 패턴이다.  
 생성 패턴에 속하는 패턴들은 객체를 생성, 합성하는 방법이나 객체의 표현 방법을 시스템과 분리한다.  
 생성 패턴을 이용하면 무엇이 생성되고, 누가 이것을 생성하며, 이것이 어떻게 생성되는지, 언제 생성할 것인지 결정하는 데 유연성을 확보할 수 있게 된다.
+
+생성 패턴에는 중요한 두 가지 이슈가 있다.
+
+- 시스템이 어떤 Concrete Class를 사용하는지에 대한 정보를 캡슐화한다.
+- 이들 클래스의 인스턴스들이 어떻게 만들고 어떻게 결합하는지에 대한 부분을 완전히 가린다.
 
 ### Builder
 
@@ -180,6 +185,174 @@ const tourplan2 = new TourPlan.TourPlanBuilder({ date: '2022-12-31' })
 ```
 
 ### Factory
+
+참고  
+https://readystory.tistory.com/117  
+https://readystory.tistory.com/119  
+https://biggwang.github.io/2019/06/28/Design%20Patterns/%5BDesign%20Patterns%5D%20%ED%8C%A9%ED%86%A0%EB%A6%AC%20%ED%8C%A8%ED%84%B4,%20%EB%8F%84%EB%8C%80%EC%B2%B4%20%EC%99%9C%20%EC%93%B0%EB%8A%94%EA%B1%B0%EC%95%BC-%EA%B8%B0%EB%B3%B8%20%EC%9D%B4%EB%A1%A0%ED%8E%B8/  
+https://velog.io/@ellyheetov/Factory-Pattern  
+https://dev-youngjun.tistory.com/195
+
+**객체 생성 하는 코드를 분리하여 클라이언트 코드와의 결합도(의존성)를 낮추기 위한 패턴이다.**  
+여기서 클라이언트 코드란 객체 생성과 관련된 코드를 호출시키는 부분을 이야기한다.  
+Factory Method 패턴이라고도 한다.
+
+팩토리 패턴에서는 객체를 생성하기 위한 인터페이스를 정의하는데, 어떤 클래스의 인스턴스를 만들지는 서브 클래스에서 결정하게 만들게 한다.  
+어떤 클래스가 자신이 생성해야 하는 객체의 클래스를 예측할 수 없거나 생성할 객체를 기술하는 책임을 서브 클래스에 전가할 때 사용된다.
+
+- 장점
+  - 종속성을 낮추고 결합을 느슨하게 하여 확장을 용이하게 한다.
+  - 클라이언트 구현 객체들 사이에 추상화를 제공한다.
+- 단점
+  - 클래스가 많아진다.
+  - 클라이언트가 creator 클래스를 반드시 상속해 product 클래스를 생성해야 한다(아래 코드 예시 확인).
+
+#### 코드 예시
+
+```javascript
+class Product {
+  constructor() {}
+}
+
+class User {
+  constructor() {
+    this.product = new Product()
+  }
+}
+```
+
+위 `Product` 클래스와 `User` 클래스는 의존 관계에 있어, 결합도가 높다.  
+특히 아래와 같이 확장되면 확장할 때 큰 문제가 있다.
+
+```javascript
+class Product {
+  constructor({ type }) {}
+}
+
+class NormalUser extends User {
+  // 일반 사용자, 관리자 등
+  constructor() {
+    this.product = new Product({})
+  }
+}
+
+class AbnormalUser extends User {
+  // 밴 당한 사용자, 휴면 계정의 사용자 등
+  constructor() {
+    this.product = new Product({})
+  }
+}
+```
+
+만약 `Product` 클래스 생성자를 변경할 일이 생긴다면, 모든 `User` 관련 클래스들에 변경 사항이 생긴다.  
+아래와 같이 `Factory`라는 하나의 클래스에서 인스턴스를 생성해줌으로써(예시를 `class` 문법을 썼을 뿐이지 그냥 함수를 써도 무방) `User` 관련 클래스들은 `Product`의 생성자가 변경되어도 추가적으로 수정할 필요가 없다.
+
+```javascript
+class Product {
+  // ...
+}
+
+class Factory {
+  static getInstance() {
+    return new Product()
+  }
+}
+
+class NormalUser {
+  constructor() {
+    this.product = Factory.getInstance()
+  }
+}
+```
+
+팩토리 패턴이라고 할 때 많이 나오는 예시로, 아래와 같은 경우도 있다.  
+팩토리 클래스에서 어떤 타입의 인스턴스가 반환될지 결정(은닉)해 해당 인스턴스를 반환하는 것이다.
+
+```javascript
+class UserFactory {
+  static getInstance({ type }) {
+    switch (type) {
+      case 'normal':
+        return new NormalUser()
+      case 'abnormal':
+        return new AbnormalUser()
+
+        throw new Error('invalid user type')
+    }
+  }
+}
+
+class NormalUser extends User {
+  // ...
+}
+
+class AbnormalUser extends User {
+  // ...
+}
+
+// app.js
+const user1 = UserFactory.getInstance({ type: 'normal' })
+```
+
+다만 위 `UserFactory` 클래스와 같은 경우는 개방 폐쇄 원칙에 위반된다.  
+또 다른 `considerableUser` 등 다양한 `User` 클래스가 생기면 `UserFactory` 클래스도 변경해야 되기 때문이다.  
+`UserFactory`에서 `if-else`나 `switch-case`를 걷어내는 방법이 아래의 추상 팩토리 패턴이다.
+
+#### Abstract Factory
+
+추상 팩토리 패턴은 인풋으로 서브 클래스에 대한 식별 데이터를 받은 것이 아니라 또 하나의 팩토리 클래스를 받는다.
+
+바로 코드 예시로 보겠다.  
+객체 지향 문법이 필요해서 이번에는 TS로 예시를 들었다.
+
+```typescript
+abstract class User {
+  constructor() {}
+
+  login() {}
+
+  logout() {}
+}
+
+class NormalUser extends User {
+  // ...
+}
+
+class AbnormalUser extends User {
+  // ...
+}
+
+interface userFactory {
+  createUser: () => void
+}
+
+class NormalUserFactory implements userFactory {
+  constructor() {}
+
+  createUser() {
+    return new NormalUser()
+  }
+}
+
+class AbnormalUserFactory implements userFactory {
+  constructor() {}
+
+  createUser() {
+    return new AbnormalUser()
+  }
+}
+
+// consumer class
+class UserFactory {
+  static getUser(factory: userFactory) {
+    return new factory.createUser()
+  }
+}
+
+// app.js
+const adminUser = UserFactory.getUser(new NormalUserFactory())
+const bannedUser = UserFactory.getUser(new AbormalUserFactory())
+```
 
 ### Singleton
 
