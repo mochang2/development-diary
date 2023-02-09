@@ -152,43 +152,46 @@ body {
    재사용성에 도움이 되는 속성이다.  
    함수처럼 default parameter를 지정할 수 있고, parameter를 받아서 속성을 부여할 수 있다.
 
-```css
-/* css */
-.id {
-  background: rgb(169, 169, 169);
-  box-shadow: 0 0 1px rgba(169, 169, 169, 0.25);
-  color: #fff;
+```scss
+@mixin center($size: 12px, $color: #000) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: $size;
+    color: $color;
+    @content;
 }
 
-.password {
-  background: rgb(139, 0, 0);
-  box-shadow: 0 0 1px rgba(139, 0, 0, 0.25);
-  color: #fff;
-}
-
-.email {
-  background: rgb(0, 100, 0);
-  box-shadow: 0 0 1px rgba(0, 100, 0, 0.25);
-  color: #fff;
+.container {
+    @include center($color: green);
+    .child {
+        @include center(16px) {
+            position: relative;
+            top: 0;
+        }
+    }
 }
 ```
 
-```scss
-// scss
-@mixin theme($theme: rgb(169, 169, 169)) {
-  background: $theme;
-  box-shadow: 0 0 1px rgba($theme, 0.25);
-  color: #fff;
+위 SCSS 코드는 아래와 같이 컴파일 됨.
+
+```css
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    color: green;
 }
 
-.id {
-  @include theme;
-}
-.password {
-  @include theme($theme: rgb(139, 0, 0));
-}
-.email {
-  @include theme($theme: rgb(0, 100, 0));
+.container .child {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    color: #000;
+    position: relative;
+    top: 0;
 }
 ```
 
