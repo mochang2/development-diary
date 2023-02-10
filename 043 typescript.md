@@ -1,6 +1,8 @@
 ## 0. 공부하게 된 계기
 
-TS를 어떻게 하면 TS 용도에 맞게 쓸 수 있을까 하여 공부한 내용을 정리하고자 한다.
+TS를 어떻게 하면 TS 용도에 맞게 쓸 수 있을까 하여 공부한 내용을 정리하고자 한다.  
+[inpa tistory](https://inpa.tistory.com/category/Language/TypeScript?page=1) 여기 블로그에 더 많이 정리되어 있다.  
+나중에 부족한 부분 자주 보면서 채워 넣어야겠다.
 
 [TS 시작하기](https://github.com/mochang2/development-diary/new/main#1-ts-%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0)  
 [Type Casing](https://github.com/mochang2/development-diary/new/main#2-type-casing)  
@@ -11,7 +13,12 @@ TS를 어떻게 하면 TS 용도에 맞게 쓸 수 있을까 하여 공부한 �
 [tsconfig.json 내 compileOptions 정리](https://github.com/mochang2/development-diary/new/main#7-tsconfigjson-%EB%82%B4-compileoptions-%EC%A0%95%EB%A6%AC)  
 [interface 사용법](https://github.com/mochang2/development-diary/new/main#8-interface-%EC%82%AC%EC%9A%A9%EB%B2%95)  
 [class](https://github.com/mochang2/development-diary/new/main#9-class)  
-[generic 사용법](https://github.com/mochang2/development-diary/new/main#10-generic-%EC%82%AC%EC%9A%A9%EB%B2%95)
+[generic 사용법](https://github.com/mochang2/development-diary/new/main#10-generic-%EC%82%AC%EC%9A%A9%EB%B2%95)  
+[object](https://github.com/mochang2/development-diary/edit/main/043%20typescript.md#11-object)  
+[공변성 / 반공병성](https://github.com/mochang2/development-diary/edit/main/043%20typescript.md#12-%EA%B3%B5%EB%B3%80%EC%84%B1covariance-%EB%B0%98%EA%B3%B5%EB%B3%91%EC%84%B1contravariance)  
+[타입 가드](https://github.com/mochang2/development-diary/edit/main/043%20typescript.md#13-%ED%83%80%EC%9E%85-%EA%B0%80%EB%93%9C)  
+[enum](https://github.com/mochang2/development-diary/edit/main/043%20typescript.md#14-enum)  
+[조건부 타입](https://github.com/mochang2/development-diary/edit/main/043%20typescript.md#15-%EC%A1%B0%EA%B1%B4%EB%B6%80-%ED%83%80%EC%9E%85)  
 
 ## 1. TS 시작하기
 
@@ -85,6 +92,40 @@ if (typeof a !== "string") {
 
 [개념 정리](https://it-eldorado.tistory.com/127)  
 [모듈 type 없을 때 사용법](https://kong-dev.tistory.com/164)
+
+#### namespace
+
+[참고](https://inpa.tistory.com/entry/TS-%F0%9F%93%98-%ED%83%80%EC%9E%85%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8A%B8-%EB%AA%A8%EB%93%88-%EB%84%A4%EC%9E%84%EC%8A%A4%ED%8E%98%EC%9D%B4%EC%8A%A4-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EC%9D%B4%ED%95%B4%ED%95%98%EA%B8%B0)
+
+`namespace`와 `module`은 각각 내부 모듈(기능에 따라 구분된 논리적 그룹), 외부 모듈을 가리킴.  
+키워드는 다르지만 사실상 역할과 기능상 차이(import 여부 정도 빼고)가 없음.  
+실제로 컴파일 후에도 동일하게 작동하는 코드를 반환.
+
+다만 공식문서에 따르면 **모던 코드들에 대해 ES Module 을 사용할 것을 권장함.**
+
+```ts
+// main.ts
+console.log(Dom.add(1, 2)); // 3
+console.log(Dom.sub(1, 2)); // -1
+```
+
+```ts
+// namespace1.ts
+namespace Dom {
+    export function add(x: number, y: number): number {
+        return x + y;
+    }
+}
+```
+
+```ts
+// namespace2.ts
+namespace Dom {
+    export function sub(x: number, y: number): number {
+        return x - y;
+    }
+}
+```
 
 ## 7. `tsconfig.json` 내 compileOptions 정리
 
@@ -188,6 +229,36 @@ type PerType = Bird | Fish;
 ```
 
 ```ts
+interface UserProfile {
+    username: string;
+    email: string;
+    profilePhotoUrl: string;
+}
+
+type UserProfileUpdate = {
+    [p in keyof UserProfile]?: UserProfile[p];
+}; // Partial과 같은 기능
+
+/*
+type UserProfile = {
+    username: string;
+    email: string;
+    profilePhotoUrl: string;
+}
+
+type UserProfileUpdate = {
+    username?: string;
+    email?: string;
+    profilePhotoUrl?: string;
+}
+*/
+
+interface I {
+    [(K in "prop1") | "prop2"]: string; // interface는 이와 같은 표현 불가능
+}
+```
+
+```ts
 // Declaration Merging
 // type은 같은 이름을 사용하면 에러 발생
 interface MergingInterface {
@@ -204,6 +275,7 @@ console.log(mi.a, mi.b); // 에러 나지 않음. 선언이 합쳐지기 때문
 
 ## 9. class
 
+TS에서는 클래스 자체가 하나의 객체 타입.  
 기본 접근 제어자는 `public`.  
 strict 옵션이 켜져 있다고 가정.
 
@@ -328,3 +400,340 @@ function setProp<T, K extends keyof T>(obj: T, key: K, value: T[K]): void {
     obj[key] = value;
 }
 ```
+
+## 11. object
+
+primitive type이 아닌 것(`array`, `object` 등)을 나타내고 싶을 때 사용
+
+_참고) 객체(함수도 포함) 자체를 타입을 지정할 수 있음._
+
+```ts
+const obj = {
+    red: "apple" as const,
+    yellow: "banana",
+    green: "cucumber",
+};
+
+type Fruit = typeof obj;
+/*
+type Fruit = {
+    red: "apple";
+    yellow: string;
+    green: string;
+}
+*/
+
+let obj2: Fruit = {
+    red: "apple",
+    yellow: "orange",
+    green: "pinnut",
+};
+```
+
+## 12. 공변성(Covariance), 반공병성(Contravariance)
+
+> 공변성: A가 B의 서브타입이면 T\<A\>는 T\<B\>의 서브타입이다.
+> 반공변성: A가 B의 서브타입이면 T\<B\>는 T\<B\>의 서브타입이다.
+
+TS의 모든 타입들은 기본적으로 공변성 규칙을 따르지만, 함수의 매개변수는 반공병성을 따름.  
+단, 함수의 리턴값은 공병성을 따름.
+
+아래는 공변성, 반공변성의 예시.
+
+```ts
+// 공변성
+
+let stringArray: Array<string> = [];
+let array: Array<string | number> = [];
+// stringArray <: array
+
+array = stringArray; // OK
+stringArray = array; // Error
+
+// --------------------------------------------------
+
+let subObj: { a: string; b: number } = { a: "1", b: 1 };
+let superObj: { a: string | number; b: number } = { a: "1", b: 1 }; // OK
+
+// subObj <: superObj
+superObj = subObj; // OK
+subObj = superObj; // Error
+```
+
+```ts
+// 반공병성
+type Logger<T> = (param: T) => void;
+
+let logNumber: Logger<number> = (param) => {
+    console.log(param); // number
+};
+
+let log: Logger<string | number> = (param) => {
+    console.log(param); // string | number
+};
+
+logNumber = log; // OK
+log = logNumber; // Error
+```
+
+```ts
+// 매개변수 타입은 같고, 리턴값 타입이 다를때
+
+function a(x: string): number {
+    return 0;
+}
+
+type B = (x: string) => number | string;
+
+let b: B = a;
+```
+
+```ts
+function a(x: string): number | string {
+    return 0;
+}
+
+type B = (x: string) => number;
+
+let b: B = a; // string | number' 형식은 'number' 형식에 할당할 수 없습니다.
+```
+
+
+## 13. 타입 가드
+
+`as`로 타입 단언을 할 수 있지만 웬만하면 `unknown`일 때만 쓰는 것이 좋음.
+
+JS에서도 존재하는 `typeof`, `instanceOf`, `in` 등을 이용해 타입 가드를 지정해줄 수 있지만 custom type 같은 경우 `is`를 이용해 아래와 같이 가능.
+
+```ts
+interface Cat {
+    meow: number;
+}
+interface Dog {
+    bow: number;
+}
+
+function isDog(a: Cat | Dog): a is Dog {
+    return (a as Dog).bow ? true : false;
+}
+
+function pet(a: Cat | Dog) {
+    isDog(a) ? console.log(a.bow) : console.log(a.meow);
+}
+```
+
+## 14. enum
+
+c++의 enum하고 기본적으로 비슷.  
+숫자 enum이면 0부터 순차적으로 증가. 문자 enum이면 그러한 기능 없음.
+
+```ts
+enum Week {
+    Sun,
+    Mon,
+    Tue,
+    Wed,
+    Thu,
+    Fri,
+    Sat,
+}
+
+console.log(Week.Sun); // 0
+console.log(Week["Sun"]); // 0
+console.log(Week[0]); // 'Sun'
+
+let weekName: string = Week[0];
+console.log(weekName); // 'Sun'
+```
+
+위와 같이 enum은 키값으로도, 인덱스로도 접근할 수 있으므로 아래와 같은 결과가 나옴.
+
+```ts
+console.log(Object.keys(Week)); // ['0', '1', ... '6', 'Sun', 'Mon', ... , 'Sat']
+```
+
+enum을 사용하면 아래와 같이 쉽게 언어 매핑도 가능.
+
+```ts
+enum Priority {
+    High,
+    Medium,
+    Low,
+}
+
+enum Language {
+    KO,
+    EN,
+}
+
+export const PRIORITY_NAME_MAP_KO = {
+    [Priority.High]: "높음",
+    [Priority.Medium]: "중간",
+    [Priority.Low]: "낮음",
+};
+
+export const PRIORITY_NAME_MAP_EN = {
+    [Priority.High]: "high",
+    [Priority.Medium]: "medium",
+    [Priority.Low]: "low",
+};
+
+class Todo {
+    priority;
+
+    constructor(priority: Priority) {
+        this.priority = priority;
+    }
+
+    getPriority(language: Language) {
+        switch (language) {
+            case Language.KO: {
+                console.log(`${PRIORITY_NAME_MAP_KO[this.priority]}`);
+            }
+            case Language.EN: {
+                console.log(`${PRIORITY_NAME_MAP_EN[this.priority]}`);
+            }
+            default: {
+                console.log("invalid language");
+            }
+        }
+    }
+}
+
+const t: Todo = new Todo(Priority.High);
+t.getPriority(Language.KO); // 높음
+```
+
+**컴파일 이후에도 객체가 남기 때문에 번들 파일이 커질 수 있음**  
+빈번하게 접근하지 않는 enum 객체라면 아래 예시처럼 const enum 사용 고려.
+
+```ts
+enum Bool {
+    True,
+    False,
+    FileNotFound,
+}
+let value = Bool.FileNotFound;
+```
+
+위 코드는 아래와 같이 트랜스파일 됨.
+
+```js
+var Bool;
+(function (Bool) {
+    Bool[(Bool["True"] = 0)] = "True";
+    Bool[(Bool["False"] = 1)] = "False";
+    Bool[(Bool["FileNotFound"] = 2)] = "FileNotFound";
+})(Bool || (Bool = {}));
+let value = Bool.FileNotFound;
+```
+
+반면
+
+```ts
+const enum Bool {
+    True,
+    False,
+    FileNotFound,
+}
+let value = Bool.FileNotFound;
+// 다만 Bool[2] 처럼 reverse 매핑이 불가능함
+```
+
+위 코드는 아래와 같이 트랜스파일 됨.
+
+```js
+let value = 2;
+// const enum은 내부 상수값들이 전부 compile 단계에서 내부 필드를 전부 상수로 변경
+```
+
+#### enum 대체하기
+
+`as const` 키워드를 사용하면 `enum`에 비해 트랜스파일된 후 용량에 비해 작고, `const enum`에 비해 트랜스파일된 후 용량에 비해 큼.
+
+```ts
+enum Bool {
+    True,
+    False,
+    FileNotFound,
+}
+
+// >>
+
+const Bool = {
+    True: 0,
+    False: 1,
+    FileNotFound: 2,
+} as const;
+
+// >>
+
+const enum Bool {
+    True,
+    False,
+    FileNotFound,
+}
+```
+
+## 15. 조건부 타입
+
+3항 연산자를 타입에 사용한 것.
+
+```ts
+interface isDataString<T extends boolean> {
+    data: T extends true ? string : number;
+    isString: T;
+}
+
+const str: isDataString<true> = {
+    data: "홍길동", // String
+    isString: true,
+};
+
+const num: isDataString<false> = {
+    data: 9999, // Number
+    isString: false,
+};
+```
+
+#### infer
+
+기본 사용법: `T extends infer U ? X : Y`  
+의미: TS 트랜스파일러가 U 타입을 추론할 수 있으면 X 타입, 아니면 Y타입
+
+```ts
+type MyReturnType<T extends (...args: any) => any> = string; // "string"으로 바로 명시
+
+function fn(num: number) {
+    return num.toString();
+}
+
+const a: MyReturnType<typeof fn> = "Hello";
+console.log(a); //Hello
+```
+
+위와 같은 코드는 함수의 return 값이 string이면 아무 문제가 없음.  
+하지만 number가 필요한 상황이 된다면 union 값을 사용하거나 또 다른 타입을 선언해야 함.  
+그래서 TS는 내부적으로 아래와 같은 유틸리티 함수가 선언되어 있음.
+
+```ts
+type ReturnType<T extends (...args: any) => any> = T extends (
+    ...args: any
+) => infer R
+    ? R
+    : any;
+```
+
+아래와 같이 유용하진 않지만 `infer`의 또다른 예시가 있음.
+
+```ts
+// 유용하진 않지만 또다른 예시
+type PromiseType<T> = T extends Promise<infer U> ? U : never;
+
+type A = PromiseType<Promise<number>>; // number
+
+type B = PromiseType<Promise<string | boolean>>; // string | boolean
+
+type C = PromiseType<number>; // never
+```
+
