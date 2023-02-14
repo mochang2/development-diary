@@ -20,6 +20,7 @@ angular는 jQuery를 써서 DOM을 조작(느리고)했고 앱이 커질수록 u
 - [명령형 프로그래밍 vs 선언형 프로그래밍](https://github.com/mochang2/development-diary/blob/main/030-react.md#1-%EB%AA%85%EB%A0%B9%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Dimperative-programming-vs-%EC%84%A0%EC%96%B8%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Ddeclarative-programming)
 - [hook과 함수형 컴포넌트 vs 클래스형 컴포넌트](https://github.com/mochang2/development-diary/blob/main/030-react.md#2-hook%EA%B3%BC-%ED%95%A8%EC%88%98%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-vs-%ED%81%B4%EB%9E%98%EC%8A%A4%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8)
 - [컴포넌트 합성](https://github.com/mochang2/development-diary/blob/main/030-react.md#3-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%95%A9%EC%84%B1)
+- [포탈](https://github.com/mochang2/development-diary/edit/main/030-react.md#4-%ED%8F%AC%ED%83%88)
 
 ## 1. 명령형 프로그래밍(imperative programming) vs 선언형 프로그래밍(declarative programming)
 
@@ -679,3 +680,61 @@ const TodoList = withLoadingFeedback(
 ```
 
 +) 참고로 [공식문서](https://ko.reactjs.org/docs/composition-vs-inheritance.html)에서 '합성'은 좋은 구조이지만 '상속'을 사용하는 좋은 사례는 발견하지 못했다고 한다.
+
+## 4. 포탈
+
+참고: https://jeonghwan-kim.github.io/2022/06/02/react-portal , https://velog.io/@dfd1123/react-create-portal-%EC%97%90-%EB%8C%80%ED%95%98%EC%97%AC , https://ko.reactjs.org/docs/portals.html
+
+> Portal은 부모 컴포넌트의 DOM 계층 구조 바깥에 있는 DOM 노드로 자식을 렌더링하는 최고의 방법을 제공합니다.
+
+어플리케이션 마운트되는 위치를 이동한다는 의미이다.
+
+우형 개발자 [김정환님 블로그]에서 _모달과 같은 경우 메인 어플리케이션 UI 컨텍스트에 영향을 주지 않기 때문에 다른 돔에서 모달 앨리먼트가 변하더라도 메인 어플리케이션이 돌아가는 돔에는 영향을 주지 않을 것_ 이라고 생각해 portal이 유의미하다고 생각했다고 한다.  
+하지만 모달을 보여줄지 말지 state 관리는 보통 `App` 컴포넌트 하위에서 관리하기 때문에 개인적으로는 성능과 관련되어 유의미한 기능은 아니라고 생각한다.
+
+다른 이점이 있다면 메인 돔 외부에 엘리먼트 일부를 그림으로써 `App` 컴포넌트의 CSS 상속을 피하고, React 어플리케이션 컴포넌트 트리 구조를 따라 이벤트 버블링도 사용할 수 있다.
+
+```html
+<!-- index.html -->
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <div id="modal-root"></div>
+    <!-- 추가 -->
+</body>
+```
+
+```js
+// App.js
+import ReactDOM from "react-dom";
+
+const Modal = ({ children }) => (
+    <div className="Modal">
+        {children}
+        <button>Button</button>
+    </div>
+);
+
+const PortalModal = (props) => {
+    const modalRoot = document.querySelector("#modal-root"); // 모달이 마운트 될 엘리먼트.
+    // 모달 앨리먼트를 modalRoot에 마운트.
+    return ReactDOM.createPortal(<Modal {...props} />, modalRoot);
+};
+
+function App() {
+    const handleClick = (e) => {
+        // button에서 발생한 이벤트 버블링됨.
+        console.log(e.target); // <button>
+    };
+
+    return (
+        <div className="App" onClick={handleClick}>
+            App
+            <PortalModal>Modal</PortalModal>
+        </div>
+    );
+}
+
+export default App;
+```
+
