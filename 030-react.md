@@ -21,6 +21,7 @@ angular는 jQuery를 써서 DOM을 조작(느리고)했고 앱이 커질수록 u
 - [hook과 함수형 컴포넌트 vs 클래스형 컴포넌트](https://github.com/mochang2/development-diary/blob/main/030-react.md#2-hook%EA%B3%BC-%ED%95%A8%EC%88%98%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-vs-%ED%81%B4%EB%9E%98%EC%8A%A4%ED%98%95-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8)
 - [컴포넌트 합성](https://github.com/mochang2/development-diary/blob/main/030-react.md#3-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%ED%95%A9%EC%84%B1)
 - [포탈](https://github.com/mochang2/development-diary/edit/main/030-react.md#4-%ED%8F%AC%ED%83%88)
+- [forwardRef](https://github.com/mochang2/development-diary/edit/main/030-react.md#5-forwardref)
 
 ## 1. 명령형 프로그래밍(imperative programming) vs 선언형 프로그래밍(declarative programming)
 
@@ -689,7 +690,7 @@ const TodoList = withLoadingFeedback(
 
 어플리케이션 마운트되는 위치를 이동한다는 의미이다.
 
-우형 개발자 [김정환님 블로그]에서 _모달과 같은 경우 메인 어플리케이션 UI 컨텍스트에 영향을 주지 않기 때문에 다른 돔에서 모달 앨리먼트가 변하더라도 메인 어플리케이션이 돌아가는 돔에는 영향을 주지 않을 것_ 이라고 생각해 portal이 유의미하다고 생각했다고 한다.  
+우형 개발자 [김정환님 블로그](https://jeonghwan-kim.github.io/2022/06/02/react-portal)에서 _모달과 같은 경우 메인 어플리케이션 UI 컨텍스트에 영향을 주지 않기 때문에 다른 돔에서 모달 앨리먼트가 변하더라도 메인 어플리케이션이 돌아가는 돔에는 영향을 주지 않을 것_ 이라고 생각해 portal이 유의미하다고 생각했다고 한다.  
 하지만 모달을 보여줄지 말지 state 관리는 보통 `App` 컴포넌트 하위에서 관리하기 때문에 개인적으로는 성능과 관련되어 유의미한 기능은 아니라고 생각한다.
 
 다른 이점이 있다면 메인 돔 외부에 엘리먼트 일부를 그림으로써 `App` 컴포넌트의 CSS 상속을 피하고, React 어플리케이션 컴포넌트 트리 구조를 따라 이벤트 버블링도 사용할 수 있다.
@@ -699,8 +700,7 @@ const TodoList = withLoadingFeedback(
 <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <div id="modal-root"></div>
-    <!-- 추가 -->
+    <div id="modal-root"></div>  <!-- 추가 -->
 </body>
 ```
 
@@ -737,4 +737,31 @@ function App() {
 
 export default App;
 ```
+
+## 5. forwardRef
+
+일반적인 어플리케이션에서 사용하는 기능은 아니다.  
+보통 라이브러리 개발자들이 많이 사용한다고 한다.
+
+일반 함수나 클래스 컴포넌트는 ref를 인자로 받지도 않고, props에서도 사용할 수 없다.  
+하지만 `forwardRef` API를 활용하면 하위 컴포넌트의 두 번째 인자로 ref가 입력되어 ref를 상위에 전달할 수 있다.
+
+아래는 간단한 예시이다.
+
+```jsx
+// Input.jsx
+
+import { forwardRef } from "react";
+
+export default forwardRef(function (props = {}, ref) {
+    return (
+        <div>
+            <p>Input</p>
+            <input ref={ref} />
+        </div>
+    );
+});
+```
+
+```jsx
 
