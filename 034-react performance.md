@@ -326,6 +326,25 @@ const MemoizedComponent = memo(ChildComponent, compareProps)
 
 따라서 `React.memo`를 사용하기 전 해당 **컴포넌트의 props가 자주 변경되는지**와 자주 변경되지 않는다면 **메모이제이션이 compare보다 값어치가 있는지**를 확인해야 한다는 결론을 얻었다.
 
+_참고) class 컴포넌트의 `extends React.PureComponent`_
+
+`React.memo`랑 거의 똑같다.  
+class component의 `shouldComponentUpdate` 라이프사이클에서 `this.props`가 이전 렌더링과 바뀌었는지 얕은 비교를 통해 결정함으로써 업데이트 여부를 결정한다.  
+`React.memo`와 마찬가지로 리렌더링 비용 vs `this.props` 비교 비용을 비교하며 쓰는 것이 좋다.
+
+수도 코드 비스무리하게 쓰면 아래 정도로 표현할 수 있다.
+
+```js
+class Component extends React.Component {
+    shouldComponentUpdate() {
+        // isPropChanged = 얕은 비교의 결과
+        return isPropChanged
+            ? true // do render
+            : false; // do not render
+    }
+}
+```
+
 ### 2) key props
 
 해당 내용과 관련된 자세한 것은 [virtual DOM 파트](https://github.com/mochang2/development-diary/blob/main/029-virtual%20DOM.md#diffing-%EC%95%8C%EA%B3%A0%EB%A6%AC%EC%A6%98)에 기록해놨다.
