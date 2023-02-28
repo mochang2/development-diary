@@ -428,6 +428,89 @@ class UserModule {
 
 ### Prototype
 
+참고  
+https://www.devkuma.com/docs/design-pattern/prototype/  
+https://lee1535.tistory.com/76  
+https://keencho.github.io/posts/prototype-pattern/  
+https://readystory.tistory.com/122
+
+**original 객체를 새로운 객체에 복사해 사용자의 필요에 따라 이를 수정하는 메커니즘을 제공하는 패턴이다.**
+
+![프로토타입 패턴 구조](https://user-images.githubusercontent.com/63287638/221845994-3993921b-3d13-4943-8441-c9e95fd6e877.png)
+
+`Prototype` 인터페이스는 임의의 인터페이스를 복제하는 메서드를 가진다.  
+대부분의 경우 `clone()` 메서드 하나만 선언되어 있다.  
+`ConcretePrototype`과 `SubClassPrototyp`은 `Prototype` 인터페이스를 구현하는 클래스를 생성한다.  
+이 클래스들은 원본 객체의 데이터를 복사하는것 말고도 연결된 객체의 복사와 관련된 작업이나 전의 의존성에서 벗어나게 하는 작업 등을 수행할 수 있다.
+
+코드가 구현 클래스에 의존하지 않아야 하는 경우나 객체를 초기화하는 방법만 다를 뿐 서브 클래스의 수를 줄이려는 경우 프로토타입 패턴을 사용할 수 있다.  
+다음과 같은 특징이 있다.
+
+- 장점
+  - 구현 클래스에 직접 연결하지 않고 객체를 복사할 수 있다.
+  - 복잡한(리소스가 많이 소요되는) 오브젝트를 보다 편리하게(더 적은 리소스로) 만들 수 있다.
+  - 중복되는 초기화 코드를 제거할 수 있다.
+- 단점
+  - 순환 참조가 존재하는 경우 복제가 까다로울 수 있다.
+  - 깊은 복사를 할지, 얕은 복사를 할지 선택해야 한다.
+
+#### 코드 예시
+
+첫 번째 예시는, 초기화 시 API를 통해 데이터를 가져오는 객체가 존재한다고 하자.  
+일반적으로 네트워크 통신 및 DB 접근이 객체를 복사하는 것보다 비용이 비싸므로 비슷한 객체를 여럿 만들어야 할 때 매번 `new` 키워드로 생성한다면 많은 비용이 발생할 것이다.  
+이러한 문제를 해결하기 위해 다음과 같이 코드를 작성할 수 있다.
+
+```js
+class DataFetchComponent {
+  constructor(data = []) {
+    this.data = data
+  }
+
+  async fetch() {
+    // 비동기 처리가 되었다고 가정하자.
+    const { data } = await request('api-url')
+
+    this.data = data
+  }
+
+  clone() {
+    return new DataFetchComponent(this.data.map((datum) => datum))
+  }
+}
+
+async function useData() {
+  const component = new DataFetchComponent()
+  await component.fetch()
+
+  return {
+    forSomeReasons: component.clone(),
+    forOtherReasons: component.clone(),
+  }
+}
+```
+
+두 번째 예시로, 하나의 객체를 통해 다양한 객체를 생성할 수 있다.
+
+```js
+const harryPorterBookPrototype = {
+  title: 'Harry Porter',
+  price: '$15',
+  author: 'J.K.Rolling',
+}
+
+const harryPorterEnglishBook = Object.assign({}, harryPorterBookPrototype)
+const harryPorterKoreanBook = Object.assign({}, harryPorterBookPrototype, {
+  title: '해리 포터',
+})
+const harryPorterJapaneseBook = Object.assign({}, harryPorterBookPrototype, {
+  title: 'ハリーポッター',
+})
+
+console.log(harryPorterEnglishBook) // { title: 'Harry Porter', price: '$15', author: 'J.K.Rolling' }
+console.log(harryPorterKoreanBook) // { title: '해리 포터', price: '$15', author: 'J.K.Rolling' }
+console.log(harryPorterJapaneseBook) // { title: 'ハリーポッター', price: '$15', author: 'J.K.Rolling' }
+```
+
 ## 3. 구조 패턴
 
 ### Composite
