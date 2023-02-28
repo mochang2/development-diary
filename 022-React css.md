@@ -345,11 +345,13 @@ const Comp = styled.div`
   color: ${(props) => props.$draggable || 'black'};
 `
 
-render(
-  <Comp $draggable="red" draggable="true">
-    Drag me!
-  </Comp>
-)
+function Component() {
+  return (
+    <Comp $draggable="red" draggable="true">
+      Drag me!
+    </Comp>
+  )
+}
 ```
 
 _+) 추가사항 2_  
