@@ -513,7 +513,139 @@ console.log(harryPorterJapaneseBook) // { title: 'ハリーポッター', price:
 
 ## 3. 구조 패턴
 
+https://refactoring.guru/ko/design-patterns/structural-patterns  
+https://www.devkuma.com/docs/design-pattern/structural/
+
+구조 패턴은 **구조를 유연하고 효율적으로 유지하면서 객체들과 클래스들을 더 큰 구조로 조립하는 방법을 설명**하는 패턴이다.  
+예를 들어 서로 다른 인터페이스를 지닌 2개의 객체를 묶어 단일 인터페이스를 제공하거나 객체들을 서로 묶어 새로운 기능을 제공한다.  
+여기서 중요한 것은 인터페이스나 구현을 복합하는 것이 아니라 객체를 합성하는 방법을 제공한다는 것이다.
+
+이 패턴을 이용하면 서로 독립적으로 개발한 클래스 라이브러리를 애초에 하나였던 것처럼 사용할 수 있다.  
+또한 여러 인터페이스를 합성하여 서로 다른 인터페이스들의 통일된 추상을 제공한다.
+
 ### Composite
+
+참고  
+https://mygumi.tistory.com/343  
+https://readystory.tistory.com/131
+
+**복합 객체(group of object)나 단일 객체(an object)를 동일하게 취급하는 것을 목적으로 하는 패턴이다.**
+
+OOP에서 Composite는 하나 이상의 유사한 객체를 구성으로 설계된 객체로, 모두 유사한 기능을 나타낸다.  
+일반적으로 트리 구조에서 리프와 브랜치는 구별해서 사용되어 복잡성이 늘어나지만, 이 패턴을 사용하면 그러한 가능성이 줄어든다.  
+또한 Directory-File 관계처럼 전체-부분 관계를 나타낼 때 유용하다.
+
+아래는 Composite 패턴 UML이다.
+
+![Compositie UML](https://user-images.githubusercontent.com/63287638/222100256-a6285673-dc87-4de7-9624-206bf9d95047.png)
+
+`Client`는 컴포넌트를 사용하는 곳이다.  
+`Component`는 모든 컴포넌트들을 추상화한 개념으로, `Leaf`와 `Composite`에 대한 inteface나 abstract class이다.  
+`Leaf`는 `Composite`의 구성 요소이며 `Component`를 구현한 구현체로, 다른 컴포넌트에 대한 참조를 가지면 안 된다.  
+`Composite`는 `Leaf` 객체들로 구성되어 있으며 `Component`를 구현한 구현체다.  
+일반적으로 `Composite`는 `Leaf`를 관리(add, remove 등)하기 위한 추가적인 메서드가 필요하다.
+
+다음과 같은 특징을 가지고 있다.
+
+- 장점
+  - 객체들이 모두 같은 타입으로 취급되기 때문에 새로운 클래스 추가가 용이하다.
+  - 단일 객체 및 집합 객체를 구분하지 않고 코드 작성이 가능하여 사용자 코드가 단순해진다.
+  - 런타임 단일 객체와 집합 객체를 구분하지 않고 일관된 프로그래밍이 가능하다.
+- 단점
+  - 설계가 지나치게 범용성을 많이 가져 Composite의 구성 요소에 제약을 가하기 힘들다.
+
+#### 코드 예시
+
+~최대한 파일과 디렉터리를 활용하려는 예제를 쓰려다 보니 정말 쓸모 없고 억지스러울 수 있다.~
+
+모든 파일을 read / write 기능이 있다(그 외 기능도 있겠지만 여기서는 간단히 하기 위해 생략).  
+일반 파일은 read를 하면 파일 내용을 읽어오고, write를 하면 파일에 내용을 쓴다(여기서는 overwrite만 한다고 가정한다).  
+디렉터리는 read를 하면 내부에 저장된 파일들의 내용을 전부 읽어오고, write를 하면 모든 파일에 동일한 내용을 쓴다.  
+Composite 패턴을 사용하면 (실제로는 구분해야겠지만) 사용자는 일반 파일인지 디렉터리인지 확인할 필요 없이 interface에 정의된 메서드만으로 파일 읽기, 쓰기를 다룰 수 있게 된다.
+
+```ts
+abstract class FFile {
+  // 전역 객체 File이 존재해서 FFile이라고 명명
+  read() {
+    console.error('read를 반드시 구현해야 함')
+  }
+
+  write(text: string) {
+    console.error('write를 반드시 구현해야 함')
+  }
+}
+
+class NormalFile extends FFile {
+  constructor(private text: string = '') {
+    super()
+  }
+
+  read() {
+    console.log(this.text)
+  }
+
+  write(text: string) {
+    this.text = text
+  }
+}
+
+class DirectoryFile extends FFile {
+  constructor(private files: NormalFile[] = []) {
+    super()
+  }
+
+  read() {
+    this.files.forEach((file) => file.read())
+  }
+
+  write(text: string) {
+    this.files.forEach((file) => file.write(text))
+  }
+
+  append(newFile: NormalFile) {
+    this.files.push(newFile)
+  }
+}
+
+class Client {
+  constructor() {
+    const normalFile1 = new NormalFile()
+    normalFile1.write('일반 파일1입니다.')
+    normalFile1.read() // 일반 파일1입니다.
+
+    const normalFile2 = new NormalFile()
+    normalFile2.write('일반 파일2입니다.')
+    normalFile2.read() // 일반 파일2입니다.
+
+    const directoryFile = new DirectoryFile()
+    directoryFile.append(normalFile1)
+    directoryFile.append(normalFile2)
+    directoryFile.read() // 일반 파일1입니다. -> 일반 파일2입니다.
+
+    directoryFile.write('디렉터리입니다.')
+    directoryFile.read() // 디렉터리입니다. * 2
+  }
+}
+
+new Client()
+```
+
+위 방법은 `NormalFile`와 `DirectoryFile`를 다르게 취급하고 있다.  
+하지만 둘은 공통의 조상 클래스 `FFile`을 가지고 있으므로 리스코프 치환 원칙을 이용해 `Composite` 즉, `DirectoryFile`을 수정할 수 있다.
+
+```ts
+class DirectoryFile extends FFile {
+  constructor(private files: FFile[] = []) {
+    super()
+  }
+
+  // ...
+
+  append(newFile: FFile) {
+    this.files.push(newFile)
+  }
+}
+```
 
 ### Decorator
 
