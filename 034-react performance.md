@@ -8,6 +8,14 @@ webpack은 v5이다.
 
 ## 1. re-rendering
 
+여기서 re-rendering은 컴포넌트가 화면에 다시 그려진다는 것을 이야기하는 것이 아니다.  
+Virtual DOM이 React diffing algorithm을 통해 _이전 렌더링과 변화가 생겼을 수도 있으니 확인해봐라_ 표시이다.  
+즉, 재실행되는 개념이다.  
+따라서 불필요한 re-rendering이 많이 쌓이면 화면 변화가 느려질 수 있다.
+
+어떤 컴포넌트는 re-rendering이 발생하지 않아도 다른 컴포넌트가 re-rendering이 발생해 형태가 깨질 수도 있다.  
+이때 해당 컴포넌트의 상태가 변화하지 않아도 re-paint될 수 있다.
+
 ### 1) memoization
 
 [when to use memoization in react](https://im-developer.tistory.com/198) 이런 글들은 수두룩하지만 너무 추상적인 표현인 것 같다.  
@@ -53,31 +61,31 @@ shell script도 이용해보고, 브라우저가 아닌 node.js로도 돌려봤�
 ```javascript
 // index.js
 
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from 'App'
-import { WithMemoization, WithOutMemoization } from 'components/Test'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from 'App';
+import { WithMemoization, WithOutMemoization } from 'components/Test';
 
-const root = ReactDOM.createRoot(document.getElementById('root'))
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 if (process.env.NODE_ENV === 'development') {
-  const Benchmark = require('benchmark')
-  const suite = new Benchmark.Suite()
+  const Benchmark = require('benchmark');
+  const suite = new Benchmark.Suite();
 
   function performanceCheck1() {
     // @testing-library/react의 render는 매번 새롭게 컴포넌트를 생성하기 때문에
     // 메모이제이션이 안 되는 듯
     // root.render를 사용
-    root.render(<WithMemoization />)
+    root.render(<WithMemoization />);
   }
 
   function performanceCheck2() {
-    root.render(<WithOutMemoization />)
+    root.render(<WithOutMemoization />);
   }
 
   function compare(benchmark1, benchmark2) {
     // elapsed 기준으로 내림차순
-    return benchmark2.times.elapsed - benchmark1.times.elapsed
+    return benchmark2.times.elapsed - benchmark1.times.elapsed;
   }
 
   suite
@@ -86,7 +94,7 @@ if (process.env.NODE_ENV === 'development') {
     .on('cycle', function (event) {
       // add eventlistener
       // name, operations/second(Hz), runned samples 출력
-      console.log(String(event.target))
+      console.log(String(event.target));
     })
     .on('complete', function () {
       // console.log('Fastest is ' + suite.filter('fastest').map('name'))
@@ -94,24 +102,24 @@ if (process.env.NODE_ENV === 'development') {
       // Hz(1초에 해당 컴포넌트가 몇 번 실행될 수 있는지를 알려줌)를 비교
 
       // 리렌더링에 걸리는 시간을 알기 위해 다른 방법으로 표현
-      console.log(suite)
-      suite.sort(compare)
-      console.log('Sort by elapsed time', suite.map('name').join(' '))
+      console.log(suite);
+      suite.sort(compare);
+      console.log('Sort by elapsed time', suite.map('name').join(' '));
 
       root.render(
         <React.StrictMode>
           <App />
         </React.StrictMode>
-      )
+      );
     })
-    .run({ async: true })
+    .run({ async: true });
 }
 
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
-)
+);
 ```
 
 이해를 돕기 위해 찍은 스크린샷이다.  
@@ -121,9 +129,9 @@ root.render(
 
 ```javascript
 // components/Test.js
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 
-const length = 10000000
+const length = 10000000;
 
 export function WithMemoization() {
   const value = useMemo(
@@ -133,18 +141,18 @@ export function WithMemoization() {
         0
       ),
     []
-  )
+  );
 
-  return <div>{value}</div>
+  return <div>{value}</div>;
 }
 
 export function WithOutMemoization() {
   const value = Array.from({ length }, (_, i) => Math.floor(i / 1000)).reduce(
     (acc, curr) => acc + curr,
     0
-  )
+  );
 
-  return <div>{value}</div>
+  return <div>{value}</div>;
 }
 ```
 
@@ -166,11 +174,11 @@ react는 dependency 변경을 확인하기 위해 shallow compare한다(`Object.
 
 ```jsx
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
   const value = useMemo(() => {
-    console.log('re-render')
-    return count * 2
-  }, [count])
+    console.log('re-render');
+    return count * 2;
+  }, [count]);
 
   return (
     <div className="App">
@@ -180,7 +188,7 @@ function App() {
       </main>
       <footer>{value}</footer>
     </div>
-  )
+  );
 }
 ```
 
@@ -189,11 +197,11 @@ function App() {
 
 ```jsx
 function App() {
-  let count = 1
+  let count = 1;
   const value = useMemo(() => {
-    console.log('re-render')
-    return count * 2
-  }, [count])
+    console.log('re-render');
+    return count * 2;
+  }, [count]);
 
   return (
     <div className="App">
@@ -203,7 +211,7 @@ function App() {
       </main>
       <footer>{value}</footer>
     </div>
-  )
+  );
 }
 
 // 또는
@@ -213,11 +221,11 @@ function func() {
 }
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
   const value = useMemo(() => {
-    console.log('re-render')
-    return count * 2
-  }, [func])
+    console.log('re-render');
+    return count * 2;
+  }, [func]);
 
   return (
     <div className="App">
@@ -227,7 +235,7 @@ function App() {
       </main>
       <footer>{value}</footer>
     </div>
-  )
+  );
 }
 ```
 
@@ -243,10 +251,10 @@ function moviePropsAreEqual(prevMovie, nextMovie) {
   return (
     prevMovie.title === nextMovie.title &&
     prevMovie.releaseDate === nextMovie.releaseDate
-  )
+  );
 }
 
-const MemoizedMovie = memo(Movie, moviePropsAreEqual)
+const MemoizedMovie = memo(Movie, moviePropsAreEqual);
 ```
 
 [github issue](https://github.com/facebook/react/issues/14463)에 다음과 같은 글이 있다.
@@ -264,7 +272,7 @@ const MemoizedMovie = memo(Movie, moviePropsAreEqual)
 ```jsx
 export function ParentComponent1() {
   // react.memo를 사용한 컴포넌트를 자식으로 가짐
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <div className="App">
@@ -278,12 +286,12 @@ export function ParentComponent1() {
         />
       </main>
     </div>
-  )
+  );
 }
 
 export function ParentComponent2() {
   // react.memo를 사용하지 않은 컴포넌트를 자식으로 가짐
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <div className="App">
@@ -297,27 +305,27 @@ export function ParentComponent2() {
         />
       </main>
     </div>
-  )
+  );
 }
 
 function ChildComponent({ ...rest }) {
-  return <div>I'm child</div>
+  return <div>I'm child</div>;
 }
 
 function compareProps(prevProps, nextProps) {
   // not best practice
   // 일부러 느리게 비교하기 위해서 만듦
-  const prevPropsKeys = Object.keys(prevProps)
-  const nextPropsKeys = Object.keys(nextProps)
+  const prevPropsKeys = Object.keys(prevProps);
+  const nextPropsKeys = Object.keys(nextProps);
 
   return (
     prevPropsKeys.length === nextPropsKeys.length &&
     prevPropsKeys.every((key) => prevProps[key] === nextProps[key]) &&
     nextPropsKeys.every((key) => prevProps[key] === nextProps[key])
-  )
+  );
 }
 
-const MemoizedComponent = memo(ChildComponent, compareProps)
+const MemoizedComponent = memo(ChildComponent, compareProps);
 ```
 
 결과는 97번 렌더링하는데 메모이제이션을 사용한 컴포넌트가 11.367s, 메모이제이션을 사용하지 않은 컴포넌트가 11.178s 걸렸다.  
@@ -336,12 +344,12 @@ class component의 `shouldComponentUpdate` 라이프사이클에서 `this.props`
 
 ```js
 class Component extends React.Component {
-    shouldComponentUpdate() {
-        // isPropChanged = 얕은 비교의 결과
-        return isPropChanged
-            ? true // do render
-            : false; // do not render
-    }
+  shouldComponentUpdate() {
+    // isPropChanged = 얕은 비교의 결과
+    return isPropChanged
+      ? true // do render
+      : false; // do not render
+  }
 }
 ```
 
@@ -369,22 +377,22 @@ class Component extends React.Component {
 ```tsx
 // 분리 이전
 function App() {
-  const [data, setData] = useState<DataType[] | null>(null)
-  const [categoryOption, setCategoryOption] = useState(DEFAULT_OPTION)
-  const [searchText, setSearchText] = useState('')
-  const [page, setPage] = useState(1) // 이 state 분리
+  const [data, setData] = useState<DataType[] | null>(null);
+  const [categoryOption, setCategoryOption] = useState(DEFAULT_OPTION);
+  const [searchText, setSearchText] = useState('');
+  const [page, setPage] = useState(1); // 이 state 분리
 
   useEffect(() => {
     async function fetch() {
       const {
         data: { data },
-      } = await api.get('/')
+      } = await api.get('/');
 
-      setData(data)
+      setData(data);
     }
 
-    fetch()
-  }, [])
+    fetch();
+  }, []);
 
   return (
     <>
@@ -404,7 +412,7 @@ function App() {
         <Loading />
       )}
     </>
-  )
+  );
 }
 ```
 
@@ -474,11 +482,11 @@ webpack을 사용한 CSS minify는 [terser-webpack-plugin](https://github.com/mo
 사용법은 엄청 간단하다.
 
 ```jsx
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 // 아래처럼만 바꾸기
 
-import styled from 'styled-components/macro'
+import styled from 'styled-components/macro';
 ```
 
 (스크린샷을 안 찍었지만 실제로 아래 방법을 이용하면 번들 크기가 줄어들었다)
@@ -506,8 +514,8 @@ module.exports = function (webpackEnv) {
         }),
       ],
     },
-  }
-}
+  };
+};
 ```
 
 ![remove comments](https://user-images.githubusercontent.com/63287638/193710169-3bee06d1-0a10-4f7c-88da-b193a3f1ddd8.png)
@@ -568,8 +576,8 @@ module.exports = function (webpackEnv) {
         }),
       ],
     },
-  }
-}
+  };
+};
 ```
 
 ### 4) 안 쓰는 node_modules 제거
@@ -645,12 +653,12 @@ babel 설정도 추가해야 한다.
 
 ```jsx
 // App.jsx
-import { ParentComponent1, ParentComponent2 } from './components/Memotest'
-import dayjs from 'dayjs'
-import * as utils from './lib/utils'
+import { ParentComponent1, ParentComponent2 } from './components/Memotest';
+import dayjs from 'dayjs';
+import * as utils from './lib/utils';
 
 function App() {
-  const today = utils.getToday()
+  const today = utils.getToday();
 
   return (
     <div className="App">
@@ -660,17 +668,17 @@ function App() {
       </header>
       <main>{today}</main>
     </div>
-  )
+  );
 }
 
 // lib/utils.js
 export const getToday = () => {
-  return new Date().toISOString().slice(0, 10)
-}
+  return new Date().toISOString().slice(0, 10);
+};
 
 export const getDate = (datetime: string) => {
-  return datetime.split(' ')[0]
-}
+  return datetime.split(' ')[0];
+};
 ```
 
 위 코드에서 `dayjs`와 `utils.getDate`는 사용되고 있지 않다.  
@@ -755,10 +763,10 @@ chunk란 하나의 덩어리라는 뜻으로, 코드 스플리팅 시 생성되�
 require.ensure(
   ['dependency'],
   function (require) {
-    var module = require('경로 또는 모듈') // 이렇게 require해서 사용하면 됨
+    var module = require('경로 또는 모듈'); // 이렇게 require해서 사용하면 됨
   },
   'chunk name'
-)
+);
 ```
 
 코드 아무 곳에서 `require.ensure`로 시작하는 함수를 호출할 수 있다.  
@@ -771,8 +779,8 @@ webpack을 이용한 code splitting 방식이다.
 
 ```javascript
 import('./math').then((math) => {
-  console.log(math.add(16, 26))
-})
+  console.log(math.add(16, 26));
+});
 ```
 
 CRA를 하면 기본적으로 사용할 수 있는 방식이라고 한다.  
@@ -800,8 +808,8 @@ react에서 기본적으로 제공해주는 `React.lazy()`가 있다.
 아쉽게도 아직까지는 `lazy`로 감싸는 컴포넌트는 default export된 컴포넌트에 대해서만 기능을 제공한다고 한다.
 
 ```tsx
-import { Suspense, lazy } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { Suspense, lazy } from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 // import {
 //   Coupon,
 //   Faq,
@@ -814,18 +822,18 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 //   Notice,
 //   Page404
 // } from 'pages'
-import ROUTE from 'routes/routeMap'
+import ROUTE from 'routes/routeMap';
 
-const Coupon = lazy(() => import('pages/Coupon'))
-const Faq = lazy(() => import('pages/Faq'))
-const FaqCategoryManagement = lazy(() => import('pages/FaqCategoryManagement'))
-const FaqDetail = lazy(() => import('pages/FaqDetail'))
-const FaqRegister = lazy(() => import('pages/FaqRegister'))
-const FaqUpdate = lazy(() => import('pages/FaqUpdate'))
-const Inquiry = lazy(() => import('pages/Inquiry'))
-const Main = lazy(() => import('pages/Main'))
-const Notice = lazy(() => import('pages/Notice'))
-const Page404 = lazy(() => import('pages/Page404'))
+const Coupon = lazy(() => import('pages/Coupon'));
+const Faq = lazy(() => import('pages/Faq'));
+const FaqCategoryManagement = lazy(() => import('pages/FaqCategoryManagement'));
+const FaqDetail = lazy(() => import('pages/FaqDetail'));
+const FaqRegister = lazy(() => import('pages/FaqRegister'));
+const FaqUpdate = lazy(() => import('pages/FaqUpdate'));
+const Inquiry = lazy(() => import('pages/Inquiry'));
+const Main = lazy(() => import('pages/Main'));
+const Notice = lazy(() => import('pages/Notice'));
+const Page404 = lazy(() => import('pages/Page404'));
 
 function App() {
   return (
@@ -848,7 +856,7 @@ function App() {
         </Routes>
       </Suspense>
     </BrowserRouter>
-  )
+  );
 }
 ```
 
@@ -917,40 +925,40 @@ content compression
 ```javascript
 app.update = function (timestamp) {
   for (var i = 0; i < app.count; i++) {
-    var m = movers[i] // movers = document.querySelectorAll('.mover')
+    var m = movers[i]; // movers = document.querySelectorAll('.mover')
     if (!app.optimize) {
       var pos = m.classList.contains('down')
         ? m.offsetTop + distance
-        : m.offsetTop - distance
-      if (pos < 0) pos = 0
-      if (pos > maxHeight) pos = maxHeight
-      m.style.top = pos + 'px'
+        : m.offsetTop - distance;
+      if (pos < 0) pos = 0;
+      if (pos > maxHeight) pos = maxHeight;
+      m.style.top = pos + 'px';
       if (m.offsetTop === 0) {
-        m.classList.remove('up')
-        m.classList.add('down')
+        m.classList.remove('up');
+        m.classList.add('down');
       }
       if (m.offsetTop === maxHeight) {
-        m.classList.remove('down')
-        m.classList.add('up')
+        m.classList.remove('down');
+        m.classList.add('up');
       }
     } else {
-      var pos = parseInt(m.style.top.slice(0, m.style.top.indexOf('px')))
-      m.classList.contains('down') ? (pos += distance) : (pos -= distance)
-      if (pos < 0) pos = 0
-      if (pos > maxHeight) pos = maxHeight
-      m.style.top = pos + 'px'
+      var pos = parseInt(m.style.top.slice(0, m.style.top.indexOf('px')));
+      m.classList.contains('down') ? (pos += distance) : (pos -= distance);
+      if (pos < 0) pos = 0;
+      if (pos > maxHeight) pos = maxHeight;
+      m.style.top = pos + 'px';
       if (pos === 0) {
-        m.classList.remove('up')
-        m.classList.add('down')
+        m.classList.remove('up');
+        m.classList.add('down');
       }
       if (pos === maxHeight) {
-        m.classList.remove('down')
-        m.classList.add('up')
+        m.classList.remove('down');
+        m.classList.add('up');
       }
     }
   }
-  frame = window.requestAnimationFrame(app.update)
-}
+  frame = window.requestAnimationFrame(app.update);
+};
 ```
 
 위 코드에서 비효율성을 초래하는 부분은 높이를 확인할 때 `pos`를 확인하냐 `offsetTop`을 확인하냐의 차이인 것 같다.  
