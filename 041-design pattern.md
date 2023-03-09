@@ -129,59 +129,59 @@ optional한 property가 많을 때 순서에 대한 관리가 어려워지는 �
 
 ```javascript
 class TourPlan {
-  #date
-  #accomodations
+  #date;
+  #accomodations;
   // ...
 
   constructor(builder) {
-    this.#date = builder.getDate()
-    this.#accomodations = builder.getAccomodations()
+    this.#date = builder.getDate();
+    this.#accomodations = builder.getAccomodations();
     // ...
   }
 
   static TourPlanBuilder = class {
-    #date
-    #accomodations
+    #date;
+    #accomodations;
     // ...
 
     constructor({ date }) {
-      this.#date = date
-      this.#accomodations = null
+      this.#date = date;
+      this.#accomodations = null;
       // ...
     }
 
     getDate() {
-      return this.#date
+      return this.#date;
     }
 
     getAccomodations() {
-      return this.#accomodations
+      return this.#accomodations;
     }
 
     setAccomodations(accomodations) {
       // 검증 코드, 초기화 코드 추가할 수 있음
-      this.#accomodations = accomodations
+      this.#accomodations = accomodations;
 
-      return this
+      return this;
     }
 
     // ...
 
     build() {
-      return new TourPlan(this)
+      return new TourPlan(this);
     }
-  }
+  };
 }
 ```
 
 ```javascript
 // 당일치기라면
-const tourplan1 = new TourPlan.TourPlanBuilder({ date: '2022-12-31' }).build()
+const tourplan1 = new TourPlan.TourPlanBuilder({ date: '2022-12-31' }).build();
 
 // 당일치기가 아니라면
 const tourplan2 = new TourPlan.TourPlanBuilder({ date: '2022-12-31' })
   .setAccomodations('두바이 완전 비싼 7성급 호텔')
-  .build()
+  .build();
 ```
 
 ### Factory
@@ -197,7 +197,7 @@ https://dev-youngjun.tistory.com/195
 여기서 클라이언트 코드란 객체 생성과 관련된 코드를 호출시키는 부분을 이야기한다.  
 Factory Method 패턴이라고도 한다.
 
-팩토리 패턴에서는 객체를 생성하기 위한 인터페이스를 정의하는데, 어떤 클래스의 인스턴스를 만들지는 서브 클래스에서 결정하게 만들게 한다.  
+팩토리 패턴에서는 객체를 생성하기 위한 인터페이스를 정의하는데, 어떤 클래스의 인스턴스를 만들지는 서브 클래스에서 결정하게 만든다.  
 어떤 클래스가 자신이 생성해야 하는 객체의 클래스를 예측할 수 없거나 생성할 객체를 기술하는 책임을 서브 클래스에 전가할 때 사용된다.
 
 - 장점
@@ -216,13 +216,13 @@ class Product {
 
 class User {
   constructor() {
-    this.product = new Product()
+    this.product = new Product();
   }
 }
 ```
 
 위 `Product` 클래스와 `User` 클래스는 의존 관계에 있어, 결합도가 높다.  
-특히 아래와 같이 확장되면 확장할 때 큰 문제가 있다.
+특히 아래와 같은 코드에선 확장할 때 큰 문제가 있다.
 
 ```javascript
 class Product {
@@ -232,14 +232,14 @@ class Product {
 class NormalUser extends User {
   // 일반 사용자, 관리자 등
   constructor() {
-    this.product = new Product({})
+    this.product = new Product({});
   }
 }
 
 class AbnormalUser extends User {
   // 밴 당한 사용자, 휴면 계정의 사용자 등
   constructor() {
-    this.product = new Product({})
+    this.product = new Product({});
   }
 }
 ```
@@ -254,13 +254,13 @@ class Product {
 
 class Factory {
   static getInstance() {
-    return new Product()
+    return new Product();
   }
 }
 
 class NormalUser {
   constructor() {
-    this.product = Factory.getInstance()
+    this.product = Factory.getInstance();
   }
 }
 ```
@@ -273,11 +273,11 @@ class UserFactory {
   static getInstance({ type }) {
     switch (type) {
       case 'normal':
-        return new NormalUser()
+        return new NormalUser();
       case 'abnormal':
-        return new AbnormalUser()
+        return new AbnormalUser();
 
-        throw new Error('invalid user type')
+        throw new Error('invalid user type');
     }
   }
 }
@@ -291,11 +291,11 @@ class AbnormalUser extends User {
 }
 
 // app.js
-const user1 = UserFactory.getInstance({ type: 'normal' })
+const user1 = UserFactory.getInstance({ type: 'normal' });
 ```
 
 다만 위 `UserFactory` 클래스와 같은 경우는 개방 폐쇄 원칙에 위반된다.  
-또 다른 `considerableUser` 등 다양한 `User` 클래스가 생기면 `UserFactory` 클래스도 변경해야 되기 때문이다.  
+`ConsiderableUser` 등 다양한 `User`를 확장한 클래스가 생기면 `UserFactory` 클래스도 변경해야 되기 때문이다.  
 `UserFactory`에서 `if-else`나 `switch-case`를 걷어내는 방법이 아래의 추상 팩토리 패턴이다.
 
 #### Abstract Factory
@@ -303,7 +303,7 @@ const user1 = UserFactory.getInstance({ type: 'normal' })
 추상 팩토리 패턴은 인풋으로 서브 클래스에 대한 식별 데이터를 받은 것이 아니라 또 하나의 팩토리 클래스를 받는다.
 
 바로 코드 예시로 보겠다.  
-객체 지향 문법이 필요해서 이번에는 TS로 예시를 들었다.
+객체 지향 문법이 필요해서 이번에는 TS를 사용했다.
 
 ```typescript
 abstract class User {
@@ -323,14 +323,14 @@ class AbnormalUser extends User {
 }
 
 interface userFactory {
-  createUser: () => void
+  createUser: () => void;
 }
 
 class NormalUserFactory implements userFactory {
   constructor() {}
 
   createUser() {
-    return new NormalUser()
+    return new NormalUser();
   }
 }
 
@@ -338,20 +338,20 @@ class AbnormalUserFactory implements userFactory {
   constructor() {}
 
   createUser() {
-    return new AbnormalUser()
+    return new AbnormalUser();
   }
 }
 
 // consumer class
 class UserFactory {
   static getUser(factory: userFactory) {
-    return new factory.createUser()
+    return new factory.createUser();
   }
 }
 
 // app.js
-const adminUser = UserFactory.getUser(new NormalUserFactory())
-const bannedUser = UserFactory.getUser(new AbormalUserFactory())
+const adminUser = UserFactory.getUser(new NormalUserFactory());
+const bannedUser = UserFactory.getUser(new AbormalUserFactory());
 ```
 
 ### Singleton
@@ -377,48 +377,48 @@ https://gyoogle.dev/blog/design-pattern/Singleton%20Pattern.html
 
 ```javascript
 var userModule = (function () {
-  var userAddress = {}
-  var users = []
-  var userId = 0
+  var userAddress = {};
+  var users = [];
+  var userId = 0;
 
   return {
     create: (username, password) => {
       if (!userAddress.hasOwnProperty(username)) {
-        var user = { id: userId, username, password }
-        userAddress[username] = users.length + ''
-        users.push(user)
-        userId++
+        var user = { id: userId, username, password };
+        userAddress[username] = users.length + '';
+        users.push(user);
+        userId++;
 
-        return user
+        return user;
       } else {
-        return users[userAddress[username]]
+        return users[userAddress[username]];
       }
     },
     get: (username) => {
-      return userAddress[username] ? users[userAddress[username]] : null
+      return userAddress[username] ? users[userAddress[username]] : null;
     },
-  }
-})()
+  };
+})();
 
-console.log(userModule.create('Julia', 'hello123')) // { id: 0, username: 'Julia', password: 'hello123' }
-console.log(userModule.create('Julia', 'hello123')) // { id: 0, username: 'Julia', password: 'hello123' }
-console.log(userModule.create('Julia', 'hello123')) // { id: 0, username: 'Julia', password: 'hello123' }
-console.log(userModule.create('Paul', 'hello456')) // { id: 1, username: 'Paul', password: 'hello456' }
+console.log(userModule.create('Julia', 'hello123')); // { id: 0, username: 'Julia', password: 'hello123' }
+console.log(userModule.create('Julia', 'hello123')); // { id: 0, username: 'Julia', password: 'hello123' }
+console.log(userModule.create('Julia', 'hello123')); // { id: 0, username: 'Julia', password: 'hello123' }
+console.log(userModule.create('Paul', 'hello456')); // { id: 1, username: 'Paul', password: 'hello456' }
 
-console.log(userModule.get('Julia')) // { id: 0, username: 'Julia', password: 'hello123' }
-console.log(userModule.get('Paul')) // { id: 1, username: 'Paul', password: 'hello456' }
-console.log(userModule.get('Mike')) // null
+console.log(userModule.get('Julia')); // { id: 0, username: 'Julia', password: 'hello123' }
+console.log(userModule.get('Paul')); // { id: 1, username: 'Paul', password: 'hello456' }
+console.log(userModule.get('Mike')); // null
 ```
 
 ES7 이후에는 `static`이라는 너무 간단한 명령어가 생겼다.
 
 ```javascript
 class UserModule {
-  static userModule
+  static userModule;
 
   constructor() {
     if (userModule) {
-      return userModule
+      return userModule;
     }
 
     // 없으면 다른 동작
@@ -440,8 +440,8 @@ https://readystory.tistory.com/122
 
 `Prototype` 인터페이스는 임의의 인터페이스를 복제하는 메서드를 가진다.  
 대부분의 경우 `clone()` 메서드 하나만 선언되어 있다.  
-`ConcretePrototype`과 `SubClassPrototyp`은 `Prototype` 인터페이스를 구현하는 클래스를 생성한다.  
-이 클래스들은 원본 객체의 데이터를 복사하는것 말고도 연결된 객체의 복사와 관련된 작업이나 전의 의존성에서 벗어나게 하는 작업 등을 수행할 수 있다.
+`ConcretePrototype`과 `SubClassPrototype`은 `Prototype` 인터페이스를 구현하는 클래스를 생성한다.  
+이 클래스들은 원본 객체의 데이터를 복사하는 것 말고도 연결된 객체의 복사와 관련된 작업이나 전의 의존성에서 벗어나게 하는 작업 등을 수행할 수 있다.
 
 코드가 구현 클래스에 의존하지 않아야 하는 경우나 객체를 초기화하는 방법만 다를 뿐 서브 클래스의 수를 줄이려는 경우 프로토타입 패턴을 사용할 수 있다.  
 다음과 같은 특징이 있다.
@@ -463,29 +463,29 @@ https://readystory.tistory.com/122
 ```js
 class DataFetchComponent {
   constructor(data = []) {
-    this.data = data
+    this.data = data;
   }
 
   async fetch() {
     // 비동기 처리가 되었다고 가정하자.
-    const { data } = await request('api-url')
+    const { data } = await request('api-url');
 
-    this.data = data
+    this.data = data;
   }
 
   clone() {
-    return new DataFetchComponent(this.data.map((datum) => datum))
+    return new DataFetchComponent(this.data.map((datum) => datum));
   }
 }
 
 async function useData() {
-  const component = new DataFetchComponent()
-  await component.fetch()
+  const component = new DataFetchComponent();
+  await component.fetch();
 
   return {
     forSomeReasons: component.clone(),
     forOtherReasons: component.clone(),
-  }
+  };
 }
 ```
 
@@ -496,19 +496,19 @@ const harryPorterBookPrototype = {
   title: 'Harry Porter',
   price: '$15',
   author: 'J.K.Rolling',
-}
+};
 
-const harryPorterEnglishBook = Object.assign({}, harryPorterBookPrototype)
+const harryPorterEnglishBook = Object.assign({}, harryPorterBookPrototype);
 const harryPorterKoreanBook = Object.assign({}, harryPorterBookPrototype, {
   title: '해리 포터',
-})
+});
 const harryPorterJapaneseBook = Object.assign({}, harryPorterBookPrototype, {
   title: 'ハリーポッター',
-})
+});
 
-console.log(harryPorterEnglishBook) // { title: 'Harry Porter', price: '$15', author: 'J.K.Rolling' }
-console.log(harryPorterKoreanBook) // { title: '해리 포터', price: '$15', author: 'J.K.Rolling' }
-console.log(harryPorterJapaneseBook) // { title: 'ハリーポッター', price: '$15', author: 'J.K.Rolling' }
+console.log(harryPorterEnglishBook); // { title: 'Harry Porter', price: '$15', author: 'J.K.Rolling' }
+console.log(harryPorterKoreanBook); // { title: '해리 포터', price: '$15', author: 'J.K.Rolling' }
+console.log(harryPorterJapaneseBook); // { title: 'ハリーポッター', price: '$15', author: 'J.K.Rolling' }
 ```
 
 ## 3. 구조 패턴
@@ -567,67 +567,67 @@ Composite 패턴을 사용하면 (실제로는 구분해야겠지만) 사용자�
 abstract class FFile {
   // 전역 객체 File이 존재해서 FFile이라고 명명
   read() {
-    console.error('read를 반드시 구현해야 함')
+    console.error('read를 반드시 구현해야 함');
   }
 
   write(text: string) {
-    console.error('write를 반드시 구현해야 함')
+    console.error('write를 반드시 구현해야 함');
   }
 }
 
 class NormalFile extends FFile {
   constructor(private text: string = '') {
-    super()
+    super();
   }
 
   read() {
-    console.log(this.text)
+    console.log(this.text);
   }
 
   write(text: string) {
-    this.text = text
+    this.text = text;
   }
 }
 
 class DirectoryFile extends FFile {
   constructor(private files: NormalFile[] = []) {
-    super()
+    super();
   }
 
   read() {
-    this.files.forEach((file) => file.read())
+    this.files.forEach((file) => file.read());
   }
 
   write(text: string) {
-    this.files.forEach((file) => file.write(text))
+    this.files.forEach((file) => file.write(text));
   }
 
   append(newFile: NormalFile) {
-    this.files.push(newFile)
+    this.files.push(newFile);
   }
 }
 
 class Client {
   constructor() {
-    const normalFile1 = new NormalFile()
-    normalFile1.write('일반 파일1입니다.')
-    normalFile1.read() // 일반 파일1입니다.
+    const normalFile1 = new NormalFile();
+    normalFile1.write('일반 파일1입니다.');
+    normalFile1.read(); // 일반 파일1입니다.
 
-    const normalFile2 = new NormalFile()
-    normalFile2.write('일반 파일2입니다.')
-    normalFile2.read() // 일반 파일2입니다.
+    const normalFile2 = new NormalFile();
+    normalFile2.write('일반 파일2입니다.');
+    normalFile2.read(); // 일반 파일2입니다.
 
-    const directoryFile = new DirectoryFile()
-    directoryFile.append(normalFile1)
-    directoryFile.append(normalFile2)
-    directoryFile.read() // 일반 파일1입니다. -> 일반 파일2입니다.
+    const directoryFile = new DirectoryFile();
+    directoryFile.append(normalFile1);
+    directoryFile.append(normalFile2);
+    directoryFile.read(); // 일반 파일1입니다. -> 일반 파일2입니다.
 
-    directoryFile.write('디렉터리입니다.')
-    directoryFile.read() // 디렉터리입니다. * 2
+    directoryFile.write('디렉터리입니다.');
+    directoryFile.read(); // 디렉터리입니다. * 2
   }
 }
 
-new Client()
+new Client();
 ```
 
 위 방법은 `NormalFile`와 `DirectoryFile`를 다르게 취급하고 있다.  
@@ -636,18 +636,217 @@ new Client()
 ```ts
 class DirectoryFile extends FFile {
   constructor(private files: FFile[] = []) {
-    super()
+    super();
   }
 
   // ...
 
   append(newFile: FFile) {
-    this.files.push(newFile)
+    this.files.push(newFile);
   }
 }
 ```
 
 ### Decorator
+
+참고  
+https://readystory.tistory.com/195  
+https://gmlwjd9405.github.io/2018/07/09/decorator-pattern.html  
+https://coding-factory.tistory.com/713  
+https://refactoring.guru/ko/design-patterns/decorator
+
+**런타임에 객체의 기능(책임)을 수정할 수 있게 하는 패턴이다.**
+
+Decorator는 말 그대로 꾸며주는 놈이다.  
+기본 기능을 가지고 있는 클래스를 하나 만들고 이외에 부가적인 기능들을 추가하기 편하도록 설계하는 방법을 제공한다.
+
+Decorator 패턴은 Composite 패턴과 비슷하지만 다른 점이 두 가지 있다.  
+첫 번째는 하나의 자식 컴포넌트만 존재하는 Composite 패턴과 달리 Decorator 패턴은 여러 자식 컴포넌트가 존재할 수 있다.  
+두 번째는 Decorator 패턴은 래핑된 객체에 추가 책임이 존재하는 반면, Composite 패턴은 자식들의 결과를 요악하기만 한다.
+
+아래는 Decorator 패턴 UML이다.
+
+![Decorator UML](https://user-images.githubusercontent.com/63287638/224022707-2dab5b7f-21b9-4371-a68c-fbdd431541d9.png)
+
+`Component`는 기본 기능을 뜻하는 `ConcreteComponent`와 추가 기능을 뜻하는 `Decorator`의 공통 기능을 정의하고 일반적으로 인터페이스, 추상 클래스를 사용한다.  
+`ConcreteComponent`는 기본 기능을 구현한 클래스이다.  
+`Decorator` 많은 수가 존재할 수 있는, 구체적인 `Decorator`의 공통 기능을 제공한다.  
+`ConcreteDecoratorA`, `ConcreteDecoratorB`는 `Decorator`의 하위 클래스로 기본 기능에 추가되는 개별적인 기능을 구현한 클래스이다.
+
+다음과 같은 특징을 가지고 있다.
+
+- 장점
+  - 새 자식 클래스를 만들지 않고도 객체의 행동을 확장할 수 있다(아래 코드 예시에서 자세히 다룸).
+  - `Component`나 `ConcreteComponent`, `Decorator` 등을 변경할 필요가 없기 때문에 _런타임에_ 객체들에서부터 책임들을 추가하거나 제거할 수 있다.
+  - 객체를 여러 데코레이터로 래핑하여 여러 행동들을 합성할 수 있다.
+- 단점
+  - 래퍼들의 스택에서 특정 래퍼를 제거하기가 어렵다.
+  - 데코레이터의 행동이 순서에 의존하지 않는 방식으로 데코레이터를 구현하기 어렵다.
+  - 계층들의 초기 설정 코드가 복잡할 수 있다.
+
+데코레이터 패턴은 다음과 같은 상황에서 사용하기 좋다.
+
+1. 클래스의 요소들을 계속해서 수정을 하면서 사용하는 구조가 필요한 경우.
+2. 여러 요소들을 조합해서 사용하는 클래스 구조인 경우.
+3. 컴파일 단계에서가 아닌 런타임 단계에서 복합 방법이나 대상을 변경이 필요한 경우.
+
+#### 코드 예시
+
+다양한 기능이 추가될 수 있는 클래스에서 Decorator 패턴은 서브 클래스를 생성하는 것보다 유연한 방법을 제공한다.  
+내비게이션을 구현한다고 하자.  
+기본적으로 아래처럼 화면에 도로를 표시하는 클래스가 있다.
+
+```ts
+class RoadDisplay {
+  draw() {
+    console.log('기본 도로 표시 ');
+  }
+}
+```
+
+만약 화면에 각각 차선 표시와 교통량 표시, 교차로 표시를 할 수 있는 기능이 추가되어야 한다고 하자.  
+다음과 같은 세 개의 클래스가 추가되어 사용될 수 있을 것이다.
+
+```ts
+class RoadDisplayWithLane extends RoadDisplay {
+  constructor() {
+    super();
+  }
+
+  draw() {
+    super.draw();
+    console.log('차선 표시 ');
+  }
+}
+
+class RoadDisplayWithTraffic extends RoadDisplay {
+  constructor() {
+    super();
+  }
+
+  draw() {
+    super.draw();
+    console.log('교통량 표시 ');
+  }
+}
+
+class RoadDisplayWithIntersection extends RoadDisplay {
+  constructor() {
+    super();
+  }
+
+  draw() {
+    super.draw();
+    console.log('교차로 표시 ');
+  }
+}
+
+let roadDisplay: RoadDisplay = new RoadDisplay();
+roadDisplay.draw(); // 기본 도로 표시
+
+roadDisplay = new RoadDisplayWithLane();
+roadDisplay.draw(); // 기본 도로 표시 + 차선 표시
+```
+
+하지만 만약 여러 가지 기능의 조합이 필요하다면?  
+예를 들어 기본 정보 + 교차로 + 교통량 표시의 기능이 필요하다면, 또는 기본 정보 + 교통량 + 교차로 표시의 기능이 필요하다면 또다른 서브 클래스를 만들어야 할 것이다.  
+심하면 아래와 같은 다이어그램이 나올 수 있다.
+
+![dirty subclasses](https://user-images.githubusercontent.com/63287638/224026948-320d7adf-aca9-4bce-8522-658af7bcdb96.png)
+
+이를 Decorator 패턴으로 해결하면 다음과 같이 작성할 수 있다.
+
+```ts
+abstract class Display {
+  draw() {
+    console.error('이거 구현해야 합니다.');
+  }
+}
+
+class RoadDisplay extends Display {
+  draw() {
+    console.log('기본 도로 표시 ');
+  }
+}
+
+abstract class DisplayDecorator extends Display {
+  // 데코레이터 패턴의 공통 클래스
+  private display!: Display;
+
+  constructor(display: Display) {
+    super();
+    this.display = display;
+  }
+
+  draw() {
+    this.display.draw();
+  }
+}
+
+class LaneDecorator extends DisplayDecorator {
+  constructor(display: Display) {
+    super(display);
+  }
+
+  draw() {
+    super.draw();
+    this.drawLane();
+  }
+
+  private drawLane() {
+    console.log('차선 표시 ');
+  }
+}
+
+class TrafficDecorator extends DisplayDecorator {
+  constructor(display: Display) {
+    super(display);
+  }
+
+  draw() {
+    super.draw();
+    this.drawTraffic();
+  }
+
+  private drawTraffic() {
+    console.log('교통량 표시 ');
+  }
+}
+
+class IntersectionDecorator extends DisplayDecorator {
+  constructor(display: Display) {
+    super(display);
+  }
+
+  draw() {
+    super.draw();
+    this.drawIntersection();
+  }
+
+  private drawIntersection() {
+    console.log('교차로 표시 ');
+  }
+}
+
+const road = new RoadDisplay();
+road.draw(); // 기본 도로 표시
+
+const roadWithLane = new LaneDecorator(new RoadDisplay());
+roadWithLane.draw(); // 기본 도로 표시 + 차선 표시
+
+const roadWithTraffic = new TrafficDecorator(new RoadDisplay());
+roadWithTraffic.draw(); // 기본 도로 표시 + 교통량 표시
+
+const roadWithAll = new TrafficDecorator(
+  new LaneDecorator(new IntersectionDecorator(new RoadDisplay()))
+);
+roadWithAll.draw(); // 기본 도로 표시 + 교차로 표시 + 차선 표시 + 교통량 표시
+
+const roadWithAll2 = new LaneDecorator(
+  new TrafficDecorator(new IntersectionDecorator(new RoadDisplay()))
+);
+roadWithAll2.draw(); // 기본 도로 표시 + 교차로 표시 + 교통량 표시 + 차선 표시
+```
 
 ### Proxy
 
@@ -691,13 +890,13 @@ JS의 `addEventlistener`가 이러한 패턴을 응용했다고 볼 수 있다.
 ```javascript
 class WeatherController {
   measureChanges() {
-    const temperature = getTemperature()
-    const humidity = getHumidity()
-    const pressure = getPressure()
+    const temperature = getTemperature();
+    const humidity = getHumidity();
+    const pressure = getPressure();
 
-    currentWeatherView.update(temp, humidity, pressure)
-    forecastWeatherView.update(temp, humidity, pressure)
-    staticsticView.update(temp, humidity, pressure)
+    currentWeatherView.update(temp, humidity, pressure);
+    forecastWeatherView.update(temp, humidity, pressure);
+    staticsticView.update(temp, humidity, pressure);
   }
 }
 ```
@@ -707,25 +906,25 @@ class WeatherController {
 observer 패턴은 주로 interface를 많이 사용하지만 JS는 없는 문법이니 base 클래스로 강제화했다.
 
 ```javascript
-const ERROR = '상속받은 클래스는 해당 메서드를 구현해야 합니다.'
+const ERROR = '상속받은 클래스는 해당 메서드를 구현해야 합니다.';
 
 class ViewController {
   registerView(view) {
-    throw new Error(ERROR)
+    throw new Error(ERROR);
   }
 
   removeView(view) {
-    throw new Error(ERROR)
+    throw new Error(ERROR);
   }
 
   updateViews() {
-    throw new Error(ERROR)
+    throw new Error(ERROR);
   }
 }
 
 class View {
   update({ temperature, humidity, pressure }) {
-    throw new Error(ERROR)
+    throw new Error(ERROR);
   }
 }
 ```
@@ -733,9 +932,9 @@ class View {
 ```javascript
 class WeatherController extends ViewController {
   constructor() {
-    super()
+    super();
 
-    this.views = []
+    this.views = [];
   }
 
   registerView(view) {
@@ -753,9 +952,9 @@ class WeatherController extends ViewController {
 
 class CurrentWeatherView extends View {
   constructor(controller) {
-    super()
+    super();
 
-    controller.registerView(this)
+    controller.registerView(this);
   }
 
   update({ temperature, humidity, pressure }) {
