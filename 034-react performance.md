@@ -10,7 +10,7 @@ webpack은 v5이다.
 
 여기서 re-rendering은 컴포넌트가 화면에 다시 그려진다는 것을 이야기하는 것이 아니다.  
 Virtual DOM이 React diffing algorithm을 통해 _이전 렌더링과 변화가 생겼을 수도 있으니 확인해봐라_ 표시이다.  
-즉, 재실행되는 개념이다.  
+즉, 함수형 컴포넌트에서의 호출(=재실행)되는 개념이다.  
 따라서 불필요한 re-rendering이 많이 쌓이면 화면 변화가 느려질 수 있다.
 
 어떤 컴포넌트는 re-rendering이 발생하지 않아도 다른 컴포넌트가 re-rendering이 발생해 형태가 깨질 수도 있다.  
