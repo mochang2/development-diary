@@ -850,6 +850,230 @@ roadWithAll2.draw(); // 기본 도로 표시 + 교차로 표시 + 교통량 표�
 
 ### Proxy
 
+참고  
+https://readystory.tistory.com/132  
+https://coding-factory.tistory.com/711  
+https://refactoring.guru/ko/design-patterns/proxy
+
+**다른 객체로 접근하는 것을 통제하기 위해서 그 객체의 surrogate나 placeholder의 역할을 하는 객체를 제공하는 패턴이다.**
+
+Proxy는 Reverse, Forward Proxy Server에서 사용하는 단어와 의미가 같다.  
+surrogate나 placeholder가 전처리를 한 뒤 실제 서비스를 호출한다.  
+약간 React에서 HOC하고 비슷한 용도로 사용할 수 있다고도 생각이 들었다.
+
+Decorator와 비슷한 구조를 가지고 있으나 사용하는 의도는 다르다.  
+두 패턴 모두 한 객체가 일부 작업을 다른 객체에 위임해야 하는 합성 원칙을 기반으로 한다.  
+하지만 Proxy는 자체적으로 자신의 서비스 객체의 수명 주기를 관리하는 반면 Decorator의 합성은 클라이언트에 의해 제어된다.
+
+아래는 Proxy 패턴 UML이다.
+
+![Proxy UML](https://user-images.githubusercontent.com/63287638/224519577-c00acd1e-99eb-49d4-b17b-172ecd32ada7.png)
+
+`Client`는 컴포넌트를 사용하는 곳이다.  
+`Subject`는 `Proxy`와 `RealSubject`가 공통적으로 가지고 있는 속성을 명세화한 인터페이스 또는 가상 클래스로 구현한다.  
+`Proxy`는 `Client`에서 사용하는 객체로, surrogate, placeholder 역할을 한다. 내부적으로 전처리 후 `RealSubject`를 호출한다.  
+`RealSubject`는 `Client`가 원하는 내용(`DoAction`)을 실제로 행하는 객체이다.
+
+다음과 같은 특징을 가지고 있다.
+
+- 장점
+  - 클라이언트들이 알지 못하는 상태에서 서비스 객체를 제어할 수 있다.
+  - 클라이언트들이 신경 쓰지 않을 때 서비스 객체의 수명 주기를 관리할 수 있다.
+  - 프록시는 서비스 객체가 준비되지 않았거나 사용할 수 없는 경우에도 작동한다(일종의 lazy loading처럼).
+- 단점
+  - 새로운 클래스들을 많이 도입해야 하므로 코드가 복잡해질 수 있다.
+  - 객체를 한 단계 더 거쳐야 하므로 성능이 낮아질 수 있다.
+
+Proxy 패턴은 사용하기 쉬운 만큼 다양한 패턴이 존재한다.  
+그 중 자주 사용되는 3가지 정도 사용 예시가 있다.
+
+1\) _가상 프록시_  
+필요로 하는 시점까지 객체 생성을 연기하고, 해당 객체가 생성된 것처럼 동작하도록 만들고 싶을 때 사용한다.  
+리소스가 많이 요구되는 작업은 해당 작업이 진짜 필요로 할 때까지 뒤로 미룬다.  
+예를 들어 많은 이미지들을 처리해야 하는 경우, 이미지가 정말 필요하다는 요청이 올 때까지 미뤄 다른 작업의 우선 순위와 속도를 높일 수 있다.
+
+2\) _원격 프록시_  
+원격 객체에 대한 접근을 surroage 역할을 하는 객체가 대신해, 서로 다른 주소 공간에 있는 객체룰 마치 같은 주소 공간에 있는 것처럼 동작하게 만드는 패턴이다.  
+Google Docs가 그 예시이다.  
+(내 생각) 그 외에도 서버와 통신할 때 Proxy 서버를 둬, redirect / LB / 접근 제어 처리 / 프로토콜에 따른 요청 분해 등을 한 다음 서버 자원을 다루는 API를 호출하는 것도 원격 프록시의 한 종류라고 생각한다.
+
+3\) _보호 프록시_  
+객체에 대한 접근 권한을 제어하거나 객체마다 접근 권한을 달리하고 싶을 때 사용하는 패턴이다.
+
+이외에도 로깅을 남기는 처리 등을 하도록 Proxy를 만들 수 있다.
+
+#### 코드 예시
+
+다른 코드들을 둘러봤을 때 `RealSubject`를 `Proxy` 내부에 선언한 뒤 `Proxy`에서만 사용해도 될 것 같은데, 그런 코드 예시는 딱히 없었다.  
+그래서 아래 코드 예시도 `RealSubject`를 `Proxy` 내부에 굳이 구현은 안 했지만, Builder 패턴처럼 `RealSubject`를 `Proxy` 내부에 선언하고 사용하는 것도 일종의 방법일 것 같다.
+
+아래에서 `System`은 OS의 기능을 수행하게끔 하는 클래스로, 임의로 만든 가상의 클래스이다.
+
+첫 번째 예시로 지연된 생성 처리를 위한 Proxy이다.  
+쪼매 억지일 수 있지만 그러려니 하자.
+
+```ts
+interface ImageSubject {
+  display: () => Promise<void>;
+}
+
+class Image implements ImageSubject {
+  constructor(private fileName: string) {}
+
+  async display() {
+    console.log('Displaying', this.fileName);
+
+    const image = await this.loadFromDisk();
+    api.response({
+      image,
+    });
+  }
+
+  async loadFromDisk() {
+    console.log('Loading', this.fileName);
+
+    return await System.load(this.fileName);
+  }
+}
+
+class ProxyImage implements ImageSubject {
+  private image: ImageSubject;
+
+  constructor(private fileName: string) {}
+
+  async resizeImage(size) {
+    await System.changeImageFile(this.fileName, {
+      resize: true,
+      size,
+    });
+  }
+
+  async display() {
+    if (!image) {
+      this.image = new Image(this.fileName);
+    }
+    await this.image.display();
+  }
+}
+
+(async () => {
+  const image = ProxyImage('puppy.png');
+
+  await image.resizeImage(640);
+  // 이외에도 Image 객체가 직접 필요없지만 display 하기 전까지 처리해야 할 작업들 요청
+
+  await image.display();
+})();
+```
+
+두 번째 예시로 접근 권한 제어이다.  
+시스템 명령어를 사용할 때 일부 명령어, 예를 들어 파일 삭제 명령어 등은 되돌릴 수 없이 위험한 명령어일 수 있다.  
+그러므로 root가 아니면 명령어를 실행하지 못하게 제한할 필요가 있다.
+
+```ts
+interface SystemCommandSubject {
+  runCommand: (command: string) => void;
+}
+
+interface UserInformation {
+  username: string;
+  password: string;
+}
+
+class SystemCommandExecutor implements SystemCommandSubject {
+  runCommand(command: string) {
+    System.run(command);
+  }
+}
+
+class SystemCommandProxy implements SystemCommandSubject {
+  static privilegedCommands = ['rm', 'chown'];
+
+  private isRoot!: boolean;
+  private executor!: SystemCommandSubject;
+
+  constructor(userInformation: UserInformation) {
+    this.isRoot = this.isRightRootInformation(userInformation);
+    this.executor = new SystemCommandExecutor();
+  }
+
+  isRightRootInformation(userInformation: UserInformation): boolean {
+    return System.checkUser(userInformation);
+  }
+
+  runCommand(command: string) {
+    const canRun =
+      this.isRoot ||
+      !SystemCommandProxy.privilegedCommands.some((privilegedCommand) =>
+        command.startsWith(privilegedCommand)
+      );
+    if (canRun) {
+      this.executor.runCommand(command);
+
+      return;
+    }
+
+    console.error('권한이 없습니다');
+  }
+}
+
+const privilegedCommander = new SystemCommandProxy({
+  username: 'root',
+  password: '0000',
+}); // correct root
+const unprivilegedCommander = new SystemCommandProxy({
+  usename: 'not-root',
+  passowrd: '0000',
+}); // incorrect root
+
+privilegedCommander('rm'); // 정상 작동
+unprivilegedCommander('rm'); // 권한이 없습니다
+```
+
+세 번째 예시로 캐싱이다.  
+외부 라이브러리를 입맛에 맞게 변경하거나 JAVA와 같은 언어에서 `final`로 선언된 클래스에 대한 조작이 필요할 경우 사용할 수 있다.  
+예를 들어 유튜브 API를 제공하는 클래스를 이용해서 본인의 서비스에서 이용해야 하지만 유튜브 API 자체에는 캐싱이 지원되지 않는다고 하자.
+
+```ts
+interface YouTubeAPI {
+  listVideos: () => void;
+  getVideoInformation: (id: string) => void;
+}
+
+// 유튜브에서 제공하는 클래스
+class ThirdPartyYouTube implements YouTubeAPI {
+  listVideos() {
+    // ...
+  }
+
+  getVideoInformation() {
+    // ...
+  }
+}
+
+class CachedYouTube implements YouTubeAPI {
+  constructor(
+    private service: YouTubeAPI,
+    private cachedList = null,
+    private cachedVideoInformation = null
+  ) {}
+
+  listVideos() {
+    if (!this.cachedList) {
+      this.cachedList = this.service.listVideos();
+    }
+    return this.cachedList;
+  }
+
+  getVidoeInformation() {
+    if (!this.cachedVideoInformation) {
+      this.cachedVideoInformation = this.service.getVidoeInformation();
+    }
+    return this.cachedVideoInformation;
+  }
+}
+```
+
 ## 4. 행위 패턴
 
 ### Command
@@ -880,7 +1104,7 @@ observer는 subject의 변화 상태를 구독하다가 변화가 발생되었�
   - 상태 관리가 힘들 수도 있다.
   - 데이터 배분을 잘 해야 한다.
 
-JS의 `addEventlistener`가 이러한 패턴을 응용했다고 볼 수 있다.  
+JS의 `addEventListener`가 이러한 패턴을 응용했다고 볼 수 있다.  
 콜백을 전달함으로써 observer 패턴을 구현할 수도 있지만 다음 예제에서는 subject가 observer의 주소값을 내부적으로 가지고 있는 형태로 구현했다.
 
 #### 코드 예시
