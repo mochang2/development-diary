@@ -893,7 +893,7 @@ Proxy 패턴은 사용하기 쉬운 만큼 다양한 패턴이 존재한다.
 예를 들어 많은 이미지들을 처리해야 하는 경우, 이미지가 정말 필요하다는 요청이 올 때까지 미뤄 다른 작업의 우선 순위와 속도를 높일 수 있다.
 
 2\) _원격 프록시_  
-원격 객체에 대한 접근을 surroage 역할을 하는 객체가 대신해, 서로 다른 주소 공간에 있는 객체룰 마치 같은 주소 공간에 있는 것처럼 동작하게 만드는 패턴이다.  
+원격 객체에 대한 접근을 surroage 역할을 하는 객체가 대신해, 서로 다른 주소 공간에 있는 객체를 마치 같은 주소 공간에 있는 것처럼 동작하게 만드는 패턴이다.  
 Google Docs가 그 예시이다.  
 (내 생각) 그 외에도 서버와 통신할 때 Proxy 서버를 둬, redirect / LB / 접근 제어 처리 / 프로토콜에 따른 요청 분해 등을 한 다음 서버 자원을 다루는 API를 호출하는 것도 원격 프록시의 한 종류라고 생각한다.
 
@@ -1076,7 +1076,224 @@ class CachedYouTube implements YouTubeAPI {
 
 ## 4. 행위 패턴
 
+https://coding-factory.tistory.com/708  
+https://www.devkuma.com/docs/design-pattern/structural/
+
+> 메서드 호출을 실체화하는 것이다. 이 말은 메서드를 객체로 바꿀 수 있다는 의미이다.
+
+행위 패턴은 객체 사이의 알고리즘이나 책임 분배에 관련된 패턴이다.  
+한 객체가 혼자 수행할 수 없는 작업을 여러 개의 객체로 어떻게 분배하는지, 또 그렇게 하면서도 객체 사이의 결합도를 최소화하는 것에 중점을 둔다.
+
+공통적으로 사용하는 '행위'를 추상화할 수도 있다.  
+게임을 구현한다고 하자.  
+게임 캐릭터는 장애물을 피하기 위해 jump를 할 수 있다.
+하지만 재미 요소를 위해 특정 맵에서나 특정 적 캐릭터도 jump를 해야할 수 있다.  
+이때 jump 명령어를 추상화한다면 jump에 대한 높이 등이 바뀔 때 모든 객체를 수정할 필요가 없이 jump 명령어만 바꾸면 된다.
+
 ### Command
+
+참고  
+https://www.youtube.com/watch?v=Q0Vfr6Ajk9U  
+https://luv-n-interest.tistory.com/1089  
+https://gmlwjd9405.github.io/2018/07/07/command-pattern.html  
+https://velog.io/@newtownboy/%EB%94%94%EC%9E%90%EC%9D%B8%ED%8C%A8%ED%84%B4-%EC%BB%A4%EB%A7%A8%EB%93%9C%ED%8C%A8%ED%84%B4Command-Pattern
+
+Command 패턴은 **요청을 객체로 캡슐화하여 서로 다른 사용자의 매개변수화, 요청 저장 또는 로깅, 연산의 취소를 지원하게 만드는 패턴**이다.
+
+Command 패턴은 행위 패턴의 한 종류로서, 요구 사항을 객체로 캡슐화한다.  
+실행될 기능을 캡슐화함으로써 재사용성이 높은 클래스를 설계하는 패턴으로 하나의 추상 클래스에 메서드를 만들어 각 명령이 들어오면 그에 맞는 서브 클래스가 선택되어 실행되는 패턴이다.  
+(`Invoker` 내부적으로 모든 명령을 관리한 뒤 switch case 등으로 어떤 명령어를 실행해야 옳을지 판단하는 로직이 있을 수 있다. 다만 아래 예시 코드에서는 명령을 Client에서 직접 제어하도록 만들었다)
+하나의 객체가 '행위'할 수 있는 내용이 많다면 사용해볼 수 있다.
+
+![Command UML](https://user-images.githubusercontent.com/63287638/226109068-07165f8a-c018-4d11-b467-9b006fc0d267.png)
+
+위 사진은 일반적인 Command 패턴의 UML이다.  
+`Command` 는 실행될 기능을 `execute` 메서드로 선언한 인터페이스 또는 추상 클래스이다.  
+`ConcreteCommand`는 `Command`를 구현한, 실제로 실행되는 기능을 나타내는 객체이다.  
+`Invoker`는 `ConcreteCommand` 객체들의 `execute`를 요청하는 호출자이다.  
+`Receiver`는 `ConcreteCommand`의 기능을 실행하기 위해 사용하는 수신자 클래스이다. `ConcreteCommand`의 내부 변수로서 저장되어 사용되기도 한다.
+
+다음과 같은 특징이 있다.
+
+- 장점
+  - 객체 간 의존성(어떤 객체(A)에서 다른 객체(B)의 메서드를 실행하려면 객체(B)를 참조하고 있어야 하는)을 제거할 수 있다.
+  - 기능이 수정되거나 변경이 일어날 때 A클래스의 코드를 수정없이 기능에 대한 클래스를 정의하면 되므로 시스템이 확장성이 있으면서 유연성을 가질 수 있다.
+  - 커맨드 단위의 별도의 액션 등이 가능하고 커맨드 상속 및 조합을 통해 더 정교한 커맨드를 구현할 수 있다.
+- 단점
+  - 설계가 복잡하다.
+
+#### 코드 예시
+
+요새 스마트 TV는 되게 많은 일을 할 수 있다.  
+기본적인 TV 기능, 인터넷 검색, 유튜브 시청, TV 연결 등등.  
+이렇게 다양한 기능을 할 수 있는 객체에 Command 패턴을 적용시켜보자.
+
+참고로 아래에 `Network`, `Connection` 각각 인터넷 연결, smartView 연결 등을 구현한 가상의 클래스이다.
+
+처음에는 아무 패턴 없이 스마트 TV를 구현해보겠다.
+
+```ts
+class TV {
+  display() {
+    console.log('화면에 출력');
+  }
+}
+
+class SmartTV extends TV {
+  async searchThroughInternet(keyword: string) {
+    const internet = await Network.connect().openBrowser();
+    const searchResult = internet.search(keyword);
+
+    this.display(searchResult);
+  }
+
+  async playYouTube() {
+    const youtube = await Network.connect().openBrowser('https://youtube.com');
+
+    this.display(youtube);
+  }
+}
+```
+
+위 `SmartTv` 객체를 보면 인터넷 연결 후 검색 결과 display, 유튜브 연결 후 검색 결과 display 등 하나의 객체가 하는 일이 너무 많다.  
+smartView 연결을 구현하면 해당 객체가 책임지는 영역이 더 많아질 것이다.  
+단일 책임 원칙에 위배되기 때문에 인터넷 연결, 유튜브 연결 등은 다른 객체에게 위임하도록 해보자.
+
+```ts
+// TV 클래스는 동일
+
+class BrowserGUI {
+  // ...
+}
+
+class SearchEngine {
+  async searchKeyword(keyword: string): BrowserGUI {
+    const internet = await Network.connect().openBrowser();
+    const searchResult = internet.search(keyword);
+
+    return searchResult;
+  }
+}
+
+class YoutubePlayer {
+  async turnOn(): BrowserGUI {
+    const youtube = await Network.connect().openBrowser('https://youtube.com');
+
+    return yotube;
+  }
+}
+
+class SmartTV extends TV {
+  constructor(private searchEngine, private youtubePlayer) {}
+
+  async searchThroughInternet(keyword: string) {
+    const searchResult = await this.searchEngine.searchKeyword(keyword);
+
+    this.display(searchResult);
+  }
+
+  async playYouTube() {
+    const youtube = await this.yotubePlayer.turnOn();
+
+    this.display(youtube);
+  }
+}
+```
+
+만약 여기서 스마트폰 연결까지 진행한다면?  
+별도의 클래스를 선언할 뿐만 아니라 `SmartTV`의 생성자, 내부 변수 수정 그리고 추가적인 메서드 구현까지 해야 한다.  
+변경될 사항이 너무 많다는 뜻이다.  
+다음 코드는 이러한 문제를 Command 패턴을 이용해 해결한 코드이다.
+
+```ts
+// Command
+// GUI는 Command 패턴과 직접적인 관련이 없음
+
+abstract class GUI {
+  // ...
+}
+
+class BrowserGUI extends GUI {
+  // ...
+}
+
+class SmartPhoneGUI extends GUI {
+  // ...
+}
+
+interface Command {
+  execute: (args: any) => Promise<GUI>;
+}
+
+class SearchEngine implements Command {
+  async execute(keyword: string): BrowserGUI {
+    const internet = await Network.connect().openBrowser();
+    const searchResult = internet.search(keyword);
+
+    return searchResult.view();
+  }
+}
+
+class YoutubePlayer implements Command {
+  async execute(): BrowserGUI {
+    const youtube = await Network.connect().openBrowser('https://youtube.com');
+
+    return yotube.view();
+  }
+}
+
+class SmartPhoneConnector implements Command {
+  async execute(smartViewId: string): SmartPhoneGUI {
+    const smartphone = await Connection.connectSmartPhone(smartViewId);
+
+    return smartphone.view();
+  }
+}
+```
+
+```ts
+// Invoker
+
+class TV {
+  display() {
+    // 화면에 출력하는 로직
+  }
+}
+
+class SmartTV extends TV {
+  private command!: Command;
+
+  setCommand(command: Command) {
+    this.command = command;
+  }
+
+  async display(args: any) {
+    const view = await this.command.execute(args);
+
+    super.display(view);
+  }
+}
+```
+
+```ts
+// Client
+
+(async function () {
+  const smartTv = new SmartTv();
+
+  // 무언가 검색하고 싶다면
+  smartTv.setCommand(new SearchEngine());
+  await smartTv.display('github.com/mochang2');
+
+  // 유튜브를 보고 싶다면
+  smartTv.setCommand(new YoutubePlayer());
+  await smartTv.display();
+
+  // 스마트폰을 연결하고 싶다면
+  smartTv.setCommand(new SmartPhoneConnector());
+  await smartTv.display();
+})();
+```
 
 ### Iterator
 
