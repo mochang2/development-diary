@@ -1614,9 +1614,9 @@ class WeatherController {
     const humidity = getHumidity();
     const pressure = getPressure();
 
-    currentWeatherView.update(temp, humidity, pressure);
-    forecastWeatherView.update(temp, humidity, pressure);
-    staticsticView.update(temp, humidity, pressure);
+    currentWeatherView.update(temperature, humidity, pressure);
+    forecastWeatherView.update(temperature, humidity, pressure);
+    staticsticView.update(temperature, humidity, pressure);
   }
 }
 ```
