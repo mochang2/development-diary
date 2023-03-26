@@ -870,7 +870,7 @@ Decorator와 비슷한 구조를 가지고 있으나 사용하는 의도는 다�
 ![Proxy UML](https://user-images.githubusercontent.com/63287638/224519577-c00acd1e-99eb-49d4-b17b-172ecd32ada7.png)
 
 `Client`는 컴포넌트를 사용하는 곳이다.  
-`Subject`는 `Proxy`와 `RealSubject`가 공통적으로 가지고 있는 속성을 명세화한 인터페이스 또는 가상 클래스로 구현한다.  
+`Subject`는 `Proxy`와 `RealSubject`가 공통적으로 가지고 있는 속성을 명세화한 객체로, 인터페이스 또는 가상 클래스를 통해 구현한다.  
 `Proxy`는 `Client`에서 사용하는 객체로, surrogate, placeholder 역할을 한다. 내부적으로 전처리 후 `RealSubject`를 호출한다.  
 `RealSubject`는 `Client`가 원하는 내용(`DoAction`)을 실제로 행하는 객체이다.
 
@@ -1179,7 +1179,7 @@ class YoutubePlayer {
   async turnOn(): BrowserGUI {
     const youtube = await Network.connect().openBrowser('https://youtube.com');
 
-    return yotube;
+    return youtube;
   }
 }
 
@@ -1238,7 +1238,7 @@ class YoutubePlayer implements Command {
   async execute(): BrowserGUI {
     const youtube = await Network.connect().openBrowser('https://youtube.com');
 
-    return yotube.view();
+    return youtube.view();
   }
 }
 
@@ -1296,6 +1296,285 @@ class SmartTV extends TV {
 ```
 
 ### Iterator
+
+참고  
+https://velog.io/@cham/Design-Pattern-%EC%9D%B4%ED%84%B0%EB%A0%88%EC%9D%B4%ED%84%B0-%ED%8C%A8%ED%84%B4-iterator-pattern  
+https://flower0.tistory.com/446  
+https://refactoring.guru/ko/design-patterns/iterator
+
+**객체를 저장하는 방식(컬렉션)은 보여주지 않으면서도 클라이언트가 객체들에게 일일이 접근할 수 있게 해주는 방법이다.**  
+이 패턴의 구현 방법은 반복 작업을 `Iterator`를 이용해 캡슐화하는 것이다.
+
+컬렉션은 데이터를 효율적으로 저장하기만 하면 되는데, 순회 알고리즘을 추가할수록 책임이 비대해지는 문제가 발생한다.  
+또는 여러 컬렉션을 동시에 다루는 작업이 필요할 수 있다.  
+예를 들어 내부 객체를 `Tree`로 저장한 A 객체와 `Stack`으로 저장한 B 객체가 있다고 하자.  
+그리고 `Client`가 해당 A, B의 내부 객체를 동시에 순회해야 할 일이 있다고 하면, `Client`는 `Tree`, `Stack`을 각각 순회하는 코드와 A, B가 내부적으로 어떻게 구현되어 있는지 알고 있어야 한다.  
+하지만 `Tree`를 순회하는 그리고, `Stack`을 순회하는 `Iterator`를 공통적으로 선언해서 사용한다면 `Client`는 `Iterator`만 알고 있으면 된다.
+
+![Iterator UML](https://user-images.githubusercontent.com/63287638/227749570-e2dc8cff-31c2-4e0d-bfb8-2e9a338b5a36.png)
+
+위 사진은 일반적인 Iterator 패턴의 UML이다.  
+`Iterator`는 컬렉셔의 순회에 필요한 작업들을 선언하는 인터페이스 혹은 가상 클래스이다.  
+`ConcreteIterator`는 컬렉션 순회를 위한 특정 알고리즘들을 구현한다. 내부적으로 순회의 진행 상황을 추적함(몇 번째까지 돌았는지 등)으로써 여러 `Iterator`들이 같은 컬렉션을 독립적으로 순회할 수 있어야 한다.  
+`IterableCollection`은 컬렉션과 호환되는 `Iterator`들을 가져오기 위한 하나 이상의 메서드들을 선언한다.  
+`ConcreteCollection`은 내부 객체를 다루는 역할을 할 뿐만 아니라 `Iterator`를 반환하는 메서드도 존재한다.
+
+Iterator 패턴은 다음과 같은 특징이 있다.
+
+- 장점
+  - 컬렉션을 서로 다른 방식으로 다루는 객체들을 동시에 다룰 수 있다.
+  - `Iterator` 객체는 알고리즘 자체를 구현하는 것 외에도 모든 순회 세부 정보들(예: 현재 위치 및 남은 요소들의 수)을 캡슐화하며, 이 때문에 여러 `Iterator`들이 서로 독립적으로 동시에 같은 컬렉션을 통과할 수 있다.
+  - 순회를 지연하고 필요할 때 계속할 수 있다.
+  - Factory 패턴을 함께 사용하여 컬렉션 자식 클래스들이 해당 컬렉션들과 호환되는 다양한 유형의 반복자들을 반환하도록 할 수 있다.
+- 단점
+  - 내장 컬렉션(JS의 `Array`, `Set` 등)과 같이 단순한 컬렉션들만 작동하는 경우 과도하게 코드가 늘어날 수 있다.
+  - 일부 특수 컬렉션들은 `Iterator`로 순회하면 덜 효율적일 수도 있다.
+
+#### 코드 예시
+
+한식집 알촌과 일식집 기소야가 있다고 하자.  
+알촌은 중복된 메뉴가 있어도 상관없다고 생각해 `Array`로 다루고 있고, 기소야는 메뉴가 중복되면 안 된다고 생각해 `Set`으로 다루고 있다.
+
+```ts
+// ConcreteCollection
+
+interface Food {
+  name: string;
+  price: number;
+  type: string;
+}
+
+type menuType = Food[] | Set<Food>; // 더 상위 collection으로 묶으면 좋겠지만 간단한 코드라 임시 방편으로 작성
+
+interface Menu {
+  addFood: (food: Food) => void;
+  getMenu: () => menuType;
+}
+
+class KoreanMenu implements Menu {
+  constructor(private menu: Food[] = []) {}
+
+  addFood(food: Food) {
+    this.menu.push(food);
+  }
+
+  getMenu() {
+    return this.menu;
+  }
+}
+
+class JapaneseMenu implements Menu {
+  constructor(private menu: Set<Food> = new Set()) {}
+
+  addFood(food: Food) {
+    this.menu.add(food);
+  }
+
+  getMenu() {
+    return this.menu;
+  }
+}
+```
+
+```ts
+// Client
+
+class AlchonKiosk {
+  static foods: Food[] = [
+    { name: '돼지국밥', price: 8000, type: 'korean' },
+    { name: '해물파전', price: 18000, type: 'korean' },
+    { name: '육회비빔밥', price: 9000, type: 'korean' },
+  ];
+
+  private menu!: Food[];
+
+  constructor() {
+    this.initializeMenu();
+  }
+
+  initializeMenu() {
+    this.menu = [...AlchonKiosk.foods];
+  }
+}
+
+class KisoyaKiosk {
+  static foods: Food[] = [
+    { name: '돼지국밥', price: 8000, type: 'korean' },
+    { name: '해물파전', price: 18000, type: 'korean' },
+    { name: '육회비빔밥', price: 9000, type: 'korean' },
+  ];
+
+  private menu!: Food[];
+
+  constructor() {
+    this.initializeMenu();
+  }
+
+  initializeMenu() {
+    this.menu = new Set(KisoyaKiosk.foods);
+  }
+}
+```
+
+어느 날 갑자기 알촌이 너무 잘 나가서 기소야를 합병했다고 하자.  
+기존까지 각자 개발해 판매했기 때문에 큰 문제는 없었지만 이제는 메뉴를 각각 다른 컬렉션에 담는 것이 문제가 된다.  
+키오스크(손님들은 메뉴 주문을 위해 키오스크를 이용한다)는 갑자기 `Array`로 된 메뉴들도 나열해야 하고, `Set`으로 된 메뉴들도 나열해야 손님들이 올바르게 주문을 할 수 있게 된 상황이다.  
+Iterator 패턴으로 상황을 타개해볼 수 있다.
+
+```ts
+// Iterator
+
+// Iterator 인터페이스가 존재하므로 _ 추가
+interface Iterator_<T> {
+  getNext: () => T;
+  hasMore: () => boolean;
+}
+```
+
+```ts
+// ConcreteIterator
+
+class ArrayIterator<T> implements Iterator_<T> {
+  constructor(private array: T[], private index = 0) {}
+
+  getNext() {
+    return this.array[this.index++];
+  }
+
+  hasMore() {
+    return this.index >= this.array.length || !this.array[this.index]
+      ? false
+      : true;
+  }
+}
+
+class SetIterator<T> implements Iterator_<T> {
+  // graceful하지 못하지만 그냥 대충 그러려니 하자 ㅎㅎ...
+  private array!: T[];
+
+  constructor(set: Set<T>, private index = 0) {
+    this.array = [...set];
+  }
+
+  getNext() {
+    return this.array[this.index++];
+  }
+
+  hasMore() {
+    return this.index >= this.array.length || !this.array[this.index]
+      ? false
+      : true;
+  }
+}
+```
+
+```ts
+// IterableCollection, ConcreteCollection
+
+interface Food {
+  name: string;
+  price: number;
+  type: string;
+}
+
+type menuType = Food[] | Set<Food>; // 더 상위 collection으로 추상화하면 좋겠지만 간단한 코드라 임시 방편으로 작성
+
+interface Menu {
+  addFood: (food: Food) => void;
+  getMenu: () => menuType;
+  createIterator: () => Iterator_<Food>;
+}
+
+class KoreanMenu implements Menu {
+  constructor(private menu: Food[] = []) {}
+
+  addFood(food: Food) {
+    this.menu.push(food);
+  }
+
+  getMenu() {
+    return this.menu;
+  }
+
+  createIterator() {
+    return new ArrayIterator<Food>(this.getMenu());
+  }
+}
+
+class JapaneseMenu implements Menu {
+  constructor(private menu: Set<Food> = new Set()) {}
+
+  addFood(food: Food) {
+    this.menu.add(food);
+  }
+
+  getMenu() {
+    return this.menu;
+  }
+
+  createIterator() {
+    return new SetIterator<Food>(this.getMenu());
+  }
+}
+```
+
+```ts
+// Client
+
+class Kiosk {
+  static foods: Food[] = [
+    { name: '돼지국밥', price: 8000, type: '한식' },
+    { name: '해물파전', price: 18000, type: '한식' },
+    { name: '육회비빔밥', price: 9000, type: '한식' },
+    { name: '카레', price: 8000, type: '일식' },
+    { name: '초밥', price: 18000, type: '일식' },
+    { name: '돈까스', price: 10000, type: '일식' },
+  ];
+
+  private menus!: Menu[];
+
+  constructor() {
+    this.initializeMenu();
+  }
+
+  private initializeMenu() {
+    const alchonMenu = new KoreanMenu();
+    const koreanFoods = Kiosk.foods.filter((food) => food.type === '한식');
+    koreanFoods.forEach((food) => alchonMenu.addFood(food));
+
+    const kisoyaMenu = new JapaneseMenu();
+    const japaneseFoods = Kiosk.foods.filter((food) => food.type === '일식');
+    japaneseFoods.forEach((food) => kisoyaMenu.addFood(food));
+
+    this.menus = [alchonMenu, kisoyaMenu];
+  }
+
+  displayMenu() {
+    this.menus.forEach((menu) => {
+      const iterator = menu.createIterator();
+
+      this.iterate(iterator);
+    });
+  }
+
+  private iterate(iterator: Iterator_<Food>) {
+    while (iterator.hasMore()) {
+      const food: Food = iterator.getNext();
+
+      console.log(`음식: ${food.name} - ${food.price}원, ${food.type}`);
+    }
+  }
+}
+
+const kiosk = new Kiosk();
+kiosk.displayMenu();
+// [LOG]: "음식: 돼지국밥 - 8000원, 한식"
+// [LOG]: "음식: 해물파전 - 18000원, 한식"
+// [LOG]: "음식: 육회비빔밥 - 9000원, 한식"
+// [LOG]: "음식: 카레 - 8000원, 일식"
+// [LOG]: "음식: 초밥 - 18000원, 일식"
+// [LOG]: "음식: 돈까스 - 10000원, 일식"
+```
 
 ### Mediator
 
