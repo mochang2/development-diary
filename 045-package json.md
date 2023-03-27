@@ -167,7 +167,7 @@ funding은 `npm fund`라는 subcommand를 사용할 수도 있다.
 
 ### browser
 
-모듈이 client-side에서 사용될 예정이라면 "main" 대신 "browser" 필드를 사용해야 한다.  
+모듈이 client-side에서 사용될 예정이라면 "main" 대신 "browser" 필드를 사용하는 것이 좋다.  
 `window`와 같이 Node.js 모듈이 사용 가능하지 않은 것들을, 사용하는 모듈이라는 힌트를 줄 수 있다.
 
 ### bin
