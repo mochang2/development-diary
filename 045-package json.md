@@ -107,7 +107,8 @@ major, minor, patch release를 명확히 구분해야 함을 느꼈다.
 ### license
 
 사람들이 어떤 용도로 사용할 수 있는지, 그리고 제한이 있는지 등을 명시할 수 있다.  
-주로 내가 사용할 것들은 무료 라이센스들일 것이고 Apache, ISC, BSD, Beerware 등이 있고 자세한 것은 [다음](https://ko.wikipedia.org/wiki/%EC%9E%90%EC%9C%A0_%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4_%EC%82%AC%EC%9A%A9%EA%B6%8C)을 참조하자.  
+주로 내가 사용할 것들은 무료 라이센스들(Apache, ISC, BSD, Beerware 등)일 것이다.  
+무료 라이센스 관련 자세한 내용은 [다음](https://ko.wikipedia.org/wiki/%EC%9E%90%EC%9C%A0_%EC%86%8C%ED%94%84%ED%8A%B8%EC%9B%A8%EC%96%B4_%EC%82%AC%EC%9A%A9%EA%B6%8C)을 참조하자.  
 다른 사용자에게 어떠한 조건으로도 비공개 또는 미공개 패키지를 사용할 수 있는 권한을 부여하지 않으려는 경우 다음과 같이 사용할 수도 있다.
 
 ```json
@@ -115,10 +116,6 @@ major, minor, patch release를 명확히 구분해야 함을 느꼈다.
   "license": "UNLICENSED"
 }
 ```
-
-### author, contributors
-
-간단해서 생략.
 
 ### funding
 
@@ -171,7 +168,7 @@ funding은 `npm fund`라는 subcommand를 사용할 수도 있다.
 ### browser
 
 모듈이 client-side에서 사용될 예정이라면 "main" 대신 "browser" 필드를 사용해야 한다.  
-`window`와 같이 Node.js 모듈이 사용 가능하지 않은 것들을 사용하는 모듈이라는 힌트를 줄 수 있다.
+`window`와 같이 Node.js 모듈이 사용 가능하지 않은 것들을, 사용하는 모듈이라는 힌트를 줄 수 있다.
 
 ### bin
 
@@ -212,7 +209,7 @@ npm을 사용하면 이 기능을 사용하여 "npm" 실행 파일을 설치할 
 
 ### peerDependencies
 
-플러그인(호스트 도구 또는 라이브러리와 패키지의 호환성을 표현하지만 호스트를 필요로 하지 않는 경우)을 나타내는 데 사용한다.
+플러그인(라이브러리와 패키지의 호환성을 표현하지만 호스트를 필요로 하지 않는 경우)을 나타내는 데 사용한다.
 
 ```json
 {
@@ -224,7 +221,7 @@ npm을 사용하면 이 기능을 사용하여 "npm" 실행 파일을 설치할 
 }
 ```
 
-위와 같이 선언하면 이렇게 하면 호스트 패키지 `tea`는 `tea-latte` 2점대 버전과 함께 설치할 수 있다.  
+위와 같이 선언하면 이렇게 하면 `tea-latte`는 오직 호스트 패키지 `tea`의 2점대 버전과 함께 설치할 수 있다.  
 `npm install tea-latte`는 다음과 dependency를 생성한다
 
 ```
