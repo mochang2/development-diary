@@ -6,16 +6,17 @@
 모든 디자인 패턴을 다 작성한다기 보다는 JS에서 주로 사용되는 패턴을 먼저 정리하고자 한다(이후 방향성이 바뀔 수도 있다).
 
 목차  
-[Builder](#builder)
-[Factory](#factory)
-[Singleton](#singleton)
-[Prototype](#prototype)
-[Composite](#composite)
-[Decorator](#decorator)
-[Proxy](#proxy)
-[Command](#command)
-[Iterator](#iterator)
-[Mediator](#mediator)
+[Builder](#builder)  
+[Factory](#factory)  
+[Singleton](#singleton)  
+[Prototype](#prototype)  
+[Composite](#composite)  
+[Decorator](#decorator)  
+[Proxy](#proxy)  
+[Facade](#facade)  
+[Command](#command)  
+[Iterator](#iterator)  
+[Mediator](#mediator)  
 [Observer](#observer)
 
 참고  
@@ -1074,6 +1075,8 @@ class CachedYouTube implements YouTubeAPI {
 }
 ```
 
+### Facade
+
 ## 4. 행위 패턴
 
 https://coding-factory.tistory.com/708  
@@ -1577,6 +1580,180 @@ kiosk.displayMenu();
 ```
 
 ### Mediator
+
+참고  
+https://refactoring.guru/ko/design-patterns/mediator  
+https://velog.io/@cham/Design-Pattern-%EC%A4%91%EC%9E%AC%EC%9E%90-%ED%8C%A8%ED%84%B4Mediator-Pattern  
+https://brownbears.tistory.com/568
+
+**클래스 간의 복잡한 관계들을 캡슐화하여 하나의 클래스에서 관리하도록 처리하는 패턴이다.**  
+Mediator 패턴을 이용하면 객체 간의 혼란스러운 의존 관계를 줄일 수 있다.  
+M개의 객체 사이의 서로 데이터를 주고받을 일이 있을 경우, 최대 M(M + 1) / 2개의 관계가 생긴다.  
+이때 `Mediator` 객체만 하나 추가한다면 이를 다시 M개로 줄일 수 있다.  
+Mediator 패턴은 M:N 관계를 M:1 관계로 만듦으로써 복잡도를 내리므로 유지 보수 및 확장성에 유리하다.
+
+기존 패턴이 아래와 같은 관계를 가지고 있다고 하자.
+
+![Mediator 패턴 적용 이전](https://user-images.githubusercontent.com/63287638/229271366-ac2c3f82-a5ce-494e-915f-5144f5cb368f.jpg)
+
+이에 Mediator 패턴을 적용하면 아래와 같은 관계로 변경될 수 있다.  
+만약 `Button`이나 `TextField` 등의 공통 요소도 추상화가 가능하다면 오른쪽 사진과 같이 더 단순화하여 표현할 수 있다.
+
+![Mediator 패턴 적용 이후](https://user-images.githubusercontent.com/63287638/229271369-07ef9a07-3839-4161-a853-3e44ab2df366.jpg)
+
+아래는 Mediator 패턴 UML이다.  
+다른 패턴들에 비해 꽤나 심플하다.
+
+![Mediator UML](https://user-images.githubusercontent.com/63287638/229271206-a9c48633-4c42-43df-9bf5-1c0667792c40.jpg)
+
+`Mediator`는 `Colleague` 객체 간의 상호 참조를 위한 인터페이스이다. 클라이언트 등록, 실행 등의 메소드를 정의한다.  
+`ConcreteMediator`는 `Mediator` 구현 클래스이다. `Colleague` 간의 상호 참조, 데이터 전달 등의 역할을 한다.  
+`Colleague`는 다른 `Colleague`와의 상호 참조를 위한 인터페이스이다.  
+`ConcreteColleage`는 `Colleague` 구현 클래스이다. `Mediator`를 통해 다른 `Colleague`와의 상호 참조가 가능하다.
+
+간단하게만 다른 패턴과 비교해보겠다.  
+Facade 패턴: 통신을 위해 인터페이스를 설계하고 제공한다는 점에서 두 패턴은 동일하지만 Facade는 단방향 통신만, Mediator는 단방향 통신뿐만 아니라 양방향 통신 또한 가능하다.  
+Observer 패턴: 대부분의 경우 두 패턴 중 하나를 구현할 수 있으나, 때로는 두 패턴을 동시에 적용할 수 있다. 예를 들어 Mediator 객체는 publisher의 역할을 맡고, 컴포넌트들은 Mediator의 이벤트들을 구독 및 구독 취소하는 구독자들의 역할을 맡으면 Observer 패턴과 매우 유사해질 수 있다.
+
+- 장점
+  - 효율적인 자원 관리(리소스 풀 등)를 가능하게 한다.
+  - 객체간의 통신을 위해 서로간에 직접 참조할 필요가 없다(느슨한 결합).
+  - 객체들 간 수정을 하지 않고 관계를 수정할 수 있다.
+- 단점
+  - 특정 application 로직에 맞춰져있기 때문에 다른 application에 재사용하기 힘들다.
+  - Mediaotr 객체에 권한이 집중화되어 굉장히 복잡질 수 있다.
+
+#### 코드 예시
+
+채팅 프로그램은 일종의 Mediator 패턴의 구현체로 볼 수 있다.  
+M명의 사람들이 1:1 채팅 프로그램에 참여하고 있을 때, Mediator가 없다면 M명의 사람들은 각각 M-1개의 연결을 관리해야 하며, 만약 각자의 권한 등이 다르다면 이에 대한 처리도 각자 해야 한다.  
+그리고 일반 유저뿐만 아니라 모든 유저들에게 메시지를 보낼 수 있지만 본인은 메시지를 받지 않고, 특정 유저만 집어서도 메시지를 보낼 수 있는 관리자도 존재한다고 해보자.  
+출발지, 도착지, 권한 확인, 송신, 수신, 연결 관리 등 각각의 객체들이 하는 책임이 많아진다.  
+하지만 여기에 `Mediator`가 존재하면 권한 확인, 연결 관리 등의 책임을 분산할 수 있다.
+
+```ts
+// ConcreteColleage
+
+interface ChatUser {
+  name?: string;
+  send(message: string, to: ChatUser): void;
+  receive(message: string, from: ChatUser): void;
+}
+
+class User implements ChatUser {
+  private mediator: ChatMediator;
+  public name: string;
+
+  constructor(name: string, mediator: ChatMediator) {
+    this.name = name;
+    this.mediator = mediator;
+  }
+
+  send(message: string, to: ChatUser) {
+    console.log(`${this.name} sends "${message}" to ${to.name}`);
+    this.mediator.send(message, this, to);
+  }
+
+  receive(message: string, from: ChatUser) {
+    console.log(`${this.name} received "${message}" from ${from.name}`);
+  }
+}
+
+class Admin implements ChatUser {
+  private mediator: ChatMediator;
+
+  constructor(mediator: ChatMediator) {
+    this.mediator = mediator;
+  }
+
+  send(message: string, to: ChatUser) {
+    console.log(`Admin sends "${message}" to ${to.name}`);
+    this.mediator.send(message, this, to);
+  }
+
+  receive(message: string, from: ChatUser) {
+    // Admin does not receive messages
+  }
+
+  sendToAll(message: string) {
+    console.log(`Admin sends "${message}" to all users`);
+    this.mediator.sendToAll(message, this);
+  }
+
+  sendToSome(message: string, users: ChatUser[]) {
+    console.log(
+      `Admin sends "${message}" to ${users.map((u) => u.name).join(', ')}`
+    );
+    this.mediator.sendToSome(message, this, users);
+  }
+}
+```
+
+```ts
+// Mediator
+
+class ChatMediator {
+  private users: ChatUser[];
+
+  constructor() {
+    this.users = [];
+  }
+
+  addUser(user: ChatUser) {
+    this.users.push(user);
+  }
+
+  send(message: string, from: ChatUser, to: ChatUser) {
+    if (to instanceof Admin) {
+      console.log(`Cannot send message to admin`);
+      return;
+    }
+    to.receive(message, from);
+  }
+
+  sendToAll(message: string, from: ChatUser) {
+    this.users
+      .filter((u) => u !== from)
+      .forEach((u) => u.receive(message, from));
+  }
+
+  sendToSome(message: string, from: ChatUser, users: ChatUser[]) {
+    users
+      .filter((u) => u !== from && !(u instanceof Admin))
+      .forEach((u) => u.receive(message, from));
+  }
+}
+```
+
+```ts
+// Client
+
+const mediator = new ChatMediator();
+const user1 = new User('Alice', mediator);
+const user2 = new User('Bob', mediator);
+const user3 = new User('Charlie', mediator);
+const admin = new Admin(mediator);
+
+// Add the objects to the mediator
+mediator.addUser(user1);
+mediator.addUser(user2);
+mediator.addUser(user3);
+mediator.addUser(admin);
+
+// User 1 sends messages to user 2
+user1.send('Hi Bob. How are you? Do you want to grab lunch?', user2);
+
+// User 2 sends messages to user 3
+user2.send('Hey Charlie. Want to go to the movies tonight?', user3);
+
+// User 3 sends messages to user 1
+user3.send("Hi Alice, long time no see. Sure, let's do lunch tomorrow", user1);
+
+// Admin sends messages to all users
+admin.sendToAll(
+  'Important announcement: the server will be down for maintenance tonight'
+);
+```
 
 ### Observer
 
