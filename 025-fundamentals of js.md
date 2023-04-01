@@ -24,21 +24,21 @@ _출처: https://blog.sessionstack.com/how-javascript-works-memory-management-ho
 C와 같은 저레벨 언어에서는 allocate와 release를 malloc(calloc 등)과 free를 통해서 개발자가 직접 명령해야 하지만 JS, JAVA, Python 등은 별도의 Garbage Collector가 동작해서 메모리 관리를 해준다.
 
 ```javascript
-let n = 374 // allocates memory for a number
+let n = 374; // allocates memory for a number
 
-let s = 'sessionstack' // allocates memory for a string
+let s = 'sessionstack'; // allocates memory for a string
 
 let o = {
   // allocates memory for an object and its contained values
   a: 1,
   b: null,
-}
+};
 
-let a = [1, null, 'str'] // (like object) allocates memory for the array
+let a = [1, null, 'str']; // (like object) allocates memory for the array
 
 function f(a) {
   // allocates memory for a function
-  return a + 3
+  return a + 3;
 }
 
 // 이러한 allocate 이후에 해당 변수나 함수 등을 사용하면 use 단계이다.
@@ -53,10 +53,10 @@ reference 되는 횟수가 0인 메모리는 release하는 전략이다.
 
 ```javascript
 function f() {
-  let o1 = {}
-  let o2 = {}
-  o1.p = o2 // o1 references o2
-  o2.p = o1 // o2 references o1. This creates a cycle.
+  let o1 = {};
+  let o2 = {};
+  o1.p = o2; // o1 references o2
+  o2.p = o1; // o2 references o1. This creates a cycle.
 }
 ```
 
@@ -84,7 +84,7 @@ Node에서는 디버깅을 위한 추가 옵션과 도구를 제공한다. [참�
 
 ```javascript
 function f() {
-  variable = 'text text'
+  variable = 'text text';
   // == window.variable 또는 global.variable = 'text text'
   // == this.variable = 'text text'
   // 이러한 전역 오염을 막기 위해서는 var, let, const 반드시 사용
@@ -94,33 +94,33 @@ function f() {
 **필요 없는 Timer나 callback**
 
 ```javascript
-let serverData = loadData()
+let serverData = loadData();
 
 setInterval(function () {
-  let what = document.getElementById('what')
+  let what = document.getElementById('what');
   if (what) {
-    what.innerHTML = serverData
+    what.innerHTML = serverData;
   }
-}, 5000)
+}, 5000);
 ```
 
 위 코드는 'what'이라는 id를 가진 element가 삭제될 때 더이상 필요하지 않는 타이머인데, 이를 삭제해주는 코드가 존재하지 않는다.  
 아래 코드는 이러한 처리가 잘 되어있는 예시이다.
 
 ```javascript
-let element = document.getElementById('launch-button')
-let counter = 0
+let element = document.getElementById('launch-button');
+let counter = 0;
 
 function onClick(event) {
-  counter++
-  element.innerHtml = 'text ' + counter
+  counter++;
+  element.innerHtml = 'text ' + counter;
 }
-element.addEventListener('click', onClick)
+element.addEventListener('click', onClick);
 
 // Do stuff
 
-element.removeEventListener('click', onClick) // onClick 함수에 대한 참조를 제거
-element.parentNode.removeChild(element)
+element.removeEventListener('click', onClick); // onClick 함수에 대한 참조를 제거
+element.parentNode.removeChild(element);
 
 // element가 유효한 범위를 벗어나게 되면,
 // element와 onClick은 GC에 의해 release됨
@@ -143,21 +143,21 @@ https://www.tutorialspoint.com/if-a-dom-element-is-removed-are-its-listeners-als
     <button id="btn1">btn1</button>
     <button id="btn2">btn2</button>
     <script>
-      'use strict'
+      'use strict';
 
-      let btn1 = document.getElementById('btn1')
-      let btn2 = document.getElementById('btn2')
+      let btn1 = document.getElementById('btn1');
+      let btn2 = document.getElementById('btn2');
 
       btn1.addEventListener('click', function () {
-        console.log('btn1 clicked')
-        btn1.remove()
+        console.log('btn1 clicked');
+        btn1.remove();
         // btn1 = null
-      })
+      });
 
       btn2.addEventListener('click', function () {
-        console.log(btn1)
-        btn1.dispatchEvent(new Event('click')) // #btn1 클릭 이벤트 발생
-      })
+        console.log(btn1);
+        btn1.dispatchEvent(new Event('click')); // #btn1 클릭 이벤트 발생
+      });
     </script>
   </body>
 </html>
@@ -168,48 +168,48 @@ https://www.tutorialspoint.com/if-a-dom-element-is-removed-are-its-listeners-als
 그래서 위와 같은 코드만으로는 GC의 동작을 확인하기 힘들어 프로그래머스 과제관에서 풀었던 '고양이 사진첩 애플리케이션 만들기'의 코드를 이용해 테스트해봤다.
 
 ```javascript
-import { IMAGE_URL } from '../lib/constants.js'
+import { IMAGE_URL } from '../lib/constants.js';
 
 class ImageViewer {
   constructor({ app, filePath }) {
-    const image = this.createImage(filePath)
-    const content = this.createContent(image)
-    const modal = this.createModal(content)
+    const image = this.createImage(filePath);
+    const content = this.createContent(image);
+    const modal = this.createModal(content);
 
     modal.addEventListener('click', (event) => {
       if (event.target.matches('.Modal')) {
-        app.removeChild(modal)
+        app.removeChild(modal);
       }
-    })
+    });
     modal.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' || event.key === 'Esc') {
-        app.removeChild(modal)
+        app.removeChild(modal);
       }
-    })
+    });
 
-    app.append(modal) // modal을 dom에 추가
+    app.append(modal); // modal을 dom에 추가
   }
 
   createImage(filePath) {
-    const image = document.createElement('img')
-    image.setAttribute('src', `${IMAGE_URL}${filePath}`)
+    const image = document.createElement('img');
+    image.setAttribute('src', `${IMAGE_URL}${filePath}`);
 
-    return image
+    return image;
   }
 
   createContent(image) {
-    const content = document.createElement('div')
-    content.append(image)
+    const content = document.createElement('div');
+    content.append(image);
 
-    return content
+    return content;
   }
 
   createModal(content) {
-    const modal = document.createElement('div')
-    modal.setAttribute('class', 'Modal')
-    modal.append(content)
+    const modal = document.createElement('div');
+    modal.setAttribute('class', 'Modal');
+    modal.append(content);
 
-    return modal
+    return modal;
   }
 }
 ```
@@ -227,29 +227,29 @@ class ImageViewer {
 **closure**
 
 ```javascript
-let theThing = null
+let theThing = null;
 
 let replaceThing = function () {
-  let originalThing = theThing
+  let originalThing = theThing;
 
   let unused = function () {
     // theThing을 참조하는 originalThing이 아래에서 할당되므로 더이상 null이 아님
     // 사용되지 않는 함수지만 memory release되지 않음
     if (originalThing) {
-      console.log('hi')
+      console.log('hi');
     }
-  }
+  };
 
   theThing = {
     // replaceThing이 아래에서 호출되면서 더이상 null이 아님.
     longStr: new Array(1000000).join('*'),
     someMethod: function () {
-      console.log('message')
+      console.log('message');
     },
-  }
-}
+  };
+};
 
-setInterval(replaceThing, 1000)
+setInterval(replaceThing, 1000);
 ```
 
 **DOM 객체 참조**
@@ -258,15 +258,15 @@ setInterval(replaceThing, 1000)
 let elements = {
   button: document.getElementById('button'),
   image: document.getElementById('image'),
-}
+};
 
 function doStuff() {
-  elements.image.src = 'http://example.com/image_name.png'
+  elements.image.src = 'http://example.com/image_name.png';
 }
 
 function removeImage() {
   // image를 지워도 button이 남아있기 때문에 elements는 메모리에 남아 있음
-  document.body.removeChild(document.getElementById('image'))
+  document.body.removeChild(document.getElementById('image'));
 }
 ```
 
@@ -291,30 +291,30 @@ ECMAScript 2021에 나온 최신 문법이다.
 **객체가 약한 참조로만 참조되고 있다면 아무도 모르는 것과 동일하게 언젠가 사라질 수 있다**
 
 ```javascript
-const map = new Map()
+const map = new Map();
 
-const obj = { data: new Array(10000).join('*') }
+const obj = { data: new Array(10000).join('*') };
 
-map.set('someData', obj)
+map.set('someData', obj);
 
 setInterval(() => {
-  console.log(map.get('someData').data)
-}, 1000)
+  console.log(map.get('someData').data);
+}, 1000);
 ```
 
 위 코드에서 `obj`가 `map`에 저장되어 있고, `setInterval`에 의해 `map`이 지속적으로 불리기 때문에 콜백이 실행될 때마다 데이터의 존재가 보장된다.  
 반면 `WeakRef`를 사용하는 아래 코드는 그렇지 않다.
 
 ```javascript
-const map = new Map()
+const map = new Map();
 
-const obj = { data: new Array(10000).join('*') }
+const obj = { data: new Array(10000).join('*') };
 
-map.set('someData', new WeakRef(obj))
+map.set('someData', new WeakRef(obj));
 
 setInterval(() => {
-  console.log(map.get('someData').deref().data) // 참조하는 대상이 GC에 의해 회수됐다면 deref()는 undefined를 반환
-}, 1000)
+  console.log(map.get('someData').deref().data); // 참조하는 대상이 GC에 의해 회수됐다면 deref()는 undefined를 반환
+}, 1000);
 ```
 
 일정 시간이 지나면 GC에 의해 `obj`의 메모리가 회수된다.  
@@ -326,15 +326,15 @@ setInterval(() => {
 `Finalizers`는 이벤트 기반으로 옵저버 패턴 또는 구독 패턴과 비슷한 패턴을 사용하고 있다.
 
 ```javascript
-const weakObj = {}
-const gcCallback = (value) => console.log(value)
+const weakObj = {};
+const gcCallback = (value) => console.log(value);
 
-const finalizer = new FinalizationRegistry(gcCallback)
-finalizer.register(weakObj, 'GC 당한 weakObj', weakObj)
+const finalizer = new FinalizationRegistry(gcCallback);
+finalizer.register(weakObj, 'GC 당한 weakObj', weakObj);
 // 인자: 관심 객체, GC 되었을 때 해야할 작업 callback, 관심 객체에 대해 더이상 관심이 없어질 때 finalizer에 전달할 토큰(일반적으로 해당 객체 그 자체)
 
 // 세 번째 인자인 토큰을 통해 unregister 가능
-finalizer.unregister(weakObj)
+finalizer.unregister(weakObj);
 ```
 
 ## 2. prototype
@@ -356,8 +356,8 @@ cf) prototype.\_\_proto\_\_ 이라는 속성이 존재하는데 이는 객체가
 ```javascript
 function Func() {}
 
-let f1 = new Func()
-let f2 = new Func()
+let f1 = new Func();
+let f2 = new Func();
 ```
 
 위와 같은 코드는 아래와 같은 내부 구조를 가진다.
@@ -368,24 +368,24 @@ let f2 = new Func()
 
 ```javascript
 function error() {
-  this.badRequest = 400
-  this.unauthorized = 403
-  this.notFound = 404
+  this.badRequest = 400;
+  this.unauthorized = 403;
+  this.notFound = 404;
 }
 
-const imError = new error()
-const urError = new error()
+const imError = new error();
+const urError = new error();
 
-console.log(imError) // error { badRequest: 400, unauthorized: 403, notFound: 404 }
-console.log(urError) // error { badRequest: 400, unauthorized: 403, notFound: 404 }
-console.log(imError.info) // undefined
+console.log(imError); // error { badRequest: 400, unauthorized: 403, notFound: 404 }
+console.log(urError); // error { badRequest: 400, unauthorized: 403, notFound: 404 }
+console.log(imError.info); // undefined
 
-error.prototype.info = '에러에러에러'
+error.prototype.info = '에러에러에러';
 
-console.log(imError) // error { badRequest: 400, unauthorized: 403, notFound: 404 }
-console.log(urError) // error { badRequest: 400, unauthorized: 403, notFound: 404 }
-console.log(imError.info) // 에러에러에러. prototype chaining. imError은 info가 없으나 error는 info가 있음.
-console.log(urError.info) // 에러에러에러
+console.log(imError); // error { badRequest: 400, unauthorized: 403, notFound: 404 }
+console.log(urError); // error { badRequest: 400, unauthorized: 403, notFound: 404 }
+console.log(imError.info); // 에러에러에러. prototype chaining. imError은 info가 없으나 error는 info가 있음.
+console.log(urError.info); // 에러에러에러
 ```
 
 ### Array의 비밀
@@ -402,56 +402,226 @@ ES5에 객체를 생성하는 새로운 방법이 도입됐었다.
 Object.create를 이용해서 새로운 객체를 만들면, 생성된 객체의 프로토타입은 이 메소드의 첫 번째 인수로 지정된다.
 
 ```javascript
-const a = { a: 1 }
+const a = { a: 1 };
 // a ---> Object.prototype ---> null
 
-const b = Object.create(a)
+const b = Object.create(a);
 // b ---> a ---> Object.prototype ---> null
-console.log(b.a) // 1 (상속됨)
+console.log(b.a); // 1 (상속됨)
 
-const c = Object.create(b)
+const c = Object.create(b);
 // c ---> b ---> a ---> Object.prototype ---> null
 
-const d = Object.create(null)
+const d = Object.create(null);
 // d ---> null
-console.log(d.hasOwnProperty) // undefined이다. 왜냐하면 d는 Object.prototype을 상속받지 않기 때문이다.
+console.log(d.hasOwnProperty); // undefined이다. 왜냐하면 d는 Object.prototype을 상속받지 않기 때문이다.
 ```
 
 다만 https://velog.io/@thms200/Object.create- 를 참고하면 알 수 있듯이 `Object.create()`이나 `new`생성자를 통해 부모 객체의 기능을 물려받으면 생성자 함수를 사용할 수 없기 때문에 `Rectangle.prototype = Object.create(Shape.prototype); Rectangle.prototype.constructor = Rectangle;`과 같이 생성자 property를 별도로 명시해줘야 한다.
 
 ```javascript
 function Animal() {
-  this.type = 'Animal'
+  this.type = 'Animal';
 }
 
 function Mammal(type) {
-  this.subType = 'Mammal'
+  this.subType = 'Mammal';
 }
 
-Mammal.prototype = new Animal()
+Mammal.prototype = new Animal();
 // Mammal.prototype.constructor = Mammal // Mammal class의 생성자는 Mammal이다
 
 function Cat(name) {
-  this.name = name
+  this.name = name;
 }
 
-Cat.prototype = new Mammal('cat')
+Cat.prototype = new Mammal('cat');
 // Cat.prototype.constructor = Cat // Cat class의 생성자는 Cat이다
 
-const siamese = new Cat('siamese')
+const siamese = new Cat('siamese');
 
-console.log(siamese)
-console.log(Object.getPrototypeOf(siamese))
-console.log(Object.getPrototypeOf(Object.getPrototypeOf(siamese)))
+console.log(siamese);
+console.log(Object.getPrototypeOf(siamese));
+console.log(Object.getPrototypeOf(Object.getPrototypeOf(siamese)));
 console.log(
   Object.getPrototypeOf(Object.getPrototypeOf(Object.getPrototypeOf(siamese)))
-)
+);
 ```
 
 위에서 주석처리한 줄에 따라 아래와 같은 서로 다른 결과가 나온다.  
 ![wo constructor](https://user-images.githubusercontent.com/63287638/181062303-d70b6ad4-cc5e-415a-8bc9-3e5f38f58e25.png)
 
 ![with constructor](https://user-images.githubusercontent.com/63287638/181062312-6d274056-1516-400b-bb1d-69a2aaa9e703.png)
+
+### Class에서 method로서 arrow function을 사용하게 되면 생기는 문제들
+
+참고  
+https://simsimjae.tistory.com/452  
+https://www.charpeni.com/blog/arrow-functions-in-class-properties-might-not-be-as-great-as-we-think
+
+위 블로그들을 읽고, React class component에서 arrow function method를 사용하면 안 되나? 라는 의문이 들었다.  
+먼저 나의 결론을 말하자면 _arrow function method 써도 상관없다_ 이다.
+
+다음에 나열할 모든 문제의 원인은 class가 transpile되면서 생기는 문제이다.
+
+아래와 같이 class를 선언했다고 하자.
+
+```js
+class A {
+  static color = 'red';
+  counter = 0;
+
+  handleClick = () => {
+    this.counter++;
+  };
+
+  handleLongClick() {
+    this.counter++;
+  }
+}
+```
+
+이를 es7으로 transpiling하면 다음과 같은 결과가 나온다.
+
+```js
+'use strict';
+
+function _defineProperty(obj, key, value) {
+  // ...
+}
+function _toPropertyKey(arg) {
+  // ...
+}
+function _toPrimitive(input, hint) {
+  // ...
+}
+class A {
+  constructor() {
+    _defineProperty(this, 'counter', 0);
+    _defineProperty(this, 'handleClick', () => {
+      this.counter++;
+    });
+  }
+  handleLongClick() {
+    this.counter++;
+  }
+}
+_defineProperty(A, 'color', 'red');
+```
+
+`_defineProperty`, `_toPropertyKey`, `_toPrimitive`은 선언이므로 무시한다고 하고, 중요한 것은 `handleClick`이라고 선언했던 arrow function method가 `counter`와 같이 instance 변수처럼 `constructor` 내부로 들어갔다는 사실이다.
+
+#### constructor 내부로 들어가면 무슨 문제가 생기는데?
+
+1. overriding이 제대로 동작하지 않을 수 있다.
+
+위와 같이 선언해도 `A` 클래스에서는 아무 문제가 없다.
+
+```js
+class A {
+  handleClick = () => {
+    console.log('A.handleClick');
+  };
+
+  handleLongClick() {
+    console.log('A.handleLongClick');
+  }
+}
+
+console.log(A.prototype); // {constructor: ƒ, handleLongClick: ƒ}
+new A().handleClick(); // A.handleClick
+new A().handleLongClick(); // A.handleLongClick
+```
+
+하지만 `B`, `C` 클래스가 `A`를 상속한다면 문제가 발생한다.
+
+```js
+class B extends A {
+  handleClick = () => {
+    super.handleClick();
+
+    console.log('B.handleClick');
+  };
+
+  handleLongClick() {
+    super.handleLongClick();
+
+    console.log('B.handleLongClick');
+  }
+}
+
+console.log(B.prototype); // A {constructor: ƒ, handleLongClick: ƒ}
+console.log(B.prototype.__proto__); // {constructor: ƒ, handleLongClick: ƒ}
+new B().handleClick(); // Uncaught TypeError: (intermediate value).handleClick is not a function
+new B().handleLongClick(); // A.handleLongClick + B.handleLongClick
+```
+
+```js
+class C extends A {
+  handleClick() {
+    super.handleClick();
+
+    console.log('C.handleClick');
+  }
+}
+
+console.log(C.prototype); // A {constructor: ƒ, handleClick: ƒ}
+console.log(C.prototype.__proto__); // {constructor: ƒ, handleLongClick: ƒ}
+new C().handleClick(); // A.handleClick
+```
+
+이는 상속받은 `B`, `C`가 인스턴스화될 때 내부적으로 `A`의 생성자를 호출하는데, 이때 `A`의 생성자 내부의 `this`는 상속받은 클래스를 가리키기 때문이다.
+
+2. 모킹이 힘들다.
+
+```js
+class A {
+  handleClick = () => {
+    console.log('A.handleClick');
+  };
+
+  handleLongClick() {
+    console.log('A.handleLongClick');
+  }
+}
+
+console.log(A.prototype.handleClick); // undefined
+console.log(A.prototype.handleLongClick); // [Function: handleLongClick]
+```
+
+`prototype`으로 직접 접근하면 `handleClick` 메서드는 정의되지 않음을 알 수 있다.  
+`handleClick` 메서드는 인스턴스화할 때, 즉 `new` 키워드로 클래스가 생성됐을 경우에만 **인스턴스 내부에서** 초기화되기 때문에 다른 객체들은 prototype chaining에 의한 영향을 받지 않는다.  
+이로 인해 모킹이 까다로워진다.
+
+3. 성능이 느리다?!
+
+`prototype` 내의 함수를 호출하면 JS 엔진은 이를 최적화할 수 있다.  
+하지만 여러 인스턴스 내에서 각각 함수를 호출하면 JS 엔진은 이를 서로 다른 함수라고 생각해 최적화할 수 없다.  
+이에 대해 [블로그](https://www.charpeni.com/blog/arrow-functions-in-class-properties-might-not-be-as-great-as-we-think)에서 실험한 결과가 있는데, 사진을 첨부해보겠다.
+
+![class method performance1](https://user-images.githubusercontent.com/63287638/229267609-888b25ad-e495-4599-a4e8-b6a9a6e667ef.jpg)
+
+![class method performance2](https://user-images.githubusercontent.com/63287638/229267610-106d970d-4a63-4d68-a6d4-8f40ecbded0f.jpg)
+
+arrow function으로 method를 선언한 클래스들이 훨씬 느린 것을 알 수 있다.
+
+##### React class component에서 arrow function 성능은 어떠한가
+
+내가 직접 benchmark로 돌려봤을 때는 오히려 arrow function으로 method를 선언한 클래스가 훨씬 빨랐다. ~띠용?!~  
+그래서 여러 가지 검색을 해봤지만 React는 0.x.x 버전 이후로 function method를 auto binding(normal function으로 선언해도 arrow function처럼 동작하도록 `constructor`에서 자동 binding해주는 기능) 하는 기능을 지원하지 않으며, arrow function을 선언함으로써 성능에 문제가 생겼다는 글은 존재하지 않았다.  
+React가 최적화에 신경을 쓴 것도 있겠지만 다음 내용도 어느 정도 신빙성이 있었다.
+
+> Arrow functions can sometimes be faster than normal functions when used in callback functions, since they are more concise and do not create a new `this` context. It's worth noting that these performance issues(arrow function method vs normal function method) are specific to this particular use case(위 블로그 실험 결과) of arrow functions and do not necessarily apply to arrow functions used in other contexts. In general, the performance differences between arrow functions and normal functions are usually negligible, as I mentioned in my previous answer.
+
+위 블로그에서 실행한 내용는 컴포넌트를 과도하게 많이 선언하고 실행한 결과이다.  
+즉, 실제 프로젝트에서 arrow function 선언으로 인해 렌더링이 느려질 걱정은 안 해도 될 것 같고, 만약 렌더링이 느려진다면 다른 원인을 분석하는 게 맞을 것 같다.
+
+**결론**
+React로 웹사이트를 만들 때 굳이 컴포넌트 간 상속을 만들 구조가 많지 않다.  
+또한 메서드 하나하나에 대해 모킹할 일도 적다.  
+테스트를 한다면 차라리 렌더링이 잘 되는지, API call이 되는지, 버튼이 disabled 됐는지 등을 테스트하기 때문이다.  
+마지막으로 성능에 대해서 걱정할 정도는 아니다.  
+따라서 나의 결론은 _arrow function이든 normal function이든 편한 거 쓰자!_ 이다.
 
 ## 3. closure
 
@@ -463,19 +633,19 @@ lexical scope란 함수와 변수의 scope를 선언된 위치를 기준으로 �
 아래 함수를 실행하면 `const num = 10`에서 선언한 `num`이 쓰이지 않는 것을 알 수 있다.
 
 ```javascript
-const num = 1
+const num = 1;
 
 function a() {
-  const num = 10
-  b()
+  const num = 10;
+  b();
 }
 
 function b() {
-  console.log(num)
+  console.log(num);
 }
 
-a() // 1
-b() // 1
+a(); // 1
+b(); // 1
 ```
 
 이제 클로저를 알아보자.
@@ -487,12 +657,12 @@ MDN에 따르면 `클로저는 주변의 상태의 참조와 함께 번들로 �
 
 ```javascript
 function func() {
-  const test = '123'
-  console.log(test)
+  const test = '123';
+  console.log(test);
 }
 
-func() // 123
-console.log(test) // error
+func(); // 123
+console.log(test); // error
 ```
 
 위 예시처럼 함수 밖에서 name을 호출하는 것은 당연히 에러를 발생시킬 것이다.  
@@ -501,37 +671,37 @@ console.log(test) // error
 
 ```javascript
 function outer() {
-  const test = '123'
-  console.log(test)
+  const test = '123';
+  console.log(test);
 
   return function inner() {
-    const variable = '456!'
-    console.log(test + variable)
-  }
+    const variable = '456!';
+    console.log(test + variable);
+  };
 }
 
-const getTest = outer() // 123
-getTest() // 123456!
+const getTest = outer(); // 123
+getTest(); // 123456!
 ```
 
 클로저를 활용하는 유명한 예제가 있다.
 
 ```javascript
-var i
+var i;
 for (i = 0; i < 10; i++) {
   setTimeout(function () {
-    console.log(i) // 10 열 번 출력
-  }, 100)
+    console.log(i); // 10 열 번 출력
+  }, 100);
 }
 
 // IIFE 활용
-var i
+var i;
 for (i = 0; i < 10; i++) {
-  ;(function (j) {
+  (function (j) {
     setTimeout(function () {
-      console.log(j) // 1 ~ 10 출력
-    }, 100)
-  })(i)
+      console.log(j); // 1 ~ 10 출력
+    }, 100);
+  })(i);
 }
 ```
 
@@ -540,35 +710,35 @@ for (i = 0; i < 10; i++) {
 
 ```javascript
 function outer() {
-  const test = '123'
+  const test = '123';
 
   if (true) {
-    const variable = '456!'
+    const variable = '456!';
 
     return function inner() {
-      console.log(variable)
-    }
+      console.log(variable);
+    };
   }
 }
 
-const aa = outer()
-console.dir(aa) // [[Scopes]] 내부에 closure가 없음
+const aa = outer();
+console.dir(aa); // [[Scopes]] 내부에 closure가 없음
 ```
 
 ```javascript
 function outer() {
-  const test = '123'
+  const test = '123';
 
   if (true) {
-    const variable = '456!'
+    const variable = '456!';
     return function inner() {
-      console.log(test + variable)
-    }
+      console.log(test + variable);
+    };
   }
 }
 
-const aa = outer()
-console.dir(aa) // 아래와 같이 [[Scopes]] 내부에 closure 존재
+const aa = outer();
+console.dir(aa); // 아래와 같이 [[Scopes]] 내부에 closure 존재
 ```
 
 <img alt="closure" src="https://user-images.githubusercontent.com/63287638/178147027-061f6477-6aa4-4d32-9284-e2346f909f20.png" width="350" />
@@ -579,22 +749,22 @@ ES6에서 class 문법이 생기면서 private을 사용할 수 있지만, 그 �
 
 ```javascript
 function hello(name) {
-  this._name = name
+  this._name = name;
 }
 
 Hello.prototype.say = function () {
-  console.log('Hello, ' + this._name)
-}
+  console.log('Hello, ' + this._name);
+};
 
-const hello1 = new hello('123')
-const hello2 = new hello('456')
-const hello3 = new hello('789')
+const hello1 = new hello('123');
+const hello2 = new hello('456');
+const hello3 = new hello('789');
 
-hello1.say() // 'Hello, 123'
-hello2.say() // 'Hello, 456'
-hello3.say() // 'Hello, 789'
-hello1._name = 'sudo'
-hello1.say() // 'Hello, sudo'
+hello1.say(); // 'Hello, 123'
+hello2.say(); // 'Hello, 456'
+hello3.say(); // 'Hello, 789'
+hello1._name = 'sudo';
+hello1.say(); // 'Hello, sudo'
 ```
 
 위 코드는 Hello의 private 변수인 \_name(JS 네이밍 컨벤션에 따르면 private variable)에 외부에서 마음껏 접근할 수 있다.  
@@ -602,11 +772,11 @@ hello1.say() // 'Hello, sudo'
 
 ```javascript
 function hello(name) {
-  const _name = name
+  const _name = name;
 
   return function () {
-    console.log('Hello, ' + _name)
-  }
+    console.log('Hello, ' + _name);
+  };
 
   /* 또는
   return function() {
@@ -615,9 +785,9 @@ function hello(name) {
   */
 }
 
-const hello1 = new hello('123')
-const hello2 = new hello('456')
-const hello3 = new hello('789')
+const hello1 = new hello('123');
+const hello2 = new hello('456');
+const hello3 = new hello('789');
 ```
 
 ### 클로저 장점 2. 전역 변수의 사용을 줄임
@@ -625,20 +795,20 @@ const hello3 = new hello('789')
 count와 같이 많이 사용할 수 있는 변수의 이름을 사용해서 전역 오염시키지 않을 수 있다.
 
 ```javascript
-let count = 0
+let count = 0;
 function handleCilck() {
-  count++
-  return count
+  count++;
+  return count;
 }
 
 // 대신에 아래처럼
 
 function handleCilck() {
-  let count = 0
+  let count = 0;
   return function () {
-    count++
-    return count
-  }
+    count++;
+    return count;
+  };
 }
 ```
 
@@ -654,16 +824,16 @@ c++에서 delete를 쓰던 것처럼 객체에 null을 넣어주면 된다.
 
 ```javascript
 function hello(name) {
-  const _name = name
+  const _name = name;
 
   return function () {
-    console.log('Hello, ' + _name)
-  }
+    console.log('Hello, ' + _name);
+  };
 }
 
-const hello1 = new hello('123')
+const hello1 = new hello('123');
 
-hello1 = null // release
+hello1 = null; // release
 ```
 
 ## 4. this
@@ -676,10 +846,10 @@ JS는 함수가 어떻게 불리느냐에 따라서 this에 대한 서로 다른
 
 ```javascript
 function func() {
-  return this === global
+  return this === global;
 }
 
-console.log(func()) // true
+console.log(func()); // true
 ```
 
 ### 객체의 값으로서의 함수
@@ -690,12 +860,12 @@ console.log(func()) // true
 const obj = {
   value: 123,
   key: function func() {
-    return this.value
+    return this.value;
   },
-}
+};
 
-console.log(obj.key) // [Function: func]
-console.log(obj.key()) // 123
+console.log(obj.key); // [Function: func]
+console.log(obj.key()); // 123
 ```
 
 ### new로 생성된 함수
@@ -705,25 +875,25 @@ console.log(obj.key()) // 123
 
 ```javascript
 function func() {
-  console.log(this)
+  console.log(this);
 }
-new func() // func {}
+new func(); // func {}
 
 function func2() {
-  console.log(this.key)
-  this.key = 'value'
-  console.log(this.key)
+  console.log(this.key);
+  this.key = 'value';
+  console.log(this.key);
 }
-new func2()
+new func2();
 // undefined
 // value
 
 function func3() {
-  this.age = 100
-  return 3
+  this.age = 100;
+  return 3;
 }
-const a = new func3()
-console.log(a) // func3 { age: 100 }
+const a = new func3();
+console.log(a); // func3 { age: 100 }
 ```
 
 ### call, bind, apply
@@ -731,18 +901,18 @@ console.log(a) // func3 { age: 100 }
 해당 함수의 첫 번째 인자로 전달되는 객체를 가리킨다.
 
 ```javascript
-const age = 100
+const age = 100;
 
 function foo() {
-  console.log(this.age)
+  console.log(this.age);
 }
 
 var ken = {
   age: 35,
   log: foo,
-}
+};
 
-foo.call(ken, 1, 2, 3) // 35
+foo.call(ken, 1, 2, 3); // 35
 ```
 
 ### 참고 arrow function vs 일반 function
@@ -761,43 +931,43 @@ arrow function을 부른 위치가 어디냐에 따라서 해당 함수 내부�
 
 ```javascript
 function func() {
-  console.log('Inside func:', this.aa) // 13
+  console.log('Inside func:', this.aa); // 13
 
   return {
     aa: 25,
     arrow: () => console.log('Inside aa:', this.aa), // 13
-  }
+  };
 }
 
-func.call({ aa: 13 }).arrow()
+func.call({ aa: 13 }).arrow();
 ```
 
 ```javascript
 // function을 이용해서 prototype을 사용할 때
 // this, arrow function 주의
 function Parent() {
-  this.name = 'parent'
+  this.name = 'parent';
 }
 
 Parent.prototype.getName = () => {
-  return this.name // uses 'this' that is available at the time the function is evaluated. return 'aa' 와 같은 this를 사용하지 않는 것이면 잘 작동.
-}
+  return this.name; // uses 'this' that is available at the time the function is evaluated. return 'aa' 와 같은 this를 사용하지 않는 것이면 잘 작동.
+};
 
 function Child() {
-  this.name = 'child'
+  this.name = 'child';
 }
 
-Child.prototype = new Parent()
+Child.prototype = new Parent();
 
 Child.prototype.getName = function () {
-  return this.name
-}
+  return this.name;
+};
 
-const p = new Parent()
-const c = new Child()
+const p = new Parent();
+const c = new Child();
 
-console.log(p.getName()) // undefined. this는 빈 객체
-console.log(c.getName()) // 'child'
+console.log(p.getName()); // undefined. this는 빈 객체
+console.log(c.getName()); // 'child'
 ```
 
 cf) 개인적인 생각이지만, React에서 컴포넌트를 선언할 때 일반 function보다는 arrow function을 사용하라고 한다. 아마 함수형 컴포넌트 이전에 클래스형 컴포넌트를 사용할 때 this를 많이 사용했는데, 이 this가 global 또는 window를 가리킬 수도 있어서 의도치 않게 동작할 수 있기 때문인 것 같다. 다만 클래스간 상속할 때는 [arrow function이 위험한 이유](https://simsimjae.tistory.com/452)를 참고해서 arrow function이 꼭 필요한지 한 번더 생각해보자.
@@ -805,8 +975,8 @@ cf) 개인적인 생각이지만, React에서 컴포넌트를 선언할 때 일�
 ```javascript
 class Parent {
   getName = () => {
-    console.log('parent')
-  }
+    console.log('parent');
+  };
 }
 
 // 위와 같이 선언하면 아래 같이 바뀜
@@ -822,11 +992,11 @@ class Parent {
 
 class Child extends Parent {
   getName() {
-    console.log('child')
+    console.log('child');
   }
 }
 
-new Child().getName() // parent
+new Child().getName(); // parent
 ```
 
 ## 5. Event Bubbling
@@ -890,20 +1060,20 @@ div {
 
 ```javascript
 // querySelector로 가져온 뒤 forEach를 돌리면 되는데 귀찮아서 일일이 다 씀...
-const div3 = document.getElementById('div3')
+const div3 = document.getElementById('div3');
 div3.addEventListener('click', (e) => {
-  alert('click div3')
-})
+  alert('click div3');
+});
 
-const div2 = document.getElementById('div2')
+const div2 = document.getElementById('div2');
 div2.addEventListener('click', (e) => {
-  alert('click div2')
-})
+  alert('click div2');
+});
 
-const div1 = document.getElementById('div1')
+const div1 = document.getElementById('div1');
 div1.addEventListener('click', (e) => {
-  alert('click div1')
-})
+  alert('click div1');
+});
 ```
 
 ### stopPropagation
@@ -912,22 +1082,22 @@ div1.addEventListener('click', (e) => {
 아래 [이벤트 캡처링](https://github.com/mochang2/development-diary/edit/main/025-fundamentals%20of%20js.md#event-capturing)에서도 동일한 원리로 동작한다.
 
 ```javascript
-const div3 = document.getElementById('div3')
+const div3 = document.getElementById('div3');
 div3.addEventListener('click', (e) => {
   // e.stopPropagation(); // 여기에 쓰면 click div3까지만 실행된다
-  alert('click div3')
-})
+  alert('click div3');
+});
 
-const div2 = document.getElementById('div2')
+const div2 = document.getElementById('div2');
 div2.addEventListener('click', (e) => {
   // e.stopPropagation(); // 여기에 쓰면 click div2까지만 실행된다
-  alert('click div2')
-})
+  alert('click div2');
+});
 
-const div1 = document.getElementById('div1')
+const div1 = document.getElementById('div1');
 div1.addEventListener('click', (e) => {
-  alert('click div1')
-})
+  alert('click div1');
+});
 ```
 
 ### event capturing
@@ -937,32 +1107,32 @@ div1.addEventListener('click', (e) => {
 아래와 같은 코드면 `click div1` -> `click div2` -> `click div3` 순으로 실행된다.
 
 ```javascript
-const div3 = document.getElementById('div3')
+const div3 = document.getElementById('div3');
 div3.addEventListener(
   'click',
   (e) => {
-    alert('click div3')
+    alert('click div3');
   },
   { capture: true }
-)
+);
 
-const div2 = document.getElementById('div2')
+const div2 = document.getElementById('div2');
 div2.addEventListener(
   'click',
   (e) => {
-    alert('click div2')
+    alert('click div2');
   },
   { capture: true } // 호기심에 이 부분을 빼보니 div2의 이벤트가 가장 늦게 실행됐다
-)
+);
 
-const div1 = document.getElementById('div1')
+const div1 = document.getElementById('div1');
 div1.addEventListener(
   'click',
   (e) => {
-    alert('click div1')
+    alert('click div1');
   },
   { capture: true }
-)
+);
 ```
 
 ### event delegation
@@ -989,28 +1159,28 @@ _출처: https://joshua1988.github.io/web-development/javascript/event-propagati
 
 ```javascript
 // input에 이벤트 추가
-var inputs = document.querySelectorAll('input')
+var inputs = document.querySelectorAll('input');
 inputs.forEach(function (input) {
   input.addEventListener('click', function (event) {
-    alert('clicked')
-  })
-})
+    alert('clicked');
+  });
+});
 
 // 새로운 element를 추가하는 코드
-var itemList = document.querySelector('.itemList')
+var itemList = document.querySelector('.itemList');
 
-var li = document.createElement('li')
-var input = document.createElement('input')
-var label = document.createElement('label')
-var labelText = document.createTextNode('이벤트 위임 학습')
+var li = document.createElement('li');
+var input = document.createElement('input');
+var label = document.createElement('label');
+var labelText = document.createTextNode('이벤트 위임 학습');
 
-input.setAttribute('type', 'checkbox')
-input.setAttribute('id', 'item3')
-label.setAttribute('for', 'item3')
-label.appendChild(labelText)
-li.appendChild(input)
-li.appendChild(label)
-itemList.appendChild(li)
+input.setAttribute('type', 'checkbox');
+input.setAttribute('id', 'item3');
+label.setAttribute('for', 'item3');
+label.appendChild(labelText);
+li.appendChild(input);
+li.appendChild(label);
+itemList.appendChild(li);
 ```
 
 위에 코드(`addEventListener` 코드)까지는 새로운 TODO가 생기지 않다면 잘 동작할 것이다.  
@@ -1019,10 +1189,10 @@ itemList.appendChild(li)
 
 ```javascript
 // 위에 쓴 JS 코드 다 지우고
-var itemList = document.querySelector('.itemList')
+var itemList = document.querySelector('.itemList');
 itemList.addEventListener('click', function (event) {
-  alert('clicked')
-})
+  alert('clicked');
+});
 ```
 
 ## 6. async vs defer
@@ -1154,15 +1324,15 @@ Stack이라는 이름에서 알 수 있듯이 LIFO 구조이며, c에서 함수�
 
 ```javascript
 function first() {
-  console.log('first')
-  second()
+  console.log('first');
+  second();
 }
 
 function second() {
-  console.log('second')
+  console.log('second');
 }
 
-first()
+first();
 ```
 
 위 함수는 아래와 같은 순서로 동작한다.
@@ -1204,13 +1374,13 @@ Call Stack을 지켜보고 있다가 Call Stack이 비었을 경우, Callback Qu
 이러한 반복적인 행동을 틱(tick)이라 한다.
 
 ```javascript
-console.log('1')
+console.log('1');
 
 setTimeout(() => {
-  console.log('3')
-}, 3000)
+  console.log('3');
+}, 3000);
 
-console.log('2')
+console.log('2');
 ```
 
 위 코드에 따른 결과는 `1 2 3` 순이다.  
@@ -1232,27 +1402,27 @@ console.log('2')
 
 ```javascript
 const waitASecond = () => {
-  let start = Date.now()
-  let now = start
+  let start = Date.now();
+  let now = start;
 
   while (now - start < 1000) {
-    now = Date.now()
+    now = Date.now();
   }
-}
+};
 
-console.log('1')
+console.log('1');
 
 setTimeout(function () {
-  console.log('2')
-}, 0)
+  console.log('2');
+}, 0);
 
-let promise = new Promise((resolve, reject) => resolve())
+let promise = new Promise((resolve, reject) => resolve());
 
-promise.then((resolve) => console.log('3')).then((resolve) => console.log('4'))
+promise.then((resolve) => console.log('3')).then((resolve) => console.log('4'));
 
-waitASecond()
+waitASecond();
 
-console.log('5')
+console.log('5');
 ```
 
 위의 내용들을 정리했을 때 코드는 `1 5 3 4 2` 순으로 출력된다.
@@ -1280,12 +1450,12 @@ JS에서 primitive type들, 즉 Boolean, String, Number, Null, Undefined, Symbol
 이 값들은 메모리 영역 안에서 변경이 불가능하며 변수에 할당할 때 완전히 새로운 값이 만들어져서 할당된다.
 
 ```javascript
-let str = 'str'
-let newStr = str
-str = 'str2'
+let str = 'str';
+let newStr = str;
+str = 'str2';
 
-console.log(str) // 'str2'
-console.log(newStr) // 'str'
+console.log(str); // 'str2'
+console.log(newStr); // 'str'
 ```
 
 1. 'str'라는 string 타입의 값이 메모리에 생성되고, `str`은 'str' 메모리 값을 가리킨다.
@@ -1309,12 +1479,12 @@ console.log(newStr) // 'str'
 객체도 다음과 같이 사용하면 위에서 설명한 과정과 똑같은 순서를 거친다.
 
 ```javascript
-let arr1 = [1, 2, 3]
-let arr2 = arr1
-arr1 = [1, 2, 3, 4]
+let arr1 = [1, 2, 3];
+let arr2 = arr1;
+arr1 = [1, 2, 3, 4];
 
-console.log(arr1) // [1, 2, 3, 4]
-console.log(arr2) // [1, 2, 3]
+console.log(arr1); // [1, 2, 3, 4]
+console.log(arr2); // [1, 2, 3]
 ```
 
 다만 primitive type과 달리 object type는 '불변하다'고 표현하지 않는다.  
@@ -1324,14 +1494,14 @@ console.log(arr2) // [1, 2, 3]
 const x = {
   // let이어도 동일한 결과
   name: '123',
-}
+};
 
-const y = x
+const y = x;
 
-x.name = '456'
+x.name = '456';
 
-console.log(y.name) // 456
-console.log(x === y) // true
+console.log(y.name); // 456
+console.log(x === y); // true
 ```
 
 1. `x`에 새로 만든 객체를 할당한다.
