@@ -270,7 +270,7 @@ console.log(new Intl.DateTimeFormat('en-US', options).format(date))
 1. [regex를 내부적으로 사용하고 있어 다른 라이브러리에 비해 느리다](https://raygun.com/blog/moment-js-vs-date-fns/).
 2. [무겁다](https://inventi.studio/en/blog/why-you-shouldnt-use-moment-js).
 3. [tree shaking이 제공되지 않으며](https://how-to.dev/what-is-the-size-impact-of-importing-momentjs), tree shaking을 하더라도 다른 라이브러리보다 무겁다.
-4. [객체를 불변하기 다루지 않는다. 즉, side effect가 발생한다](https://inventi.studio/en/blog/why-you-shouldnt-use-moment-js).
+4. [객체를 불변하게 다루지 않는다. 즉, side effect가 발생한다](https://inventi.studio/en/blog/why-you-shouldnt-use-moment-js).
 
 ```javascript
 const startedAt = moment()
