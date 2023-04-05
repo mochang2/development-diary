@@ -744,8 +744,3 @@ img {
     transform: rotateY(0deg);
 }
 ```
-
-## css 성능 향상 방법
-
-https://yceffort.kr/2021/03/improve-css-performance
-
