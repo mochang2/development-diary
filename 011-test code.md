@@ -169,7 +169,47 @@ afterAll(() => {
 5. toMatch('문자열 또는 정규표현식'): 문자열과 일치하는지 또는 정규표현식에 일치하는지 쓰인다.
 6. toThrow(argument?): 함수는 인자도 받는데 문자열을 넘기면 예외 메세지를 비교하고 정규식을 넘기면 정규식 체크를 해준다.
 
-### tset.each
+#### `toBe` vs `toEqual`
+
+primitive types는 무엇을 쓰든 상관 없이 같은 결과가 나온다.  
+하지만 Object는 아니다.  
+`toBe`는 같은 메모리를 가리키고 있는지 확인하는 것이고, `toEqual`은 같은 값을 가지고 있는지를 확인하는 것이다.
+
+```js
+describe("toBe", () => {
+  test("같은 메모리를 가리키면 같다고 판단한다.", () => {
+    const obj1 = {}
+    const obj2 = obj1
+
+    expect(obj1).toBe(obj2) // true
+  })
+
+  test("다른 메모리를 가리키면 값이 같더라고 다르다고 판단한다.", () => {
+    const obj1 = {}
+    const obj2 = {}
+
+    expect(obj1).toBe(obj2) // false
+  })
+})
+
+describe("toEqual", () => {
+  test("같은 메모리를 가리키면 같다고 판단한다.", () => {
+    const obj1 = {}
+    const obj2 = obj1
+
+    expect(obj1).toEqual(obj2) // true
+  })
+
+  test("같은 값을 가지고 같다고 판단한다.", () => {
+    const obj1 = {}
+    const obj2 = {}
+    
+    expect(obj1).toEqual(obj2) // true
+  })
+})
+```
+
+### test.each
 
 테스트 코드도 유지보수의 대상이다.  
 최대한 사람의 직접적인 수정이 덜 필요하게 만들어야 하기 때문에 다음과 같이 반복문적인 부분을 제공한다.
@@ -184,6 +224,8 @@ test.each([[999], [0], [-123], [NaN], ['string'], [12.34]])(
   }
 )
 ```
+
+
 
 ### Mocking
 
@@ -516,3 +558,165 @@ it("뭔가 수행한다.", async () => {
     expect(FavoriteDrinkInput()).toBeInTheDocument();
 });
 ```
+
+### @testing-library/react 팁
+
+참고  
+https://yrnana.dev/post/2021-08-15-testing-library/  
+https://kentcdodds.com/blog/common-mistakes-with-react-testing-library  
+https://velog.io/@velopert/react-testing-library  
+https://webtips.dev/solutions/classes-in-react-testing-library
+
+1. `render` vs `screen`
+
+아래 두 코드는 모두 동작하고 기능적으로 잘못된 부분은 없다.
+
+```js
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+
+describe("렌더링", () => {
+  test("Foo가 있는 컴포넌트가 렌더링된다1.", () => {
+    const { getByText } = render(<div>Foo</div>)
+
+    expect(getByText('Foo')).toBeInTheDocument()
+  })
+
+  test("Foo가 있는 컴포넌트가 렌더링된다2.", () => {
+    render(<div>Foo</div>)
+
+    expect(screen.getByText('Foo')).toBeInTheDocument()
+  })
+})
+```
+
+[해당 모듈 컨트리뷰터의 블로그](https://kentcdodds.com/blog/common-mistakes-with-react-testing-library#not-using-screen)에 따르면 `screen`을 사용하는 것이 권장된다.  
+구조 분해 할당을 해서 몇 개의 함수를 뽑아 써야 한다면 여러 테스트 코드가 번잡해지기 때문이다.
+
+> The benefit of using screen is you no longer need to keep the render call destructure up-to-date as you add/remove the queries you need. You only need to type screen. and let your editor's magic autocomplete take care of the rest.
+> The only exception to this is if you're setting the container or baseElement which you probably should avoid doing (I honestly can't think of a legitimate use case for those options anymore and they only exist for historical reasons at this point).
+
+2. 올바른 assertion을 사용한다.
+
+에러 메시지가 알려주는 자세함이 다르기 때문이다.
+
+```js
+const button = screen.getByRole('button', {name: /disabled button/i})
+
+// ❌
+expect(button.disabled).toBe(true)
+// error message:
+// expect(received).toBe(expected) // Object.is equality
+//
+// Expected: true
+// Received: false
+
+// ✅
+expect(button).toBeDisabled()
+// error message:
+// Received element is not disabled:
+// <button />
+```
+
+3. `aria-`, `role`의 잘못된 또는 불필요한 접근자를 쓰지 않는다.
+
+`button`, `nav`, `main` 등 시맨틱 태그는 기본적으로 본인의 속성을 가지고 있다.  
+해당 내용은 다음 [링크](https://www.w3.org/TR/html-aria/#docconformance)에서 확인할 수 있다.
+
+> Slapping accessibility attributes willy nilly is not only unnecessary (as in the case above), but it can also confuse screen readers and their users. The accessibility attributes should really only be used when semantic HTML doesn't satisfy your use case (like if you're building a non-native UI that you want to make accessible like an autocomplete).
+
+4. `query*`로 element를 찾는 것은 DOM에 존재하지 않는 element에 대해서만 쓴다.
+
+`get*`, `find*` 등은 DOM에 존재하지 않는 element에 접근할 때 에러를 던진다.  
+그리고 그 에러 메시지는 `query*`로 찾은 element를 `toBeInTheDocument()`로 확인하는 것보다 더 유용한 에러 정보를 제공한다.
+
+```js
+// ❌
+expect(screen.queryByRole('alert')).toBeInTheDocument()
+
+// ✅
+expect(screen.getByRole('alert')).toBeInTheDocument()
+expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+```
+
+5. `waitFor`보다는 `find*`를 쓴다.  
+
+```js
+// ❌
+const submitButton = await waitFor(() =>
+  screen.getByRole('button', {name: /submit/i}),
+)
+
+// ✅
+const submitButton = await screen.findByRole('button', {name: /submit/i})
+```
+
+더 간결하고 유용한 에러 정보를 제공하기 때문이다.  
+참고로 위 쿼리들은 당장에 존재하지 않을 수 있는 element를 찾을 때 사용한다.
+
+6. `waitFor` 내부에서 사이드 이펙트를 수행하지 않는다.
+
+```js
+// ❌
+await waitFor(() => {
+  fireEvent.keyDown(input, {key: 'ArrowDown'})
+  expect(screen.getAllByRole('listitem')).toHaveLength(3)
+})
+
+// ✅
+fireEvent.keyDown(input, {key: 'ArrowDown'})
+await waitFor(() => {
+  expect(screen.getAllByRole('listitem')).toHaveLength(3)
+})
+```
+
+`waitFor`는 non-deterministic한 callback을 처리하기 위한 함수이다.  
+따라서 `waitFor` 내부에서 예상치 못하게 side-effect가 여러 번 실행될 수 있다.
+
+7. 올바른 가정문을 쓴다.
+
+`jest-dom`에서 제공하는 matchers를 활용한다.
+
+```js
+const button = screen.getByRole('button')
+
+ // ❌
+expect(button.disabled).toBe(true)
+
+ // ✅
+expect(button).toBeDisabled();
+```
+
+8. **사용자 관점에서 테스트를 작성한다.**
+
+다음과 같은 컴포넌트가 있다고 하자.
+
+```jsx
+function SubmitButton() {
+  return (
+    <button className="submit-button" data-testid="submit-button-testid">
+      등록
+    </button>
+  )
+}
+```
+
+위 컴포넌트의 `button` element에 접근할 수 있는 방법은 다양하다.
+
+```js
+document.querySelector('.submit-button'); // querySelector를 사용할 수 있음. react testing library는 class로 query하는 방식을 제공하지 않음.
+screen.getByTestId('submit-button-testid');
+screen.getbyRole('button', { name: /등록/ });
+```
+
+사용자는 `SubmitButton`을 누를 때 class를 보거나 testid를 보는 것이 아니다.  
+`byRole`은 class나 testid 변경 등, 개발단에서만 변경이 적용되는 내용에 영향을 받지 않는다(받아도 덜 받는다).  
+또한`byRole` 쿼리를 사용한다면 "등록"이라는 명확한 단어가 필요한 부분에서 "등럭" 같은 오타가 발생하는 말도 안 되는 경우를 미리 발견하고 에러를 해결할 수도 있다.
+
+비슷한 의미에서 class로 쿼리해서 가져오는 것을 지양하자.  
+class 네이밍을 변경할 경우 불필요하게 테스트 코드까지 변경해야 되는 경우가 있기 때문이다.  
+class에 대해 반드시 테스트해야 되면 `toHaveClass` assertion으로 테스트가 가능하다.
+
+_`*byRole` 성능 참고_  
+(항상 같은 결과는 아니겠지만) 위 세 가지 쿼리 방법 중 `*byRole`로 쿼리하는 테스트가 가장 느리다.  
+[성능 관련 깃헙 이슈1](https://github.com/testing-library/dom-testing-library/issues/820), [성능 관련 깃헙 이슈2](https://github.com/testing-library/dom-testing-library/issues/552)
