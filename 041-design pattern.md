@@ -1077,6 +1077,87 @@ class CachedYouTube implements YouTubeAPI {
 
 ### Facade
 
+참고  
+https://refactoring.guru/ko/design-patterns/facade  
+https://lktprogrammer.tistory.com/42  
+https://readystory.tistory.com/m/193  
+
+**서브시스템을 더 쉽게 사용할 수 있도록 higher-level 인터페이스를 정의하고, 제공하는 패턴이다.**
+
+Facade는 건물의 정면이라는 뜻으로, Facade 객체는 어떤 소프트웨어의 다른 커다란 코드 부분에 대해 간략화된 인터페이스를 제공한다.  
+라이브러리나 프레임워크(하위 시스템)에 있는 다양한 객체들의 집합이 클라이언트 코드에서 동작시키려면 이러한 모든 객체들을 초기화하고, 종속성 관계를 추적하고, 올바른 순서로 메서드를 실행해야 한다.  
+이 때문에 클라이언트 코드의 비즈니스 로직이 하위 시스템에 종속적이게 될 가능성이 크다.  
+또한 하위 시스템의 모든 기능이 필요하지 않을 때, 클라이언트에서 필요한 기능만 제공하게 만들 수 있다.
+
+아래는 Facade 패턴 UML이다.
+
+![Facade UML](https://user-images.githubusercontent.com/63287638/230818099-c69a55db-6070-4e5b-ae0f-8b61838c1507.PNG)
+
+`Client`는 컴포넌트를 사용하는 곳이다.  
+`Facade`는 하위 시스템 기능들의 특정 부분에 편리하게 접근할 수 있는 기능을 제공한다. `Facade`는 클라이언트의 요청을 어디로 보내야 하는지와 움직이는 모든 부품을 어떻게 작동해야 하는지 알고 있다.  
+`Addtional Facade`는 `Facade`의 책임을 분산한다.  
+`Subsystem`는 실제 `Client`가 원하는 요청을 동작하는 객체이다. 하지만 `Facade`를 이용하기 때문에 `Client`와 `Subsystem`은 서로를 모르는 상태이다.
+
+다음과 같은 특징을 가지고 있다.
+
+- 장점
+  - 복잡한 하위 시스템에서 코드를 별도로 분리할 수 있다.
+  - 하위 시스템을 업그레이드하거나 교체할 때 비용이 감소한다. 사용자는 Facade 객체의 구현만 바꾸면 되기 때문이다.
+- 단점
+  - Facade 객체의 책임이 과중해질 수 있다.
+
+#### 코드 예시
+
+동영상을 올리는 기능을 만들어야 한다고 하자.  
+직접 인코딩 기능을 구현하기에는 복잡한데, 인코딩 기능을 가진 비디오 변환 라이브러리가 너무 거대한 기능을 가지고 있다고 하자.  
+이때 인코딩 기능만을 제공하는 Facade 객체(`VideoConverter`)를 만들 수 있다.
+
+```ts
+// convert.ts
+
+declare module Converter {
+  type Codec = '' // ...
+  class VideoFile { /* ... */ }
+  class OggCompressionCodec { /* ... */ }
+  class MPEG4CompressionCodec { /* ... */ }
+  class BitrateReader { /* ... */ }
+  // class AudioMixer, class Something ...
+}
+```
+
+```ts
+// VideoConverter
+type VideoExtension = 'mp4' | 'ogg'
+
+class VideoConvertor {
+  convert(filePath: string, format: VideoExtension = 'mp4'): File {
+    const video = new VideoFile(filepath)
+    const codec = getCodec(format)
+
+    return new File(BitrateReader.convert(video, codec))
+  }
+
+  getCodec(format: VideoExtension): Codec {
+    switch(format) {
+      case 'ogg':
+        return new OggCompressionCodec()
+      case 'mp4':
+      default:
+        return new MPEG4CompressionCodec()
+    }
+  }
+}
+```
+
+```ts
+// Client
+const converter = new VideoConverter()
+const convertedVideo = converter.convert("test.ogg")
+convertedVideo.save()
+```
+
+만약 위와 같이 `VideoConverter` 객체가 존재하지 않는다면, 모든 클라이언트는 `convert` 모듈을 import한 뒤 일부 기능만 사용하고, 그 구현을 반복해야 한다.
+
 ## 4. 행위 패턴
 
 https://coding-factory.tistory.com/708  
