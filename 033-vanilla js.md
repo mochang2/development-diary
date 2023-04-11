@@ -32,16 +32,16 @@ DOM 요소 내부의 내용을 변경하는데 사용된다.
 아래와 같은 방법으로 사용된다.
 
 ```javascript
-const body = document.querySelector('body')
-body.innerHTML = ''
+const body = document.querySelector('body');
+body.innerHTML = '';
 ```
 
 다만 *변경*이 아닌 *삽입*만 필요한 상황이라면 아래의 `insertAdjacentHTML`이 더 효율적이다.
 
 ```javascript
-const foodArray = ['김밥', '방어', '사과', '오렌지']
-const FOOD_TEMPLATE = (food) => '<div class="list_food">' + food + '</div>'
-foodArray.forEach((food) => (body.innerHTML += FOOD_TEMPLATE(food)))
+const foodArray = ['김밥', '방어', '사과', '오렌지'];
+const FOOD_TEMPLATE = (food) => '<div class="list_food">' + food + '</div>';
+foodArray.forEach((food) => (body.innerHTML += FOOD_TEMPLATE(food)));
 ```
 
 위 코드를 실행되면 아래와 같은 html 결과가 생성될 것이다.
@@ -57,13 +57,13 @@ foodArray.forEach((food) => (body.innerHTML += FOOD_TEMPLATE(food)))
 아래와 같은 연산이 반복되어 일어나며 반복적으로 리렌더링 되기 때문이다.
 
 ```javascript
-body.innerHTML = '<div class="list_food">김밥</div>'
+body.innerHTML = '<div class="list_food">김밥</div>';
 body.innerHTML =
-  '<div class="list_food">김밥</div><div class="list_food">방어</div>'
+  '<div class="list_food">김밥</div><div class="list_food">방어</div>';
 body.innerHTML =
-  '<div class="list_food">김밥</div><div class="list_food">방어</div><div class="list_food">사과</div>'
+  '<div class="list_food">김밥</div><div class="list_food">방어</div><div class="list_food">사과</div>';
 body.innerHTML =
-  '<div class="list_food">김밥</div><div class="list_food">방어</div><div class="list_food">사과</div><div class="list_food">오렌지</div>'
+  '<div class="list_food">김밥</div><div class="list_food">방어</div><div class="list_food">사과</div><div class="list_food">오렌지</div>';
 ```
 
 위 방법을 보완하기 위해 `forEach` 대신 `reduce`를 사용할 수 있지만 그럼에도 더 빠른 아래 방법이 있다.
@@ -94,11 +94,11 @@ text는 HTML 또는 XML 형태의 문자열을 의미한다.
 위 body 안에 무언가 element를 삽입하고 싶다면 아래와 같이 사용하면 된다.
 
 ```javascript
-const foodArray = ['김밥', '방어', '사과', '오렌지']
-const FOOD_TEMPLATE = (food) => '<div class="list_food">' + food + '</div>'
+const foodArray = ['김밥', '방어', '사과', '오렌지'];
+const FOOD_TEMPLATE = (food) => '<div class="list_food">' + food + '</div>';
 foodArray.forEach((food) =>
   body.insertAdjacentHTML('afterbegin', FOOD_TEMPLATE(food))
-) // 또는 'beforeend'
+); // 또는 'beforeend'
 ```
 
 ## 3. cloneNode
@@ -112,17 +112,17 @@ foodArray.forEach((food) =>
 - option?: node의 children까지 복제할지, 해당 node만 복제할지 여부. default: false
 
 ```javascript
-const test = document.getElementById('cloneTest')
+const test = document.getElementById('cloneTest');
 // test 변수에 복제 할 노드를 지정
 
-const testClone1 = test.cloneNode()
-const testClone2 = test.cloneNode()
-const testClone3 = test.cloneNode()
+const testClone1 = test.cloneNode();
+const testClone2 = test.cloneNode();
+const testClone3 = test.cloneNode();
 // 복사할 개수만큼 복제변수를 생성
 
-body.appendChild(testClone1)
-body.appendChild(testClone1)
-body.appendChild(testClone1)
+body.appendChild(testClone1);
+body.appendChild(testClone1);
+body.appendChild(testClone1);
 ```
 
 이 메서드를 사용할 때 주의할 점은 duplicated element ID를 생성할 수 있다는 점이므로, `id` property를 부여한 node라면 지양하는 게 좋을 거 같다.
@@ -140,7 +140,7 @@ body.appendChild(testClone1)
 - non-live dom collection
   - DOM에 변화가 생겨도 collection에 해당 변화가 반영이 되지 않는 것을 말한다.
   - request가 발생할 때마다만 변화가 compute 된다.
-  - 이 경우는 live dom collection과 달리 DOM의 각 수정(내용, 속성, 클래스)이 컬렉션의 각 요소를 re-evaluate해야 하기 때문에 비용이 많이 든다. 최대 O(the umber of all elements in the DOM \* the number of active `querySelectorAll()` collections)의 시간 복잡도를 가진다.
+  - 이 경우는 live dom collection과 달리 DOM의 각 수정(내용, 속성, 클래스)이 컬렉션의 각 요소를 re-evaluate해야 하기 때문에 비용이 많이 든다. 최대 O(the number of all elements in the DOM \* the number of active `querySelectorAll()` collections)의 시간 복잡도를 가진다.
   - `document.querySelectorAll()` 등이 이에 속하는 DOM API이다.
 
 HTMLCollection은 live dom collection 객체이다.
@@ -158,11 +158,11 @@ HTMLCollection은 live dom collection 객체이다.
     </div>
   </body>
   <script>
-    const app = document.getElementById('app')
-    const greeting = document.getElementsByClassName('greeting')
-    console.log(greeting, greeting.length) // HTMLCollection [div.greeting] 1
-    app.insertAdjacentHTML('beforeend', '<div class="greeting">Hello2</div>')
-    console.log(greeting, greeting.length) // HTMLCollection(2) [div.greeting, div.greeting] 2
+    const app = document.getElementById('app');
+    const greeting = document.getElementsByClassName('greeting');
+    console.log(greeting, greeting.length); // HTMLCollection [div.greeting] 1
+    app.insertAdjacentHTML('beforeend', '<div class="greeting">Hello2</div>');
+    console.log(greeting, greeting.length); // HTMLCollection(2) [div.greeting, div.greeting] 2
   </script>
 </html>
 ```
@@ -187,11 +187,11 @@ HTMLCollection은 live dom collection 객체이다.
     </div>
   </body>
   <script>
-    const app = document.getElementById('app')
-    const greeting = document.querySelectorAll('.greeting')
-    console.log(greeting, greeting.length) // NodeList [div.greeting] 1
-    app.insertAdjacentHTML('beforeend', '<div class="greeting">Hello2</div>')
-    console.log(greeting, greeting.length) // NodeList [div.greeting] 1
+    const app = document.getElementById('app');
+    const greeting = document.querySelectorAll('.greeting');
+    console.log(greeting, greeting.length); // NodeList [div.greeting] 1
+    app.insertAdjacentHTML('beforeend', '<div class="greeting">Hello2</div>');
+    console.log(greeting, greeting.length); // NodeList [div.greeting] 1
   </script>
 </html>
 ```
@@ -213,21 +213,21 @@ HTMLCollection은 live dom collection 객체이다.
     </ul>
   </body>
   <script>
-    const $students = document.getElementById('students')
-    const childNodes = $students.childNodes
+    const $students = document.getElementById('students');
+    const childNodes = $students.childNodes;
 
-    console.log(childNodes instanceof NodeList) // true
-    console.log(childNodes)
+    console.log(childNodes instanceof NodeList); // true
+    console.log(childNodes);
     // NodeList(5) [text, li.frontend, text, li.frontend, text]
     // childNodes는 요소노드 뿐만아니라 공백 텍스트 노드(엔터 키)도 포함되어 있다.
 
     for (let i = 0; i < childNodes.length; i++) {
       // removeChild 메서드가 호출될 때마다 NodeList live 객체인 childNodes가 실시간으로 변경된다.
       // 따라서 첫 번째, 세 번째, 다섯 번째 요소만 삭제된다.
-      $students.removeChild(childNodes[i])
+      $students.removeChild(childNodes[i]);
     }
 
-    console.log(childNodes) // NodeList(2) [li.frontend, li.frontend]
+    console.log(childNodes); // NodeList(2) [li.frontend, li.frontend]
   </script>
 </html>
 ```
@@ -243,10 +243,10 @@ ES6부터 추가된 `Array.from()` 메서드를 사용하면 HTMLCollection이�
 ```javascript
 // suggestions 중에서 Suggestion__item--selected 라는 클래스를 가진 요소의 index
 
-const suggestions = document.querySelectorAll('div.Suggestion li')
+const suggestions = document.querySelectorAll('div.Suggestion li');
 const suggestedIndex = Array.from(suggestions).indexOf(
   document.querySelector('.Suggestion__item--selected')
-)
+);
 ```
 
 ## 5. Element.closest()
@@ -272,19 +272,19 @@ Element의 closest() 메서드는 주어진 CSS 선택자(`querySelector`와 같
       </div>
     </article>
     <script>
-      const el = document.getElementById('div-03')
+      const el = document.getElementById('div-03');
 
       // ID가 "div-02"인 가장 가까운 조상
-      console.log(el.closest('#div-02')) // <div id="div-02">
+      console.log(el.closest('#div-02')); // <div id="div-02">
 
       // div 안에 놓인 div인 가장 가까운 조상
-      console.log(el.closest('div div')) // <div id="div-03">
+      console.log(el.closest('div div')); // <div id="div-03">
 
       // div면서 article을 부모로 둔 가장 가까운 조상
-      console.log(el.closest('article > div')) // <div id="div-01">
+      console.log(el.closest('article > div')); // <div id="div-01">
 
       // div가 아닌 가장 가까운 조상
-      console.log(el.closest(':not(div)')) // <article>
+      console.log(el.closest(':not(div)')); // <article>
     </script>
   </body>
 </html>
@@ -306,17 +306,17 @@ event delegation의 장점은 다음과 같다.
 4. 메모리 누수 가능성도 줄어든다. 등록 핸들러 자체가 줄어들기 때문에 메모리 누수 가능성도 줄어든다.
 
 ```javascript
-const parent = document.getElementById('parent') // 상위 element
+const parent = document.getElementById('parent'); // 상위 element
 
 parent.addEventListener('click', (e) => {
-  const child = e.target.closest('#child') //
+  const child = e.target.closest('#child'); //
 
   if (!child) {
-    return
+    return;
   }
 
   // something
-})
+});
 ```
 
 위와 같은 방식으로 동작시키면 부모에서 한 번의 이벤트 등록으로 모든 자식 요소들에게 동일한 이벤트가 동작하도록 할 수 있다.
@@ -340,12 +340,12 @@ parent.addEventListener('click', (e) => {
       </div>
     </div>
     <script>
-      const modal = document.querySelector('div.modal')
+      const modal = document.querySelector('div.modal');
 
       modal.addEventListener('click', (e) => {
-        console.log(e.target) // 가장 안에 있는 div를 클릭하면 <div>공간공간</div>. div.modal을 클릭하면 <div class="modal">...</div>
-        console.log(e.currentTarget) // 항상 <div class="modal">...</div>
-      })
+        console.log(e.target); // 가장 안에 있는 div를 클릭하면 <div>공간공간</div>. div.modal을 클릭하면 <div class="modal">...</div>
+        console.log(e.currentTarget); // 항상 <div class="modal">...</div>
+      });
     </script>
   </body>
 </html>
@@ -366,7 +366,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     // do something
   }
-})
+});
 ```
 
 `keydown`과 `keypress`는 사용자가 해당 키를 누르고 있는 동안 여러 번 발생하지만,  
@@ -380,11 +380,11 @@ element에 부여된 listener를 1번만 발동시키기 위한 방법은 크게
 
 ```javascript
 function onClickFunction() {
-  element.removeEventListener('click', onClickFunction)
-  console.log('event has been removed')
+  element.removeEventListener('click', onClickFunction);
+  console.log('event has been removed');
 }
 
-element.addEventListener('click', onClickFunction)
+element.addEventListener('click', onClickFunction);
 ```
 
 2. once 옵션 사용하기
@@ -393,10 +393,10 @@ element.addEventListener('click', onClickFunction)
 element.addEventListener(
   'click',
   () => {
-    console.log('event has been removed')
+    console.log('event has been removed');
   },
   { once: true }
-)
+);
 ```
 
 위 방법은 간편하지만 조건에 따라 listener를 삭제하고 싶을 때엔 적합한 방법이 아니다.
@@ -405,8 +405,8 @@ element.addEventListener(
 
 ```javascript
 element.addEventListener('click', function () {
-  element.removeEventListener('click', arguments.callee)
-})
+  element.removeEventListener('click', arguments.callee);
+});
 ```
 
 `arguments.callee`는 현재 실행 중인 함수를 참조할 수 있는 속성이다.  
@@ -432,9 +432,9 @@ element.addEventListener('click', function () {
 
 ```javascript
 // append 예시
-const div = document.createElement('div')
-const div2 = document.createElement('div')
-document.body.append(div, 'hello', div, div2)
+const div = document.createElement('div');
+const div2 = document.createElement('div');
+document.body.append(div, 'hello', div, div2);
 
 /*
 <body> 
@@ -445,8 +445,8 @@ document.body.append(div, 'hello', div, div2)
 */
 
 // appendChild 예시
-const div = document.createElement('div')
-console.log(document.body.appendChild(div)) // <div></div>
+const div = document.createElement('div');
+console.log(document.body.appendChild(div)); // <div></div>
 
 /*
 <body>
@@ -493,34 +493,34 @@ SPA와 같은 웹 페이지를 만들기 위한 것이 목적이므로 BrowserRo
 
 ```javascript
 // // app.js
-const app = document.querySelector('#app')
+const app = document.querySelector('#app');
 const route = () => {
-  const { pathname } = location
+  const { pathname } = location;
 
-  app.innerHTML = ''
+  app.innerHTML = '';
 
   if (pathname === 'product-list') {
-    new ProductList() // app에 ProductList 렌더링
+    new ProductList(); // app에 ProductList 렌더링
   } else if (pathname === 'cart') {
     // ...
   } // ...
   // 제대로된 path가 아니면 오류 페이지를 렌더링
-}
+};
 
 window.addEventListener(ROUTE_CHANGE_EVENT, () => {
-  route() // route가 바뀔 때마다 불릴 수 있도록 설정
-})
+  route(); // route가 바뀔 때마다 불릴 수 있도록 설정
+});
 window.addEventListener('popstate', () => {
   // window.onpopstate. 앞으로 가기, 뒤로 가기 처리
-  route()
-})
+  route();
+});
 
 // // utils.js
 // url을 바꿔야 되는 상황이 있을 때 해당 함수 호출
 const changeRoute = (url, params) => {
-  history.pushState(null, '', url)
-  window.dispatchEvent(new CustomEvent(ROUTE_CHANGE_EVENT, params))
-}
+  history.pushState(null, '', url);
+  window.dispatchEvent(new CustomEvent(ROUTE_CHANGE_EVENT, params));
+};
 ```
 
 _참고) https://woong-jae.com/javascript/220325-spa-from-scratch-2 는 path를 key, callback을 value로 둬서 사용한 예시이다._
@@ -556,14 +556,14 @@ JS에서 dataset을 get/set 하는 방법은 두 가지가 있다.
 `getAttribute`/`setAttribute`를 이용하는 방법과 DOM 객체의 property를 이용하는 방법이다.
 
 ```javascript
-const div = document.getElementsByTagName('div')[0]
+const div = document.getElementsByTagName('div')[0];
 // const div = document.querySelector('div[data-auto="true"]')
 
-div.setAttribute('data-auto', true)
-console.log(div.dataset.auto) // typeof div.dataset.auto === 'string'
+div.setAttribute('data-auto', true);
+console.log(div.dataset.auto); // typeof div.dataset.auto === 'string'
 
-div.dataset.size = 'big'
-console.log(div.getAttribute('data-size'))
+div.dataset.size = 'big';
+console.log(div.getAttribute('data-size'));
 ```
 
 ### CSS에서의 접근
@@ -592,7 +592,7 @@ print(-5 % 10) # 5
 하지만 JS는 음수의 나머지 연산이 일반적이지 않다.
 
 ```javascript
-console.log(-5 % 10) // -5
+console.log(-5 % 10); // -5
 ```
 
 index에 대한 나머지 연산이 필요한 경우, 예를 들면 -1번째 인덱스를 원하면 object.length - 1번째 인덱스를 가리켜야 하는 경우 위와 같은 연산은 문제가 된다.  
@@ -601,12 +601,12 @@ index에 대한 나머지 연산이 필요한 경우, 예를 들면 -1번째 인
 ```javascript
 // prototype chaining. 보통 더 느림
 Number.prototype.mod = function (n) {
-  return ((this % n) + n) % n
-}
+  return ((this % n) + n) % n;
+};
 
 // 아래 방법 추천
 function mod(n, m) {
-  return ((n % m) + m) % m
+  return ((n % m) + m) % m;
 }
 ```
 
@@ -637,37 +637,37 @@ function mod(n, m) {
  * @return {function}
  */
 const debounce = (callback, time, options) => {
-  let inDebounce
-  const { leading, trailing } = options
+  let inDebounce;
+  const { leading, trailing } = options;
 
   return function () {
     // inDebounce 값이 변하기 전에 미리 저장하기 위해 사용
     // 첫 이벤트를 무조건 발생시킬지 여부
-    let callNow = leading && !inDebounce
+    let callNow = leading && !inDebounce;
 
     // leading이 아닌 경우에만 wait 이후 callback을 실행
     const later = () => {
-      inDebounce = null
+      inDebounce = null;
       if (!leading) {
-        callback.apply(this, arguments)
+        callback.apply(this, arguments);
       }
-    }
+    };
 
     if (trailing) {
       if (inDebounce) {
-        clearTimeout(inDebounce)
+        clearTimeout(inDebounce);
       }
-      inDebounce = setTimeout(later, time)
+      inDebounce = setTimeout(later, time);
     }
 
     if (callNow) {
-      callback.apply(this, arguments)
+      callback.apply(this, arguments);
     }
-  }
-}
+  };
+};
 
 // 사용
-const debounced = debounce(() => console.log(123), 500)
+const debounced = debounce(() => console.log(123), 500);
 ```
 
 _참고) `throttle`_  
@@ -686,7 +686,7 @@ _참고) `throttle`_
 
 ```css
 img {
-    display: block;
+  display: block;
 }
 ```
 
@@ -696,18 +696,18 @@ img {
 
 ```html
 <div class="container">
-    <div class="item"></div>
+  <div class="item"></div>
 </div>
 ```
 
 ```css
 .container {
-    width: 300px;
+  width: 300px;
 }
 
 .item {
-    width: 100%;
-    padding-top: 50%;
+  width: 100%;
+  padding-top: 50%;
 }
 ```
 
@@ -715,34 +715,34 @@ img {
 
 ```html
 <div class="medal">
-    <div class="front">
-        <img src="" alt="" />
-    </div>
-    <div class="back">
-        <img src="" alt="" />
-    </div>
+  <div class="front">
+    <img src="" alt="" />
+  </div>
+  <div class="back">
+    <img src="" alt="" />
+  </div>
 </div>
 ```
 
 ```css
 .medal .back,
 .medal .front {
-    transition: 1s;
-    backface-visibility: hidden;
+  transition: 1s;
+  backface-visibility: hidden;
 }
 .medal .front {
-    transform: rotateY(
-        0deg
-    ); /* 구형 브라우저에서 동작하지 않을 수 있으므로 명시 */
+  transform: rotateY(
+    0deg
+  ); /* 구형 브라우저에서 동작하지 않을 수 있으므로 명시 */
 }
 .medal:hover .front {
-    transform: rotateY(180deg);
+  transform: rotateY(180deg);
 }
 .medal .back {
-    transform: rotateY(-180deg);
+  transform: rotateY(-180deg);
 }
 .medal:hover .back {
-    transform: rotateY(0deg);
+  transform: rotateY(0deg);
 }
 ```
 
@@ -752,7 +752,7 @@ img {
 이 API가 나오기 전까지는 요청을 보낸 뒤 해당 요청에 대한 응답이 필요없다면 그냥 받지 않고 무시했다고 한다.  
 하지만 네트워크 비용이 크거나 [카카오 블로그 리뷰](https://tech.kakao.com/2023/03/27/2023-new-krew-onboarding-fe/)에 나오는 내용처럼 비동기 처리 과정에서 과거에 보낸 요청이 최근에 보낸 요청보다 늦게 도착해, 오히려 과거에 보낸 요청에 대한 응답이 최신 요청에 대한 응답을 이용한 렌더링을 덮어버리는 문제가 발생하는 경우가 존재한다.
 
-23년 4월 현재 [MDN](https://developer.mozilla.org/ko/docs/Web/API/AbortController)에 따르면 실험적인 기능이라는데... 
+23년 4월 현재 [MDN](https://developer.mozilla.org/ko/docs/Web/API/AbortController)에 따르면 실험적인 기능이라는데...
 
 ![abortcotroller compatibility](https://user-images.githubusercontent.com/63287638/230041439-e22b0994-199b-45c6-9293-952818e9dc43.PNG)
 
@@ -764,26 +764,27 @@ img {
 - `AbortController.signal`: DOM 요청과 통신하거나 취소하는데 사용되는 AbortSignal 객체 인터페이스를 반환.
 - `AbortController.abort()`: DOM 요청이 완료되기 전에 취소. `fetch 요청`, 모든 응답 Body 소비, 스트림을 취소 가능.
 
-아래 코드와 같이 사용할 수 있다.  
+아래 코드와 같이 사용할 수 있다.
 
 ```js
 const controller = new AbortController();
 
 setTimeout(() => {
-  controller.abort()
-}, 2000)
+  controller.abort();
+}, 2000);
 
-const URL = 'https://httpbin.org/delay/5' // 5초 뒤에 응답을 내려주는 사이트 
+const URL = 'https://httpbin.org/delay/5'; // 5초 뒤에 응답을 내려주는 사이트
 fetch(URL, { signal: controller.signal }) // fetch는 2번째 인자로 init을 받고, init의 객체로서 signal을 던질 수 있다.
   .then((res) => {
-    console.log(`Received: ${res.status}`)
-  }).catch((err) => {
+    console.log(`Received: ${res.status}`);
+  })
+  .catch((err) => {
     if (err.name === 'AbortError') {
-      console.error('Aborted: ', err)
-      return
+      console.error('Aborted: ', err);
+      return;
     }
 
-    throw err
+    throw err;
   });
 ```
 
@@ -801,17 +802,17 @@ function Component() {
 
   useEffect(() => {
     const abortController = new AbortController();
-    const URL = "https://httpbin.org/delay/5"
+    const URL = 'https://httpbin.org/delay/5';
 
     axios
       .get(URL, { signal: abortController.signal })
       .then(() => {})
-      .catch(() => {})
+      .catch(() => {});
 
     return () => {
       abortController.abort();
     };
-  }, [])
+  }, []);
 
   // ...
 }
