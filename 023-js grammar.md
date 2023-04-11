@@ -49,13 +49,13 @@ js를 병렬적으로 다운받지만 다운받자마자 실행하는 것이 아
 js는 단 1주일만에 만들어진 언어. 그래서 매우 유연하지만 반대로 위험한 언어. 변수 타입을 선언하지 않고
 
 ```javascript
-a = 6
+a = 6;
 ```
 
 이런 식의 코드만 있어도 오류가 나지 않음. 하지만 js파일 제일 위에
 
 ```javascript
-'use strict'
+'use strict';
 ```
 
 를 선언하면 a = 6 전에 var a 등의 변수 타입을 선언해주지 않으면 오류가 남. vanila js 등을 배울 때 중요한 요소라고 함.
@@ -80,10 +80,10 @@ JS에서 TDZ는 ReferenceError를 발생시켜 선언 전에 변수 사용을 �
 
 ```javascript
 // const여도 마찬가지
-let a = 10
+let a = 10;
 {
-  console.log(a) // ReferenceError: Cannot access 'a' before initialization
-  let a = 20
+  console.log(a); // ReferenceError: Cannot access 'a' before initialization
+  let a = 20;
 }
 ```
 
@@ -100,15 +100,15 @@ let a = 10
 - 숫자: number라는 primitive type이 있는데, let만 써도 동적으로 결정됨. 원래는 +-2^53까지만 표현이 가능했는데, 최근에 bigInt형이 생겼는데
 
 ```javascript
-const bigInt = 1234124235125123321512n // 이렇게 뒤에 n만 붙이면 알아서 인식함
-console.log(`type: ${typeof bigInt}`) // 데이터 타입을 출력해줌
+const bigInt = 1234124235125123321512n; // 이렇게 뒤에 n만 붙이면 알아서 인식함
+console.log(`type: ${typeof bigInt}`); // 데이터 타입을 출력해줌
 ```
 
 - 문자열: string(char과 구분하지 않음). 파이썬처럼 '+' 기호를 통해서 문자열끼리 연결이 가능.  
   template literals라고 해서 아래와 같은 식으로도 변수를 연결할 수 있음.
 
 ```javascript
-const helloBob = `hi ${variable}!`
+const helloBob = `hi ${variable}!`;
 ```
 
 - boolean: true, false가 있음.
@@ -117,14 +117,14 @@ const helloBob = `hi ${variable}!`
 - symbol: 주어진 string에 상관없이 고유한 식별값을 가짐. 또는 동시 다발적으로 일어나는 코드에서 우선순위를 주기 위해 사용.
 
 ```javascript
-const symbol1 = Symbol('id')
-const symbol2 = Symbol('id')
-console.log(symbol1 === symbol2) // false
+const symbol1 = Symbol('id');
+const symbol2 = Symbol('id');
+console.log(symbol1 === symbol2); // false
 
-const symbol1 = Symbol.for('id') // string이 같을 때 동일한 심볼을 가지게 하고 싶다면
-const symbol2 = Symbol.for('id')
-console.log(symbol1 === symbol2) // true
-console.log(symbol1.description) // 이렇게 출력 안 하면 에러가 남
+const symbol1 = Symbol.for('id'); // string이 같을 때 동일한 심볼을 가지게 하고 싶다면
+const symbol2 = Symbol.for('id');
+console.log(symbol1 === symbol2); // true
+console.log(symbol1.description); // 이렇게 출력 안 하면 에러가 남
 ```
 
 (object type)  
@@ -133,8 +133,8 @@ console.log(symbol1.description) // 이렇게 출력 안 하면 에러가 남
 - object: c의 struct나 python의 dict와 같이 사용. 다만 pointer 같은 느낌.
 
 ```javascript
-const human = { name: 'cm', age: 20 }
-human.age = 21 // 에러가 나지 않음
+const human = { name: 'cm', age: 20 };
+human.age = 21; // 에러가 나지 않음
 ```
 
 human이 가리키는 객체에 대해서는 변경이 불가능하지만, human.name이나 human.age는 변경이 가능함.
@@ -167,10 +167,10 @@ js에서 원시값(primitive)은 변경 불가능한 불변의 값을 말한다.
 원시값에는 String, Number, undefined, Boolean, Symbol, BigInt 6종류가 존재하고 이것들은 기본적으로 할당만 해도 deep copy가 된다.
 
 ```javascript
-let a = 1
-let b = a
-b = 2
-console.log(a) // 1
+let a = 1;
+let b = a;
+b = 2;
+console.log(a); // 1
 ```
 
 하지만 object, array 등의 객체는 기본적으로 shallow copy를 한다.  
@@ -206,16 +206,16 @@ const copiedObj = originalObj;
 4.  Dynamic type(c, java: starting typed language)
 
 ```javascript
-let text = 'hello'
-console.log(text.charAt(0)) // h
-console.log('value: ${text}, type: ${typeof text}') // hello, string
-text = 1
-console.log('value: ${text}, type: ${typeof text}') // 1, number
-text = '7' + 5
-console.log('value: ${text}, type: ${typeof text}') // 75, string
-text = '8' / '2'
-console.log('value: ${text}, type: ${typeof text}') // 4, number
-console.log(text.charAt(0)) // error
+let text = 'hello';
+console.log(text.charAt(0)); // h
+console.log('value: ${text}, type: ${typeof text}'); // hello, string
+text = 1;
+console.log('value: ${text}, type: ${typeof text}'); // 1, number
+text = '7' + 5;
+console.log('value: ${text}, type: ${typeof text}'); // 75, string
+text = '8' / '2';
+console.log('value: ${text}, type: ${typeof text}'); // 4, number
+console.log(text.charAt(0)); // error
 ```
 
 이처럼 js는 run time에 데이터 타입이 결정됨.
@@ -229,7 +229,7 @@ console.log(text.charAt(0)) // error
 ```javascript
 console.log(`string literals:
     '''
-    1 + 2 = ${1 + 2}`)
+    1 + 2 = ${1 + 2}`);
 // string literals:
 // '''
 // 1 + 2 = 3
@@ -240,29 +240,29 @@ console.log(`string literals:
 # equlity
 
 ```javascript
-const stringFive = '5'
-const numberFive = 5
+const stringFive = '5';
+const numberFive = 5;
 // 1. loose equality, with type conversion
-console.log(stringFive == numberFive) // true
+console.log(stringFive == numberFive); // true
 
 // 2. strict equality, without type conversion
-console.log(stringFive === numberFive) // false
+console.log(stringFive === numberFive); // false
 
 // 3. object equality by reference
-const obj1 = { name: 'aa' }
-const obj2 = { name: 'aa' }
-const obj3 = obj1
-console.log(obj1 == obj2) // false
-console.log(obj1 === obj2) // false
-console.log(obj1 === obj3) // true
+const obj1 = { name: 'aa' };
+const obj2 = { name: 'aa' };
+const obj3 = obj1;
+console.log(obj1 == obj2); // false
+console.log(obj1 === obj2); // false
+console.log(obj1 === obj3); // true
 
 // example
-console.log(0 == false) // true
-console.log(0 === false) // false
-console.log('' == false) // true
-console.log('' === false) // false
-console.log(null == undefined) // true
-console.log(null === undefined) // false
+console.log(0 == false); // true
+console.log(0 === false); // false
+console.log('' == false); // true
+console.log('' === false); // false
+console.log(null == undefined); // true
+console.log(null === undefined); // false
 ```
 
 ---
@@ -276,31 +276,31 @@ console.log(null === undefined) // false
 ```javascript
 function printAll(...args) {
   for (let i = 0; i < args.length; i++) {
-    console.log(args[i])
+    console.log(args[i]);
   }
 
   for (const arg of args) {
-    console.log(arg) // 위와 결과가 똑같음
+    console.log(arg); // 위와 결과가 똑같음
   }
 
-  args.forEach((arg) => console.log(arg)) // 동일한 결과
+  args.forEach((arg) => console.log(arg)); // 동일한 결과
 }
 
-printAll('dream', 'coding', 'ellie') // 세 개 모두 출력.
+printAll('dream', 'coding', 'ellie'); // 세 개 모두 출력.
 ```
 
 _cf forEach 내부에서 await 사용시 조심할 점_
 forEach는 async/await으로 선언된 비동기 처리 구문을 기다려주지 않는다.
 
 ```javascript
-const wantedGenres = ['로맨스', '판타지']
-let genres = []
+const wantedGenres = ['로맨스', '판타지'];
+let genres = [];
 wantedGenres.forEach(async (value, index) => {
-  const g = await Genre.findOne({ name: value }) // MongoDB에서 오브젝트 조회
-  genres.push(g)
-  console.log(`Push ${index}: ${genres}`)
-})
-console.log(`Done: ` + genres)
+  const g = await Genre.findOne({ name: value }); // MongoDB에서 오브젝트 조회
+  genres.push(g);
+  console.log(`Push ${index}: ${genres}`);
+});
+console.log(`Done: ` + genres);
 
 // 예상 결과
 // Push 0: [{...name: '로맨스'...}]
@@ -315,12 +315,12 @@ console.log(`Done: ` + genres)
 // 해결방법 1. for (const/let variable of, in iterableObject) 사용
 
 // 해결방법 2. Promise.all() 사용
-let genres = []
+let genres = [];
 const promises = wantedGenres.map(async (value, index) => {
-  const g = await Genre.findOne({ name: value })
-  genres.push(g)
-})
-await Promise.all(promises)
+  const g = await Genre.findOne({ name: value });
+  genres.push(g);
+});
+await Promise.all(promises);
 ```
 
 2.  return  
@@ -333,34 +333,34 @@ await Promise.all(promises)
 ```javascript
 const print = function () {
   // anonymous function(function 이름이 필요 없음)
-  console.log('print')
-}
-print() // print를 출력
-const printAgain = print
-printAgain() // print를 출력
+  console.log('print');
+};
+print(); // print를 출력
+const printAgain = print;
+printAgain(); // print를 출력
 ```
 
 4.  Arrow function  
     항상 anonymous function임.
 
 ```javascript
-const simplePrint = () => console.log('simplePrint!')
+const simplePrint = () => console.log('simplePrint!');
 const simplePrint2 = function () {
-  console.log('simplePrint2!')
-}
+  console.log('simplePrint2!');
+};
 
-const add = (a, b) => a + b // 다만 줄이 길어져서 {}로 감싸게 되면 arrow function도 return을 명시해줘야 함
+const add = (a, b) => a + b; // 다만 줄이 길어져서 {}로 감싸게 되면 arrow function도 return을 명시해줘야 함
 const add2 = function (a, b) {
-  return a + b
-}
+  return a + b;
+};
 ```
 
 5.  IIFE: Immediately Invoked Function Expression
 
 ```javascript
-;(function hello() {
-  console.log('IIFE')
-})() // 선언함과 동시에 호출
+(function hello() {
+  console.log('IIFE');
+})(); // 선언함과 동시에 호출
 ```
 
 ---
@@ -372,25 +372,25 @@ const add2 = function (a, b) {
 ```javascript
 class User {
   constructor(firstName, lastName, age) {
-    this.firstName = firstName
-    this.lastName = lastName
-    this.age = age
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.age = age;
   }
 
   get age() {
-    return this._age
+    return this._age;
   }
 
   set age(value) {
     // if (value < 0){
     // 	throw Error('negative');
     // }
-    this._age = value < 0 ? 0 : value
+    this._age = value < 0 ? 0 : value;
   }
 }
 
-const user1 = new User('Steve', 'Jobs', -1)
-console.log(user1.age)
+const user1 = new User('Steve', 'Jobs', -1);
+console.log(user1.age);
 ```
 
 누누이 얘기했듯이 js는 interpreter처럼 작동. constructor에서 this.age = age; 라는 부분이 쓰이면 object가 생성되길 기다리는 것이 아니라, 'this.age'는 get을 '= age;'는 set을 부르게 됨.  
@@ -400,33 +400,33 @@ console.log(user1.age)
 
 ```javascript
 class Experiment {
-  publicField = 2
-  #privateField = 0
+  publicField = 2;
+  #privateField = 0;
 }
-const experiment = new Experiment()
-console.log(experiment.publicField) // 2
-console.log(experiment.privateField) // undefined
+const experiment = new Experiment();
+console.log(experiment.publicField); // 2
+console.log(experiment.privateField); // undefined
 ```
 
 3.  static(c에서와 같음)
 
 ```javascript
 class Article {
-  static publisher = 'aa'
+  static publisher = 'aa';
   constructor(aricleNumber) {
-    this.articleNumber = articleNumber
+    this.articleNumber = articleNumber;
   }
 
   static printPublisher() {
-    console.log(Article.publisher)
+    console.log(Article.publisher);
   }
 }
-const article1 = new Article(1)
-const article2 = new Article(2)
+const article1 = new Article(1);
+const article2 = new Article(2);
 
-console.log(article1.publisher) // undefined
-console.log(Article.publisher) // aa
-Article.printPublisher() // aa
+console.log(article1.publisher); // undefined
+console.log(Article.publisher); // aa
+Article.printPublisher(); // aa
 ```
 
 참고로 static을 사용하는 것은 method를 property 형태로 직접 할당하는 것과 같으며 static 메서드 내부에서 사용하는 `this`는 클래스 생성자(아래에서는 `User`)과 같다(syntax sugar 같지만 MDN에서 공식적으로 인정한 부분이 아니다).  
@@ -440,7 +440,7 @@ class User {
 // 위와 아래가 근본적으로는 같다
 
 class User {}
-User.staticMethod = function () {}
+User.staticMethod = function () {};
 ```
 
 4.  상속: extends를 활용
@@ -454,53 +454,53 @@ User.staticMethod = function () {}
 1.  computed property를 사용하는 경우
 
 ```javascript
-const user1 = { name: 'cm', age: 25 }
+const user1 = { name: 'cm', age: 25 };
 
-console.log(user1.name) // cm
-console.log(user1['name']) // cm
+console.log(user1.name); // cm
+console.log(user1['name']); // cm
 
 function printValue1(obj, key) {
-  console.log(obj.key)
+  console.log(obj.key);
 }
 
 function printValue2(obj, key) {
-  console.log(obj[key])
+  console.log(obj[key]);
 }
 
-printValue1(user1, 'name') // undefined -> user1에는 key라는 key property가 없으므로
-printValue2(user1, 'name') // cm
+printValue1(user1, 'name'); // undefined -> user1에는 key라는 key property가 없으므로
+printValue2(user1, 'name'); // cm
 ```
 
 2.  property value shorthand
 
 ```javascript
-const person1 = { name: 'bob', age: 2 }
-const person2 = { name: 'steve', age: 3 }
+const person1 = { name: 'bob', age: 2 };
+const person2 = { name: 'steve', age: 3 };
 // 반복하기 귀찮으므로 함수 생성
 
 function makePerson(name, age) {
   return {
     name, // name = name; 해줄 필요가 없음
     age,
-  }
+  };
 }
-const person3 = makePerson('cm', 25)
+const person3 = makePerson('cm', 25);
 ```
 
 3.  constructor function
 
 ```javascript
-const person1 = { name: 'bob', age: 2 }
-const person2 = { name: 'steve', age: 3 }
+const person1 = { name: 'bob', age: 2 };
+const person2 = { name: 'steve', age: 3 };
 // 반복하기 귀찮으므로 함수 생성
 
 function Person(name, age) {
   // this = {}; 생략
-  this.name = name
-  this.age = age
+  this.name = name;
+  this.age = age;
   // return this; 생략
 }
-const person3 = new Person('cm', 25)
+const person3 = new Person('cm', 25);
 ```
 
 4.  in  
@@ -509,27 +509,52 @@ const person3 = new Person('cm', 25)
 5.  for..in vs for..of
 
 ```javascript
-const obj = { name: 'blabla', age: 2222 }
-for (key in obj) {
+const obj = { name: 'blabla', age: 2222 };
+for (const key in obj) {
   // key in obj
-  console.log(key)
+  console.log(key); // name, age
 }
 
-const array = [1, 2, 4, 5]
-for (value of array) {
+const array = [1, 2, 4, 5];
+for (const value of array) {
   // value of iterable
-  console.log(value)
+  console.log(value); // 1, 2, 4, 5
+}
+```
+
+_참고_  
+JS에서 Array는 index를 key 값으로 가지는 특수한 형태의 객체이다.  
+그래서 다음과 같은 결과를 가진다.
+
+```javascript
+for (const key in [1, 2, 3]) {
+  console.log(key, typeof key);
+  // 0, string
+  // 1, string
+  // 2, string
+}
+```
+
+index로 기존 array에 접근해야 한다면 `parseInt`로 `key`를 number 타입으로 바꾼 다음 접근할 수 있지만 가독성이 떨어진다.  
+다음과 같이 사용하면 이를 해결할 수 있다.
+
+```javascript
+for (const [index] of [1, 2, 3].entries()) {
+  console.log(index, typeof index);
+  // 0, number
+  // 1, number
+  // 2, number
 }
 ```
 
 6.  assign과 overwrite
 
 ```javascript
-const fruit1 = { color: 'red' }
-const fruit2 = { color: 'blue', size: 'big' }
-const mixed = Object.assign({}, fruit1, fruit2)
-console.log(mixed.color) // blue
-console.log(mixed.size) // big
+const fruit1 = { color: 'red' };
+const fruit2 = { color: 'blue', size: 'big' };
+const mixed = Object.assign({}, fruit1, fruit2);
+console.log(mixed.color); // blue
+console.log(mixed.size); // big
 ```
 
 ---
@@ -540,12 +565,12 @@ console.log(mixed.size) // big
 
 ```javascript
 for (let i = 0; i < fruits.length; i++) {
-  console.log(fruits[i])
+  console.log(fruits[i]);
 }
 for (let fruit of fruits) {
-  console.log(fruit)
+  console.log(fruit);
 }
-fruits.forEach((fruit) => console.log(fruit))
+fruits.forEach((fruit) => console.log(fruit));
 
 // for Each API
 // forEach(callbackfn: value: T, index: number, array: T[]) => void, thisArg?: any : void;
@@ -555,86 +580,86 @@ fruits.forEach((fruit) => console.log(fruit))
 2.  add, delete, copy
 
 ```javascript
-fruits.push('apple', 'orange') // 배열 뒤에 추가
+fruits.push('apple', 'orange'); // 배열 뒤에 추가
 
-fruits.pop() // 배열 뒤에서 삭제
-fruits.pop()
+fruits.pop(); // 배열 뒤에서 삭제
+fruits.pop();
 
 // slower than the above APIs
-fruits.unshift('apple', 'orange') // 배열 앞에 추가
+fruits.unshift('apple', 'orange'); // 배열 앞에 추가
 
-fruits.shift() // 배열 앞에서 삭제
-fruits.shift()
+fruits.shift(); // 배열 앞에서 삭제
+fruits.shift();
 
 // rm an item by index position
 // splice는 배열 자체를 수정, slice는 배열에서 원하는 부분만 가져옴
-fruits.push('apple', 'orange')
-fruits.splice(2) // 시작 인덱스, 몇 개 지울지(optional) => 앞에 두 개의 인자 빼고 전부 지움
-fruits.splice(1, 1, 'watermelon', 'strawberry') // 지운 뒤에 수박과 딸기를 추가
+fruits.push('apple', 'orange');
+fruits.splice(2); // 시작 인덱스, 몇 개 지울지(optional) => 앞에 두 개의 인자 빼고 전부 지움
+fruits.splice(1, 1, 'watermelon', 'strawberry'); // 지운 뒤에 수박과 딸기를 추가
 
 // combine two arrays
-fruits2 = ['mango', 'banana']
-const newFruits = fruits.concat(fruits2)
+fruits2 = ['mango', 'banana'];
+const newFruits = fruits.concat(fruits2);
 ```
 
 3.  search
 
 ```javascript
-console.log(fruits.indexOf('apple')) // return the first matched fruit's index
-console.log(fruits.includes('apple')) // return boolean
-console.log(fruits.lastIndexOf('apple')) // return the last matched fruit index
+console.log(fruits.indexOf('apple')); // return the first matched fruit's index
+console.log(fruits.includes('apple')); // return boolean
+console.log(fruits.lastIndexOf('apple')); // return the last matched fruit index
 ```
 
 4.  find
 
 ```javascript
 const result = fruits.find((fruit, index) => {
-  return fruit.name === 'apple' // find는 true를 return 하게 되면 즉시 찾는 것을 멈춤
-})
-console.log(result) // apple을 포함한 fruit object가 출력
+  return fruit.name === 'apple'; // find는 true를 return 하게 되면 즉시 찾는 것을 멈춤
+});
+console.log(result); // apple을 포함한 fruit object가 출력
 ```
 
 5.  filter
 
 ```javascript
-const result = students.filter((student) => student.enrolled)
-console.log(result) // enrolled === true인 애들만 출력
+const result = students.filter((student) => student.enrolled);
+console.log(result); // enrolled === true인 애들만 출력
 ```
 
 6.  map
 
 ```javascript
-const result = students.map((student) => student.score)
-console.log(result) // students의 점수 하나의 배열로 만들어져서 출력
+const result = students.map((student) => student.score);
+console.log(result); // students의 점수 하나의 배열로 만들어져서 출력
 ```
 
 7.  some, every
 
 ```javascript
-const result = students.some((student) => student.score < 50)
-console.log(result) // true / false 학생들 중에 점수가 50점 미만인 애가 있으면 true 아니면 false
+const result = students.some((student) => student.score < 50);
+console.log(result); // true / false 학생들 중에 점수가 50점 미만인 애가 있으면 true 아니면 false
 
-const result2 = students.every((student) => student.score < 50)
-console.log(result2) // true / false 모든 학생들 점수가 50점 미만이면 true 아니면 false
+const result2 = students.every((student) => student.score < 50);
+console.log(result2); // true / false 모든 학생들 점수가 50점 미만이면 true 아니면 false
 ```
 
 8.  reduce
 
 ```javascript
 const result = students.reduce((prev, curr) => {
-  console.log('----')
-  console.log(prev)
-  console.log(curr)
-  return curr // reduce는 curr 값이 prev로 다시 들어가서 호출됨
-})
+  console.log('----');
+  console.log(prev);
+  console.log(curr);
+  return curr; // reduce는 curr 값이 prev로 다시 들어가서 호출됨
+});
 
 const result2 = students.reduce((prev, curr) => {
-  console.log('----')
-  console.log(prev)
-  console.log(curr)
-  return prev + curr.score
-}, 0) // prev 초기값 설정
-console.log(result) // 학생들 점수의 합이 출력됨
+  console.log('----');
+  console.log(prev);
+  console.log(curr);
+  return prev + curr.score;
+}, 0); // prev 초기값 설정
+console.log(result); // 학생들 점수의 합이 출력됨
 
 // reduceRight은 배열의 뒤에서부터 시작함
 ```
@@ -655,11 +680,11 @@ string to object: deserializaion
 
 ```javascript
 // serialization
-let json = JSON.stringify(true)
-console.log(json)
+let json = JSON.stringify(true);
+console.log(json);
 
-json = JSON.stringify(['apple', 'banana'])
-console.log(json)
+json = JSON.stringify(['apple', 'banana']);
+console.log(json);
 
 const rabbit = {
   name: 'tori',
@@ -669,36 +694,36 @@ const rabbit = {
   symbol: Symbol('id'), // js에만 있는 데이터 타입으로, json 형태로 변형되지 않음
   jump: () => {
     // object에 있는 데이터가 아니기 때문에 json 형태로 변형되지 않음
-    console.log(`${name} can jump!`)
+    console.log(`${name} can jump!`);
   },
-}
-json = JSON.stringify(rabbit)
-console.log(json)
+};
+json = JSON.stringify(rabbit);
+console.log(json);
 
-json = JSON.stringify(rabbit, ['name', 'color'])
-console.log(json) // rabbit object에서 name과 color만 json 형식으로 변형됨
+json = JSON.stringify(rabbit, ['name', 'color']);
+console.log(json); // rabbit object에서 name과 color만 json 형식으로 변형됨
 
 json = JSON.stringify(rabbit, (key, value) => {
-  console.log(`key: ${key}, value: ${value}`)
-  return value
+  console.log(`key: ${key}, value: ${value}`);
+  return value;
   // return key === 'name' ? 'ellie' : value;
-})
-console.log(json)
+});
+console.log(json);
 
 // deserialization
-const obj = JSON.parse(json)
-console.log(obj)
+const obj = JSON.parse(json);
+console.log(obj);
 
-rabbit.jump()
-obj.jump() // error
-console.log(rabbit.birthDate.getDate())
-console.log(obj.birthDate) // type: string
+rabbit.jump();
+obj.jump(); // error
+console.log(rabbit.birthDate.getDate());
+console.log(obj.birthDate); // type: string
 
 obj = JSON.parse(json, (key, value) => {
-  console.log(`key: ${key}, value: ${value}`)
-  return key === 'birthDate' ? new Date(value) : value
-})
-console.log(obj.birthDate.getDate()) //  not error
+  console.log(`key: ${key}, value: ${value}`);
+  return key === 'birthDate' ? new Date(value) : value;
+});
+console.log(obj.birthDate.getDate()); //  not error
 ```
 
 ---
@@ -709,11 +734,11 @@ js는 synchronous한 언어이다. 코드는 hoisting이 된 이후에 작성한
 asynchronous(sleep과 같은 것처럼)라면 순서대로 작동하지 않아서 어떤 순서대로 실행될지 감이 안 잡힌다.
 
 ```javascript
-console.log(1)
+console.log(1);
 setTimeout(() => {
-  console.log(2)
-}, 1000) // 1000ms
-console.log(3)
+  console.log(2);
+}, 1000); // 1000ms
+console.log(3);
 // 1 3 2 순으로 출력
 ```
 
@@ -722,14 +747,14 @@ console.log(3)
 
 ```javascript
 function printImmediately(print) {
-  print()
+  print();
 }
-printImmediately(() => console.log('hello'))
+printImmediately(() => console.log('hello'));
 
 function printWithDelay(print, timeout) {
-  setTimeout(print, timeout)
+  setTimeout(print, timeout);
 }
-printWithDelay(() => console.log('hello2'), 2000)
+printWithDelay(() => console.log('hello2'), 2000);
 ```
 
 #### callback 지옥 체험
@@ -742,22 +767,22 @@ class UserStorage {
         (id === 'ellie' && password === 'dream') ||
         (id === 'coder' && password === 'academy')
       )
-        onSuccess(id)
-      else onError(new Error('not found'))
-    }, 1000)
+        onSuccess(id);
+      else onError(new Error('not found'));
+    }, 1000);
   }
 
   getRoles(user, onSuccess, onError) {
     setTimeout(() => {
-      if (user === 'ellie') onSuccess({ name: 'ellie', role: 'admin' })
-      else onError(new Error('no access'))
-    }, 500)
+      if (user === 'ellie') onSuccess({ name: 'ellie', role: 'admin' });
+      else onError(new Error('no access'));
+    }, 500);
   }
 }
 
-const userstorage = new UserStorage()
-const id = prompt('enter your id')
-const password = prompt('neter your password')
+const userstorage = new UserStorage();
+const id = prompt('enter your id');
+const password = prompt('neter your password');
 userstorage.loginUser(
   id,
   password,
@@ -767,17 +792,17 @@ userstorage.loginUser(
       (userWithRole) => {
         alert(
           `Hello ${userWithRole.name}, you have a ${userWithRole.role} role`
-        )
+        );
       },
       (error) => {
-        console.log(error)
+        console.log(error);
       }
-    )
+    );
   },
   (error) => {
-    console.log(error)
+    console.log(error);
   }
-)
+);
 ```
 
 ---
@@ -794,63 +819,63 @@ promise의 object. Producer와 Consumer가 있음.
 const promise = new Promise((resolve, reject) => {
   // executor라는 콜백 함수는 resolve와 reject 콜백을 전달받음
   // doing some heavy work(network, read files)
-  console.log('doing something...')
+  console.log('doing something...');
   setTimeout(() => {
-    resolve('ellie')
+    resolve('ellie');
     // reject(new Error('no network'));
-  }, 2000)
-})
+  }, 2000);
+});
 
 // Consumer: then, catch, finally
 promise
   .then((value) => {
     // promise가 정상적으로 수행된다면 executor 값을 받아올거야
-    console.log(value)
+    console.log(value);
   })
   .catch((error) => {
     // Error 값을 받아옴
-    console.log(error)
+    console.log(error);
   })
   .finally(() => {
     // 무조건 실행
-    console.log('finally')
-  })
+    console.log('finally');
+  });
 
 // Promise chaining
 const fetchNumber = new Promise((resolve, reject) => {
-  setTimeout(() => resolve(1), 1000)
-})
+  setTimeout(() => resolve(1), 1000);
+});
 
 fetchNumber
   .then((num) => num * 2)
   .then((num) => num * 3)
   .then((num) => {
     return new Promise((resolve, reject) => {
-      setTimeout(() => resolve(num - 1), 1000)
-    })
+      setTimeout(() => resolve(num - 1), 1000);
+    });
   })
-  .then((num) => console.log(num))
+  .then((num) => console.log(num));
 
 // Error Handling
 const getHen = () =>
   new Promise((resolve, reject) => {
-    setTimeout(() => resolve('hen'), 1000)
-  })
+    setTimeout(() => resolve('hen'), 1000);
+  });
 const getEgg = (hen) =>
   new Promise((resolve, reject) => {
     // setTimeout(() => resolve(`${hen} => egg`), 1000);
-    setTimeout(() => reject(new Error(`error! ${hen} => egg`)), 1000)
-  })
+    setTimeout(() => reject(new Error(`error! ${hen} => egg`)), 1000);
+  });
 const cook = (egg) =>
   new Promise((resolve, reject) => {
-    setTimeout(() => resolve(`${egg} => fried egg`), 1000)
-  })
+    setTimeout(() => resolve(`${egg} => fried egg`), 1000);
+  });
 
 getHen()
   .then((hen) => getEgg(hen)) // 1가지만 인자로 받을 경우 .then(getEgg) 만 써도 됨
   .then((egg) => cook(egg))
   .then((meal) => console.log(meal))
-  .catch(console.log) // 마찬가지로 console.log만 써도 됨
+  .catch(console.log); // 마찬가지로 console.log만 써도 됨
 // catch 위치에 따라 에러가 떠도 최종 결과를 만들어낼 수 있음. catch 위치 조정에 신경
 ```
 
@@ -861,62 +886,62 @@ getHen()
 ```javascript
 // 1. async
 async function fetchUser() {
-  return 'ellie'
+  return 'ellie';
 }
 
 function fetchUser2() {
   return new Promise((resolve, reject) => {
-    resolve('ellie')
-  })
+    resolve('ellie');
+  });
 }
 // 위 두 함수는 같은 결과를 가짐
 
-const user = fetchUser()
-user.then(console.log)
-console.log(user)
+const user = fetchUser();
+user.then(console.log);
+console.log(user);
 
 // 2. await
 // async가 붙은 함수 안에서만 쓸 수 있는 키워드
 
 function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function getApple() {
-  await delay(1000) // delay가 끝날 때까지 return을 하지 않음
-  return '🍎'
+  await delay(1000); // delay가 끝날 때까지 return을 하지 않음
+  return '🍎';
 }
 
 async function getBanana() {
-  await delay(1000)
-  return '🍌'
+  await delay(1000);
+  return '🍌';
 }
 
 function getBanana2() {
-  return delay(1000).then(() => '🍌')
+  return delay(1000).then(() => '🍌');
 }
 
 function pickFruits() {
   return getApple().then((apple) => {
-    return getBanana().then((banana) => `${apple} + ${banana}`)
-  })
+    return getBanana().then((banana) => `${apple} + ${banana}`);
+  });
 }
-pickFruits().then(console.log)
+pickFruits().then(console.log);
 
 async function pickFruits2() {
-  const apple = await getApple()
-  const banana = await getBanana()
-  return `${apple} + ${banana}`
+  const apple = await getApple();
+  const banana = await getBanana();
+  return `${apple} + ${banana}`;
 }
-pickFruits2().then(console.log)
+pickFruits2().then(console.log);
 
 // 3. async를 병렬적으로 처리
 async function pickFruits3() {
-  const applePromise = getApple() // promise obj는 변수를 만드는 순간 바로 실행됨
-  const bananaPromise = getBanana()
-  const apple = await applePromise
-  const banana = await bananaPromise
-  return `${apple} + ${banana}`
+  const applePromise = getApple(); // promise obj는 변수를 만드는 순간 바로 실행됨
+  const bananaPromise = getBanana();
+  const apple = await applePromise;
+  const banana = await bananaPromise;
+  return `${apple} + ${banana}`;
 }
 ```
 
@@ -932,13 +957,13 @@ JS의 object의 값은 힙에 저장되어 있고 변수는 대부분 그 힙에
 1. `Object.assign()`
 
 ```javascript
-const obj = { a: 1 }
-const newObj = Object.assign({}, obj)
+const obj = { a: 1 };
+const newObj = Object.assign({}, obj);
 
-newObj.a = 2
+newObj.a = 2;
 
-console.log(obj) // { a: 1 }
-console.log(obj === newObj) // false
+console.log(obj); // { a: 1 }
+console.log(obj === newObj); // false
 
 // 주의. 2차원 객체는 깊은 복사가 이루어지지 않음
 const obj = {
@@ -946,26 +971,26 @@ const obj = {
   b: {
     c: 2,
   },
-}
+};
 
-const newObj = Object.assign({}, obj)
+const newObj = Object.assign({}, obj);
 
-newObj.b.c = 3
+newObj.b.c = 3;
 
-console.log(obj) // { a: 1, b: { c: 3 } }
-console.log(obj.b.c === newObj.b.c) // true
+console.log(obj); // { a: 1, b: { c: 3 } }
+console.log(obj.b.c === newObj.b.c); // true
 ```
 
 2. spread 연산자
 
 ```javascript
-const obj = { a: 1 }
-const newObj = Object.assign({}, obj)
+const obj = { a: 1 };
+const newObj = Object.assign({}, obj);
 
-newObj.a = 2
+newObj.a = 2;
 
-console.log(obj) // { a: 1 }
-console.log(obj === newObj) // false
+console.log(obj); // { a: 1 }
+console.log(obj === newObj); // false
 
 // 주의. 2차원 객체는 깊은 복사가 이루어지지 않음
 const obj = {
@@ -973,14 +998,14 @@ const obj = {
   b: {
     c: 2,
   },
-}
+};
 
-const newObj = { ...obj }
+const newObj = { ...obj };
 
-newObj.b.c = 3
+newObj.b.c = 3;
 
-console.log(obj) // { a: 1, b: { c: 3 } }
-console.log(obj.b.c === newObj.b.c) // true
+console.log(obj); // { a: 1, b: { c: 3 } }
+console.log(obj.b.c === newObj.b.c); // true
 ```
 
 아래부터는 2차원 이상의 객체도 깊은 복사가 가능하다.
@@ -993,14 +1018,14 @@ const obj = {
   b: {
     c: 2,
   },
-}
+};
 
-const newObj = JSON.parse(JSON.stringify(obj))
+const newObj = JSON.parse(JSON.stringify(obj));
 
-newObj.b.c = 3
+newObj.b.c = 3;
 
-console.log(obj) // { a: 1, b: { c: 2 } }
-console.log(obj.b.c === newObj.b.c) // false
+console.log(obj); // { a: 1, b: { c: 2 } }
+console.log(obj.b.c === newObj.b.c); // false
 ```
 
 4. 재귀 함수 이용
@@ -1008,15 +1033,15 @@ console.log(obj.b.c === newObj.b.c) // false
 ```javascript
 function deepCopy(obj) {
   if (obj === null || typeof obj !== 'object') {
-    return obj
+    return obj;
   }
 
-  const copy = {}
+  const copy = {};
   for (const key in obj) {
-    copy[key] = deepCopy(obj[key])
+    copy[key] = deepCopy(obj[key]);
   }
 
-  return copy
+  return copy;
 }
 
 const obj = {
@@ -1025,21 +1050,21 @@ const obj = {
     c: 2,
   },
   func: function () {
-    return this.a
+    return this.a;
   },
-}
+};
 
-const newObj = deepCopy(obj)
+const newObj = deepCopy(obj);
 
-newObj.b.c = 3
-console.log(obj) // { a: 1, b: { c: 2 }, func: [Function: func] }
-console.log(obj.b.c === newObj.b.c) // false
+newObj.b.c = 3;
+console.log(obj); // { a: 1, b: { c: 2 }, func: [Function: func] }
+console.log(obj.b.c === newObj.b.c); // false
 ```
 
 5. lodash의 `cloneDeep()` 이용
 
 ```javascript
-const lodash = require('lodash')
+const lodash = require('lodash');
 
 const obj = {
   a: 1,
@@ -1047,15 +1072,15 @@ const obj = {
     c: 2,
   },
   func: function () {
-    return this.a
+    return this.a;
   },
-}
+};
 
-const newObj = lodash.cloneDeep(obj)
+const newObj = lodash.cloneDeep(obj);
 
-newObj.b.c = 3
-console.log(obj) // { a: 1, b: { c: 2 }, func: [Function: func] }
-console.log(obj.b.c === newObj.b.c) // false
+newObj.b.c = 3;
+console.log(obj); // { a: 1, b: { c: 2 }, func: [Function: func] }
+console.log(obj.b.c === newObj.b.c); // false
 ```
 
 # property
@@ -1068,13 +1093,13 @@ console.log(obj.b.c === newObj.b.c) // false
 var obj = {
   name: 'Lee',
   sayHi: function () {
-    console.log('Hi! ' + this.name)
+    console.log('Hi! ' + this.name);
   },
-}
+};
 
-obj.sayHi() // Hi! Lee
+obj.sayHi(); // Hi! Lee
 
-new obj.sayHi() // sayHi {}
+new obj.sayHi(); // sayHi {}
 
 // function 키워드 생략한 축약 표현
 // ES6 메서드 축약표현만 메서드로 인정
@@ -1082,18 +1107,18 @@ new obj.sayHi() // sayHi {}
 const obj2 = {
   name: 'Lee',
   sayHi() {
-    console.log('Hi! ' + this.name)
+    console.log('Hi! ' + this.name);
   },
-}
+};
 
-obj2.sayHi() // 일반함수 호출: Hi! Lee
+obj2.sayHi(); // 일반함수 호출: Hi! Lee
 // 메소드는 non-constructor이므로 생성자 함수로 호출할 수 없다
 // new obj2.sayHi(); // Uncaught TypeError: obj.sayHi is not a constructor
 ```
 
 ```javascript
-console.dir(obj)
-console.dir(obj2)
+console.dir(obj);
+console.dir(obj2);
 ```
 
 `obj`와 `obj2`를 비교하면 다음과 같은 차이가 있다.
@@ -1126,17 +1151,17 @@ console.dir(obj2)
 > `writable`: true면 추후에 할당 연산자로 값을 변경할 수 있다.
 
 ```javascript
-const object1 = {}
+const object1 = {};
 
 Object.defineProperty(object1, 'property1', {
   value: 42,
   writable: false,
-})
+});
 
-object1.property1 = 77
+object1.property1 = 77;
 // throws an error in strict mode
 
-console.log(object1.property1)
+console.log(object1.property1);
 // expected output: 42
 ```
 
@@ -1146,7 +1171,7 @@ console.log(object1.property1)
 다른 인자들은 거의 비슷하며 사용법만 약간 다르다.
 
 ```javascript
-const object1 = {}
+const object1 = {};
 
 Object.defineProperties(object1, {
   property1: {
@@ -1154,8 +1179,8 @@ Object.defineProperties(object1, {
     writable: true,
   },
   property2: {},
-})
+});
 
-console.log(object1.property1)
+console.log(object1.property1);
 // expected output: 42
 ```
