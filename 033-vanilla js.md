@@ -19,6 +19,8 @@ vanilla.js로 개발할 일이 좀 적다보니 새로 얻는 개념에 대해 �
 [debounce](#12-debounce)
 [css tip](#13-css-tip)  
 [AbortController](#14-abortcontroller)
+[Node vs Element](#15-node-vs-element)
+[childNodes vs children](#16-childnodes-vs-children)
 
 ## 1. innerHTML
 
@@ -77,7 +79,7 @@ DOM 요소를 삽입할 때 쓰인다.
 
 > `insertAdjacentHTML` 메서드는 호출된 element를 reparse하지 않으므로 요소를 손상시키지 않는다. `insertAdjacentHTML`는 element를 연속적으로 serialize하고 reparse하지 않기 때문에 콘텐츠가 많을 때마다 추가 속도가 느려지는 `innerHtml`보다 훨씬 빠르다.
 
-`$element.insertAdjacentHTML(position, text)`와 같은 방식으로 사용된다.
+`element.insertAdjacentHTML(position, text)`와 같은 방식으로 사용된다.
 position은 `beforebegin`, `afterbegin`, `beforeend`, `afterend`만 가능하다.
 text는 HTML 또는 XML 형태의 문자열을 의미한다.
 
@@ -816,4 +818,30 @@ function Component() {
 
   // ...
 }
+```
+
+## 15. Node vs Element
+
+간단히 말해서, `Node`는 모든 DOM 객체이다.  
+`Node`는 DOM 계층 구조의 모든 개체 유형에 대한 generic name이다.  
+`Node`는 `document` 또는 `document.body`와 같은 기본 제공 DOM 요소 중 하나일 수 있다.  
+또한 `<input>`, `<p>`와 같은 지정된 HTML tag나 text, comment 또한 `Node`이다.
+
+`Element` 이러한 `Node` 중 특정 타입, 즉 `Node.ELEMENT_NODE`이다.  
+`<input>`, `<p>`와 같은 HTML tag로 적은 모든 `Node`를 의미한다.
+
+## 16. childNodes vs children
+
+`childNodes`은 `Node`의 property이다.  
+따라서 HTML tag, text, comment 등이 모두 `childNodes`에 해당한다.
+
+반면 `children`은 `Element`의 property이다.  
+따라서 HTML tag만이 `children`이다.
+
+```js
+const element = document.createElement('div');
+element.textContent = 'foo';
+
+element.childNodes.length === 1; // 'foo'라는 text Node.
+element.children.length === 0; // Element 존재하지 않음.
 ```
