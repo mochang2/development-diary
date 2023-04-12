@@ -12,7 +12,7 @@ angular는 jQuery를 써서 DOM을 조작(느리고)했고 앱이 커질수록 u
    react를 ReactNative 라이브러리와 결합시키면 앱을 만들 수 있으며, React360 라이브러리와 결합시키면 VR을, ReactElectron과 결합시키면 데스크톱 앱을 만들 수 있다.  
    따라서 자바스크립트를 기반으로 모바일, VR, 데스크톱 어떤 것이든 만들 수 있는 크로스 플랫폼 역할을 한다.
 2. JSX를 이용해 선언적 프로그래밍이 가능하다.
-3. virtual DOM의 효율적인 diffing algorithm으로 빠르다.
+3. diffing algorithm으로 빠르게 re-rendering 할 수 있다(이때 virtual DOM을 이용하지만 virtual DOM 자체가 re-rendering을 빠르게 하지는 않는다. [이는 virtual DOM 없이도 가능하지만 virtual DOM은 단순히 이를 추상화, 자동화한 것이다.](https://velopert.com/3236)).
 4. component를 통해 재사용성과 독립성을 얻어냈다.
 
 ### 목차
