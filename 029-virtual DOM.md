@@ -1,6 +1,6 @@
 ## 0. 공부하게 된 계기
 
-[vanilla.js로 vritualDOM 만들기](https://junilhwang.github.io/TIL/Javascript/Design/Vanilla-JS-Virtual-DOM/#_1-%E1%84%87%E1%85%B3%E1%84%85%E1%85%A1%E1%84%8B%E1%85%AE%E1%84%8C%E1%85%A5-%E1%84%85%E1%85%A9%E1%84%83%E1%85%B5%E1%86%BC-%E1%84%80%E1%85%AA%E1%84%8C%E1%85%A5%E1%86%BC), [만들어 가며 알아보는 React: React는 왜 성공했나](https://techblog.woowahan.com/8311/)를 읽어보며 react에서의 virtual DOM이 중요한 요소라는 것을 깨달았고 직접 만들어보며 공부할 필요가 있다고 생각했다.
+[vanilla.js로 virtual DOM 만들기](https://junilhwang.github.io/TIL/Javascript/Design/Vanilla-JS-Virtual-DOM/#_1-%E1%84%87%E1%85%B3%E1%84%85%E1%85%A1%E1%84%8B%E1%85%AE%E1%84%8C%E1%85%A5-%E1%84%85%E1%85%A9%E1%84%83%E1%85%B5%E1%86%BC-%E1%84%80%E1%85%AA%E1%84%8C%E1%85%A5%E1%86%BC), [만들어 가며 알아보는 React: React는 왜 성공했나](https://techblog.woowahan.com/8311/)를 읽어보며 react에서의 virtual DOM이 중요한 요소라는 것을 깨달았고 직접 만들어보며 공부할 필요가 있다고 생각했다.
 
 참고  
 https://www.youtube.com/watch?v=PN_WmsgbQCo  
@@ -82,12 +82,12 @@ transform, opacity, will-change 등을 사용했을 때 해당 과정을 거친�
 
 DOM을 virtual DOM과 구분 짓기 위해 real DOM이라고 사용하겠다.
 
-![virtual dom vs real dom](https://user-images.githubusercontent.com/63287638/188290423-b312a25f-625c-4d71-a201-816bc8df40c6.png)
+![virtual DOM vs real DOM](https://user-images.githubusercontent.com/63287638/188290423-b312a25f-625c-4d71-a201-816bc8df40c6.png)
 
 virtual DOM은 real DOM의 구조만 간결히 흉내낸 JS 객체이며 real DOM의 추상화 버전이다.  
 virtual DOM은 real DOM과 같은 class 등의 속성들을 포함하지만 DOM API를 가지고 있지는 않다.
 
-DOM 요소에 직접적으로 조작하면 느리기 때문에 상대적으로 가볍고 브라우저에 종속적이지 않은 virtual DOM(old virtual DOM과 new virtual DoM)을 비교하여 변경된 내용만 real DOM에 적용한다.  
+DOM 요소에 직접적으로 조작하면 느리기 때문에 (DOM API 등이 없어) 상대적으로 가볍고 브라우저에 종속적이지 않은 virtual DOM(old virtual DOM과 new virtual DoM)을 비교하여 변경된 내용만 real DOM에 적용한다.  
 또다른 특징은 *변화를 모아서 한 번에 처리*하는 일종의 batch 작업으로, real DOM에서 100가지의 변화가 있다고 하더라고 레이아웃을 100번씩 변화시키는 것이 아니라 이러한 변화를 묶어서 한 번만 레이아웃을 변화시킨다(DOM fragment의 변화를 묶어서 적용한 다음 real DOM에 던져준다).  
 이를 통해 브라우저 내에서 발생하는 렌더링 과정의 비효율성을 줄이면서 성능이 개선된다.  
 다만 [아래](#4-vanilla-js%EB%A1%9C-react-poc-%EB%A7%8C%EB%93%A4%EA%B8%B0)에서 이야기하겠지만 batch를 위한 이 작업에서 반드시 virtual DOM이 필요한 것은 아니다.  
@@ -122,8 +122,7 @@ let domNode = {
 }
 ```
 
-virtual DOM은 메모리 상에서 동작하며 virtualDOM은 이 과정을 자동화, 추상화해놓은 것이다.
-
+virtual DOM은 메모리 상에서 동작하며 위 과정을 자동화, 추상화해놓은 것이다.  
 virtual DOM 동작 과정을 정리하자면 다음과 같다.
 
 1. 전체 virtual DOM이 업데이트된다.
@@ -203,7 +202,7 @@ react의 element는 불변하다는 속성을 가지고 있기 때문에 위 코
 
 #### diffing 알고리즘
 
-react에서 state나 props가 갱신되면 `render` 함수는 새로운 React 엘리먼트 트리를 반환한다.  
+react에서 state나 props가 갱신되면 `render` 함수는 새로운 react 엘리먼트 트리를 반환한다.  
 이때 diffing 알고리즘이 동작한다.
 
 기존에 트리를 비교하는 알고리즘은 아무리 빨라도 O(n^3)의 시간 복잡도를 지녔다.  
@@ -225,7 +224,7 @@ O(n)의 시간 복잡도를 가진 diffing 알고리즘은 루트 노드부터 D
 이런 점을 생각했을 때, 부모 태그의 타입이 바뀌는 순간 그 아래 모든 자식 태그들은 굳이 탐색할 것 없이 새로 render하는 편이 더 효율적이라고 가정한다.
 
 물론 이러한 가정 때문에 비효율적일 수도 있다.  
-아래와 같은 예시는 `<Counter />` 컴포넌트가 동일한데 `<div>`가 `<span>`으로 바뀌었다고 `<Counter />`도 re-render하기 때문이다.
+아래와 같은 예시는 `<Counter />` 컴포넌트가 동일한데 `<div>`가 `<section>`으로 바뀌었다고 `<Counter />`도 re-render하기 때문이다.
 
 ```jsx
 // before
@@ -234,9 +233,9 @@ O(n)의 시간 복잡도를 가진 diffing 알고리즘은 루트 노드부터 D
 </div>
 
 // after
-<span>
+<section>
   <Counter />
-</span>
+</section>
 ```
 
 **2) 비교하는 두 element 타입이 같은 경우**
@@ -356,10 +355,10 @@ function ParentComponent() {
 
 왜냐하면 렌더링할 때마다 매번 새로운 참조를 만들게 되어 매번 새로운 트리를 생성하는 비효율성이 발생하기 때문이다.
 
-## 4. vanilla JS로 React PoC 만들기
+## 4. vanilla JS로 react PoC 만들기
 
-다른 블로그들의 영감을 받아(?) ~사실 거의 비슷하게~ [React PoC](https://www.npmjs.com/package/vanilla-to-react)를 만들어봤다.  
-덕분에 React의 특징을 조금이나마 알 수 있었다.  
+다른 블로그들의 영감을 받아(?) ~사실 거의 비슷하게~ [react PoC](https://www.npmjs.com/package/vanilla-to-react)를 만들어봤다.  
+덕분에 react의 특징을 조금이나마 알 수 있었다.  
 
 다음은 직접 만들며, 그리고 자료들을 찾아보며 알게 된 사실이다.  
 직접 만들어 볼 생각을 하지 않았다면 평생 몰랐을 것 같다.
@@ -367,7 +366,7 @@ function ParentComponent() {
 1. JSX는 가독성을 많이 높여준다(사실 이는 내가 JSX에 익숙해져서 그런걸지도 모르겠다).
 2. `useState` 훅은 내부적으로 클로저 개념을 사용해 state를 관리한다(다만 언제 이 state가 필요가 없게 되어 삭제하고 메모리를 관리하는지는 모르겠다).
 3. virtual DOM은 DOM의 경량화된 트리 형태의 객체이다.
-4. React의 re-rendering 성능을 도와주는 것은 diffing algorithm이다.
+4. react의 re-rendering 성능을 도와주는 것은 diffing algorithm이다.
 5. virtual DOM 자체는 성능상 이점을 주지 않는다. 변경 사항을 한 번에 적용하는 batch도 `innerHTML`을 한 번만 적용하는 방식 등으로 작업해도 state 100번 변경에 대해 re-rendering을 1번만 하게 도와줄 수 있다.
 
 4, 5와 관련해서, 그렇다면 virtual DOM으로 해결하려고 하는 것은 무엇인가?  
@@ -376,6 +375,6 @@ https://velopert.com/3236 에 의하면 다음과 같다.
 > 그러면, virtual DOM 이 해결하려고 하는건 무엇이냐? DOM fragment를 관리하는 과정을 수동으로 하나하나 작업 할 필요 없이, 자동화하고 추상화하는거에요. 그 뿐만 아니라, 만약에 이 작업을 여러분들이 직접 한다면, 기존 값 중 어떤게 바뀌었고 어떤게 바뀌지 않았는지 계속 파악하고 있어야하는데 (그렇지 않으면 수정할 필요가 없는 DOM 트리도 업데이트를 하게 될 수도 있으니까요), virtual DOM이 이걸 자동으로 해주는 거에요. 어떤게 바뀌었는지, 어떤게 바뀌지 않았는지 알아내주죠.
 > 마지막으로, DOM 관리를 virtual DOM 이 하도록 함으로써, 컴포넌트가 DOM 조작 요청을 할 때 다른 컴포넌트들과 상호작용을 하지 않아도 되고, 특정 DOM 을 조작할 것 이라던지, 이미 조작했다던지에 대한 정보를 공유할 필요가 없습니다. 즉, 각 변화들의 동기화 작업을 거치지 않으면서도 모든 작업을 하나로 묶어줄 수 있다는거죠.
 
-아마 내가 실력이 좋아 React PoC를 제대로 만들었다면 virtual DOM의 목적을 더 잘 이해할 수 있었을 것 같다.  
+아마 내가 실력이 좋아 react PoC를 제대로 만들었다면 virtual DOM의 목적을 더 잘 이해할 수 있었을 것 같다.  
 state가 변경되면 해당 컴포넌트부터 diffing을 파악하는 것이 아니라, app 최상단부터 파악하기 때문이다.  
 아쉽지만 시간을 너무 잡아먹는 부분이라 여기까지만 알아보겠다.  
