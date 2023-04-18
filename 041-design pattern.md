@@ -44,9 +44,8 @@ http://klausbreaktime.blogspot.com/2017/07/blog-post.html
 https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=tipsware&logNo=221029211791
 
 공통적으로 사용되는 '객체'의 개념을 먼저 정리하고자 한다.  
-가장 중요한 오해인 `객체 지향 = 클래스`를 해소하기 위한 내용이다.  
-클래스는 객체 타입을 정의하기 위한 한 가지 문법일 뿐이다.  
-~공부하면서 느끼는 건데 나중에 꼭 '객체지향의 사실과 오해'를 정독해야겠다.~
+가장 중요한 오해인 `객체 지향 == 클래스`를 해소하기 위한 내용이다.  
+클래스는 객체 타입을 정의하기 위한 한 가지 문법일 뿐이다.
 
 관점에 따라 '객체'에 대한 정의가 달라진다.
 
@@ -55,7 +54,9 @@ https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=tipsware&log
 - 소프트웨어 개발 관점에서는 객체의 상태를 나타내는 데이터(property)와 그 데이터를 처리하거나 참조하는 함수(method)
 - 객체지향 프로그래밍 관점에서는 소프트웨어 관점에서 본 데이터를 속성으로 변경하여 속성과 메서드 형태로 구현
 
-쉽지는 않지만 한 마디로 객체를 정의하자면 **행위나 작업을 표준화시켜서 메모리에 표현된 것** 정도로 이야기할 수 있다.
+쉽지는 않지만 한 마디로 객체를 정의하자면 **행위나 작업을 표준화시켜서 메모리에 표현된 것** 정도로 이야기할 수 있다.  
+시스템은 상호작용하는 자율적인 객체들의 공동체로 구성된다.  
+여기서 자율적인 객체란 상태와 행위를 함께 지니며 부여받은 *역할*에 대한 *책임*을 다하며 다른 객체와 *협력*하는 존재를 말한다.
 
 객체 지향의 핵심은 책임을 적절히 분배 받은 객체 간의 협력이다.
 
@@ -1080,7 +1081,7 @@ class CachedYouTube implements YouTubeAPI {
 참고  
 https://refactoring.guru/ko/design-patterns/facade  
 https://lktprogrammer.tistory.com/42  
-https://readystory.tistory.com/m/193  
+https://readystory.tistory.com/m/193
 
 **서브시스템을 더 쉽게 사용할 수 있도록 higher-level 인터페이스를 정의하고, 제공하는 패턴이다.**
 
@@ -1116,34 +1117,42 @@ Facade는 건물의 정면이라는 뜻으로, Facade 객체는 어떤 소프트
 // convert.ts
 
 declare module Converter {
-  type Codec = '' // ...
-  class VideoFile { /* ... */ }
-  class OggCompressionCodec { /* ... */ }
-  class MPEG4CompressionCodec { /* ... */ }
-  class BitrateReader { /* ... */ }
+  type Codec = ''; // ...
+  class VideoFile {
+    /* ... */
+  }
+  class OggCompressionCodec {
+    /* ... */
+  }
+  class MPEG4CompressionCodec {
+    /* ... */
+  }
+  class BitrateReader {
+    /* ... */
+  }
   // class AudioMixer, class Something ...
 }
 ```
 
 ```ts
 // VideoConverter
-type VideoExtension = 'mp4' | 'ogg'
+type VideoExtension = 'mp4' | 'ogg';
 
 class VideoConvertor {
   convert(filePath: string, format: VideoExtension = 'mp4'): File {
-    const video = new VideoFile(filepath)
-    const codec = getCodec(format)
+    const video = new VideoFile(filepath);
+    const codec = getCodec(format);
 
-    return new File(BitrateReader.convert(video, codec))
+    return new File(BitrateReader.convert(video, codec));
   }
 
   getCodec(format: VideoExtension): Codec {
-    switch(format) {
+    switch (format) {
       case 'ogg':
-        return new OggCompressionCodec()
+        return new OggCompressionCodec();
       case 'mp4':
       default:
-        return new MPEG4CompressionCodec()
+        return new MPEG4CompressionCodec();
     }
   }
 }
@@ -1151,9 +1160,9 @@ class VideoConvertor {
 
 ```ts
 // Client
-const converter = new VideoConverter()
-const convertedVideo = converter.convert("test.ogg")
-convertedVideo.save()
+const converter = new VideoConverter();
+const convertedVideo = converter.convert('test.ogg');
+convertedVideo.save();
 ```
 
 만약 위와 같이 `VideoConverter` 객체가 존재하지 않는다면, 모든 클라이언트는 `convert` 모듈을 import한 뒤 일부 기능만 사용하고, 그 구현을 반복해야 한다.
