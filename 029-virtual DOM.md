@@ -90,7 +90,7 @@ virtual DOM은 real DOM과 같은 class 등의 속성들을 포함하지만 DOM 
 DOM 요소에 직접적으로 조작하면 느리기 때문에 (DOM API 등이 없어) 상대적으로 가볍고 브라우저에 종속적이지 않은 virtual DOM(old virtual DOM과 new virtual DoM)을 비교하여 변경된 내용만 real DOM에 적용한다.  
 또다른 특징은 *변화를 모아서 한 번에 처리*하는 일종의 batch 작업으로, real DOM에서 100가지의 변화가 있다고 하더라고 레이아웃을 100번씩 변화시키는 것이 아니라 이러한 변화를 묶어서 한 번만 레이아웃을 변화시킨다(DOM fragment의 변화를 묶어서 적용한 다음 real DOM에 던져준다).  
 이를 통해 브라우저 내에서 발생하는 렌더링 과정의 비효율성을 줄이면서 성능이 개선된다.  
-다만 [아래](#4-vanilla-js%EB%A1%9C-react-poc-%EB%A7%8C%EB%93%A4%EA%B8%B0)에서 이야기하겠지만 batch를 위한 이 작업에서 반드시 virtual DOM이 필요한 것은 아니다.  
+다만 [아래](#4-vanilla-js%EB%A1%9C-react-poc-%EB%A7%8C%EB%93%A4%EA%B8%B0)에서 이야기하겠지만 batch를 위한 이 작업에서 반드시 virtual DOM이 필요한 것은 아니다.
 
 ### 동작 원리
 
@@ -119,7 +119,7 @@ let domNode = {
       textContent: 'li2',
     },
   ],
-}
+};
 ```
 
 virtual DOM은 메모리 상에서 동작하며 위 과정을 자동화, 추상화해놓은 것이다.  
@@ -149,7 +149,7 @@ function Component() {
     <div className="box">
       <h1>hello world</h1>
     </div>
-  )
+  );
 }
 
 // babel이 변환
@@ -160,7 +160,7 @@ function Component() {
       className: 'box',
     },
     React.createElement('h1', null, 'hello world')
-  )
+  );
 }
 
 // react 객체. 내부적으로 표현되는 방식
@@ -175,7 +175,7 @@ const element = {
       },
     ],
   },
-}
+};
 ```
 
 위 `element`는 `ReactDOM.render`라는 함수에 의해서 실제 DOM 요소가 된다.  
@@ -189,7 +189,7 @@ function ComponentA() {
     <div>
       <ComponentB />
     </div>
-  )
+  );
 }
 ```
 
@@ -251,10 +251,10 @@ function Component() {
   return (
     <ul>
       {array.map((item, index) => {
-        return <li key={index}>{itme}</li>
+        return <li key={index}>{itme}</li>;
       })}
     </ul>
-  )
+  );
 }
 ```
 
@@ -312,6 +312,12 @@ function Component() {
 `key`로 사용되기 좋은 것은 unique한 id값이나 uuid 등(`stable attributes, which persist between re-renders`) 이고, 최후의 수단으로 배열의 index를 `key`로 사용할 수 있다.  
 하지만 index를 사용하는 방법은 sort된 array에 새로운 값이 추가되거나 중간값이 삭제된 뒤 다시 sort가 필요한 경우 비효율적으로 작동한다.
 
+_참고) vs Vue_  
+위에서 이야기한 것처럼 React는 부모 엘리먼트가 변경되었다면 하위 모든 자식 엘리먼트를 re-rendering한다.  
+반면 Vue는 변경된 부분만 re-rendering하고, 변경이 없는 요소는 이를 건너뛰어 성능을 최적화한다.  
+이러한 이유로 Vue가 미세하지만 성능이 더 좋다고 이야기하는 것 같다.  
+~나중에 Vue의 diffing update도 한 번 확인해보면 좋겠다.~
+
 ### performance
 
 무조건 virtual DOM이 빠른 것이 아니다.  
@@ -346,10 +352,10 @@ _cf) 권고하지 않는 사항_
 ```jsx
 function ParentComponent() {
   function ChildComponent() {
-    return <div>I'm child</div>
+    return <div>I'm child</div>;
   }
 
-  return <div>I'm parent</div>
+  return <div>I'm parent</div>;
 }
 ```
 
@@ -358,7 +364,7 @@ function ParentComponent() {
 ## 4. vanilla JS로 react PoC 만들기
 
 다른 블로그들의 영감을 받아(?) ~사실 거의 비슷하게~ [react PoC](https://www.npmjs.com/package/vanilla-to-react)를 만들어봤다.  
-덕분에 react의 특징을 조금이나마 알 수 있었다.  
+덕분에 react의 특징을 조금이나마 알 수 있었다.
 
 다음은 직접 만들며, 그리고 자료들을 찾아보며 알게 된 사실이다.  
 직접 만들어 볼 생각을 하지 않았다면 평생 몰랐을 것 같다.
@@ -377,4 +383,4 @@ https://velopert.com/3236 에 의하면 다음과 같다.
 
 아마 내가 실력이 좋아 react PoC를 제대로 만들었다면 virtual DOM의 목적을 더 잘 이해할 수 있었을 것 같다.  
 state가 변경되면 해당 컴포넌트부터 diffing을 파악하는 것이 아니라, app 최상단부터 파악하기 때문이다.  
-아쉽지만 시간을 너무 잡아먹는 부분이라 여기까지만 알아보겠다.  
+아쉽지만 시간을 너무 잡아먹는 부분이라 여기까지만 알아보겠다.
