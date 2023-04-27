@@ -14,7 +14,9 @@ FE 개발자로서... 이런 부분에 대해 대답을 못 한다면 공부해�
 
 참고  
 http://www.ktword.co.kr/test/view/view.php?m_temp1=2837  
-http://wiki.hash.kr/index.php/%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8
+http://wiki.hash.kr/index.php/%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8  
+https://as-you-say.tistory.com/221  
+https://jbee.io/web/components-should-be-flexible/
 
 ## 1. 컴포넌트란
 
@@ -56,25 +58,25 @@ React의 장점 중 하나로 꼽히는 것이 컴포넌트 기반으로 개발�
 
 '컴포넌트를 2개로 따로 선언하는 것이 재사용성을 해치니까 나는 1개로 선언해야지! 이 프로젝트에 버튼 컴포넌트는 무조건 하나야'라는 생각으로 다음과 같이 선언할 수 있다.
 
-```js
-function Button({ onClick, className = '', children, isClose }) {
-  return isClose ? (
-    <button
-      onClick={onClick}
-      className={`button-base ${className}`}
-      style={{ margin: 3 }}
-    >
-      X
-    </button>
-  ) : (
-    <button
-      onClick={onClick}
-      className={`button-base ${className}`}
-      style={{ margin: 4 }}
-    >
-      {children}
-    </button>
-  );
+```ts
+function Button({ onClick, className = "", children, isClose }: Props) {
+    return isClose ? (
+        <button
+            onClick={onClick}
+            className={`button-base ${className}`}
+            style={{ margin: 3 }}
+        >
+            X
+        </button>
+    ) : (
+        <button
+            onClick={onClick}
+            className={`button-base ${className}`}
+            style={{ margin: 4 }}
+        >
+            {children}
+        </button>
+    );
 }
 ```
 
@@ -82,39 +84,546 @@ function Button({ onClick, className = '', children, isClose }) {
 나는! 개인적으로! 역할, UI가 명확히 구분되고 다르다면 아래와 같이 두 가지 컴포넌트로 분리하는 것이 낫다고 생각한다...  
 `isClose`나 인터페이스나 삼항 연산자 문법이 필요 없기 때문이다.
 
-```js
-function BootstrapButton({ onClick, className = '', children }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`button-base ${className}`}
-      style={{ margin: 4 }}
-    >
-      {children}
-    </button>
-  );
+```tsx
+function BootstrapButton({ onClick, className = "", children }: Props) {
+    return (
+        <button
+            onClick={onClick}
+            className={`button-base ${className}`}
+            style={{ margin: 4 }}
+        >
+            {children}
+        </button>
+    );
 }
 ```
 
-```js
-function CloseButton({ onClick, className = '' }) {
-  return (
-    <button
-      onClick={onClick}
-      className={`button-base ${className}`}
-      style={{ margin: 3 }}
-    >
-      X
-    </button>
-  );
+```tsx
+function CloseButton({ onClick, className = "" }: Props) {
+    return (
+        <button
+            onClick={onClick}
+            className={`button-base ${className}`}
+            style={{ margin: 3 }}
+        >
+            X
+        </button>
+    );
 }
 ```
 
 ## 3. 재사용 가능한 컴포넌트 만드는 방법
 
-그렇다면 재사용 가능한 컴포넌트는 어떻게 만드는가?
+그렇다면 재사용 가능한 컴포넌트는 어떻게 만들까?
 
-### 1) 추상화 / 일반적인 인터페이스로 디자인한다. (+ 그 이전에 [비즈니스 로직이 없거나 상태값이 없도록 분리한다](https://as-you-say.tistory.com/221))
+우선 컴포넌트를 역할과 책임에 따라 분리한다(다만 분리만 한다고 재사용 가능한 것은 아니다. 분리는 밑작업일 뿐이다).  
+컴포넌트 하나가 비대해지면 재사용성이 떨어지며 가독성도 해친다.  
+일반적으로 역할과 책임에 따라 분리하면 컴포넌트는 **비즈니스 로직이 없거나 상태값이 없도록 분리된다.**  
+하나의 페이지를 만든다면 페이지 자체는 결과적으로 하나의 거대한 컴포넌트가 되겠지만 그 구성 요소는 작은 컴포넌트들이다.
+
+컴포넌트는 보통 세 가지 역할과 책임 중에 하나를 맡는다.
+
+1. 외부(API, Storage, 부모 컴포넌트)로부터 주입된 데이터를 관리한다.
+2. 데이터를 UI로 표현한다.
+3. 사용자로부터 인터랙션을 받는다.
+
+<br />
+
+예시로 거대한 게시판 목록 페이지를 하나를 만들고 역할과 책임에 따라 분리해보겠다.  
+해당 어플리케이션의 table header는 text만 들어오고 `font-weight: 600`으로 고정되어 있다.  
+또한 table body는 text도 `React.ReactNode`도 들어올 수 있고, `font-weight: 300`으로 고정되어 있다.  
+간단히 만들기 위해서 페이지네이션은 없다고 가정하겠다.
+
+우선 아래 파일들은 컴포넌트 재사용을 위한 내용과 상관 없이 공통적으로 사용될 파일들이다.  
+스타일 파일은 ~귀찮아서~ 여러 파일로 분리 안 하고 적당히 모양만 내도록 짰으니까 대충 넘어가자.
+
+```json
+// public/result.json
+
+{
+    "posts": [
+        {
+            "id": 1,
+            "title": "제목입니다1",
+            "author": "user1"
+        },
+        {
+            "id": 2,
+            "title": "제목입니다2",
+            "author": "user2"
+        },
+        {
+            "id": 3,
+            "title": "제목입니다3",
+            "author": "user3"
+        },
+        {
+            "id": 4,
+            "title": "제목입니다4",
+            "author": "user4"
+        },
+        {
+            "id": 5,
+            "title": "제목입니다5",
+            "author": "user5"
+        },
+        {
+            "id": 6,
+            "title": "제목입니다6",
+            "author": "user6"
+        }
+    ]
+}
+```
+
+```ts
+// src/api/fetch.ts
+
+const request = async (url: string) => {
+    try {
+        const data = await fetch(url);
+
+        if (!data.ok) {
+            throw new Error("데이터 fetch 에러 발생");
+        }
+
+        return await data.json();
+    } catch (error) {
+        // 무시
+    }
+};
+
+export default request;
+```
+
+```ts
+// src/store/storage.ts
+
+export default class Storage {
+    static #instance: Storage;
+
+    constructor() {
+        if (Storage.#instance) {
+            return Storage.#instance;
+        }
+
+        Storage.#instance = this;
+    }
+
+    get(key: string) {
+        return localStorage.getItem(key) || "저장된 데이터가 없습니다";
+    }
+
+    set(key: string, value: string) {
+        localStorage.setItem(key, value);
+    }
+}
+```
+
+```ts
+// src/types.d.ts
+
+declare module "types" {
+    interface Post {
+        id: number;
+        title: string;
+        author: string;
+    }
+}
+```
+
+```css
+/* src/style.css */
+
+button {
+    background-color: #0a0a23;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 4px 8px;
+}
+
+button:hover {
+    outline-color: transparent;
+    outline-style: solid;
+    box-shadow: 0 0 0 4px #5a01a7;
+    transition: 0.7s;
+}
+
+thead {
+    font-weight: 600;
+}
+
+tbody {
+    font-weight: 300;
+}
+
+.warning {
+    color: red;
+}
+
+.post-list .row {
+    display: flex;
+}
+
+.post-list .cell {
+    flex: 1 0 250px;
+}
+```
+
+아무런 분리를 시도하지 않은 `App.tsx`는 다음과 같이 생겼다.
+
+```tsx
+// src/App.tsx
+
+import { useState, useEffect } from "react";
+import Storage from "./store/storage";
+import request from "./api/fetch";
+import { Post } from "types";
+
+function App() {
+    const HEADERS = ["NO", "제목", "작성자", "삭제"];
+    const [posts, setPosts] = useState<Post[]>([]);
+
+    useEffect(() => {
+        new Storage().set("USER_ID", "user1");
+    }, []);
+
+    useEffect(() => {
+        async function getPosts() {
+            const { posts }: { posts: Post[] } = await request("result.json");
+
+            if (posts) {
+                setPosts(posts);
+            }
+        }
+
+        getPosts();
+    }, []);
+
+    function onClickCreationButton() {
+        alert("게시글 등록 페이지로 이동합니다.");
+    }
+
+    function onClickDeleteButton(id: number) {
+        alert("게시글을 삭제합니다."); // API 요청 가정
+
+        setPosts((posts) => posts.filter((post) => post.id !== id));
+    }
+
+    function getUserId() {
+        return new Storage().get("USER_ID");
+    }
+
+    return (
+        <div className="App">
+            <div className="post-list">
+                <button onClick={onClickCreationButton}>게시글 추가</button>
+                <table>
+                    <thead>
+                        <tr className="row">
+                            {HEADERS.map((header) => (
+                                <td key={header} className="cell">
+                                    {header}
+                                </td>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {posts.map(({ id, title, author }) => (
+                            <tr key={id} className="row">
+                                <td className="cell">{id}</td>
+                                <td className="cell">{title}</td>
+                                <td className="cell">{author}</td>
+                                <td className="cell">
+                                    {getUserId() === author ? (
+                                        <button
+                                            onClick={() =>
+                                                onClickDeleteButton(id)
+                                            }
+                                        >
+                                            삭제
+                                        </button>
+                                    ) : (
+                                        "삭제 불가능한 게시글입니다."
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                    {posts.length === 0 && (
+                        <h1 className="warning">게시글이 없습니다.</h1>
+                    )}
+                </table>
+            </div>
+        </div>
+    );
+}
+
+export default App;
+```
+
+혼자 API 요청 없이 렌더링할 수 있는 부분 렌더링, API 요청, API 요청 후에 렌더링할 수 있는 부분 렌더링, 클릭 인터랙션을 받은 후 삭제 API 요청 등 많은 부분을 담당한다.  
+애플리케이션이 작다면 이러한 페이지는 크게 문제가 되지 않을 수 있다.  
+하지만 표를 그리는 페이지가 많다면 반복되는 코드가 많이 생길 것이다.  
+또한 "삭제" 버튼 클릭 시 `tbody` 내부만 re-rendering되면 되지만, 불필요하게 `thead`도 re-rendering된다.
+테스트 코드를 짤 때도 헤더만 제대로 렌더링되는지를 확인하고 싶은데 불필요한 API 모킹이 필요하게 된다.
+
+이제 위 컴포넌트를 비즈니스 로직이 없거나 상태값이 없도록 분리해보자.
+
+1. `App`: 애플리케이션 최상단에서 라우팅 처리
+2. `PostList`: 게시글 목록 최상단 컴포넌트로 '게시글 추가' 버튼, `PostTableHeader`와 `PostTableBody` 렌더링
+3. `PostTableHeader`: 게시글 목록 헤더를 나타내는 컴포넌트로 `headers`(text 배열), `style`(thead의 스타일)을 `props`로 받음
+4. `PostTableBody`: 일종의 container 컴포넌트. API를 요청해 posts 데이터를 받아오고 `PostListRow`를 렌더링
+5. `PostListRow`: 일종의 presentational 컴포넌트. `PostTableBody`에게 받은 데이터를 렌더링
+
+위와 같이 총 5가지 컴포넌트로 분리할 수 있겠다.  
+현재 `Button` 컴포넌트는 디자인이 하나밖에 없어서 분리하지 않았다.  
+그리고 props가 없다면 `memo`로 감싸면 좋겠지만 현재는 성능 관련된 내용을 이야기하는 것이 아니니 pass.
+
+```tsx
+// src/App.tsx
+
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import PostList from "./pages/PostList";
+import Storage from "./store/storage";
+
+function App() {
+    useEffect(() => {
+        new Storage().set("USER_ID", "user1");
+    }, []);
+
+    return (
+        <div className="App">
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<PostList />} />
+                </Routes>
+            </BrowserRouter>
+        </div>
+    );
+}
+
+export default App;
+```
+
+```tsx
+// src/pages/PostList.tsx
+
+import PostListHeader from "../components/PostListHeader";
+import PostListBody from "../components/PostListBody";
+
+function PostList() {
+    const HEADERS = ["NO", "제목", "작성자", "삭제"];
+
+    function onClickCreationButton() {
+        alert("게시글 등록 페이지로 이동합니다.");
+    }
+
+    return (
+        <div className="post-list">
+            <button onClick={onClickCreationButton}>게시글 추가</button>
+            <table>
+                <PostListHeader headers={HEADERS} />
+                <PostListBody />
+            </table>
+        </div>
+    );
+}
+
+export default PostList;
+```
+
+```tsx
+// src/components/PostListHeader.tsx
+
+interface Props {
+    style?: React.CSSProperties;
+    headers: string[];
+}
+
+function PostListHeader({ headers, style }: Props) {
+    return (
+        <thead style={{ ...style }}>
+            <tr className="row">
+                {headers.map((header) => (
+                    <td key={header} className="cell">
+                        {header}
+                    </td>
+                ))}
+            </tr>
+        </thead>
+    );
+}
+
+export default PostListHeader;
+```
+
+```tsx
+// src/components/PostListBody.tsx
+
+import { useState, useEffect } from "react";
+import PostListRow from "../components/PostListRow";
+import request from "../api/fetch";
+import Storage from "../store/storage";
+import { Post } from "types";
+
+function PostListBody() {
+    const [posts, setPosts] = useState<Post[]>([]);
+
+    useEffect(() => {
+        async function getPosts() {
+            const { posts }: { posts: Post[] } = await request("result.json");
+
+            if (posts) {
+                setPosts(posts);
+            }
+        }
+
+        getPosts();
+    }, []);
+
+    function onClickDeleteButton(id: number) {
+        alert("게시글을 삭제합니다.");
+
+        setPosts((posts) => posts.filter((post) => post.id !== id));
+    }
+
+    function getUserId() {
+        return new Storage().get("USER_ID");
+    }
+
+    return (
+        <>
+            <tbody>
+                {posts.map(({ id, title, author }) => (
+                    <PostListRow
+                        key={id}
+                        cells={[
+                            id,
+                            title,
+                            author,
+                            getUserId() === author ? (
+                                <button onClick={() => onClickDeleteButton(id)}>
+                                    삭제
+                                </button>
+                            ) : (
+                                "삭제 불가능한 게시글입니다."
+                            ),
+                        ]}
+                    />
+                ))}
+            </tbody>
+            {posts.length === 0 && (
+                <h1 className="warning">게시글이 없습니다.</h1>
+            )}
+        </>
+    );
+}
+
+export default PostListBody;
+```
+
+```tsx
+// src/components/PostListRow.tsx
+
+interface Props {
+    style?: React.CSSProperties;
+    cells: React.ReactNode[];
+}
+
+function PostListRow({ cells, style }: Props) {
+    return (
+        <tr className="row" style={{ ...style }}>
+            {cells.map((cell) => (
+                <td className="cell">{cell}</td>
+            ))}
+        </tr>
+    );
+}
+
+export default PostListRow;
+```
+
+### 1) 일반적인 인터페이스로 디자인한다.
+
+위 예시에서 분리한 컴포넌트들은 쉽게 재사용될 수 _없다_.  
+특정 도메인(여기서는 게시글)에 얽혀있기 때문이다.  
+페이지 자체인 `PostList.tsx`나 API를 요청해야 하는(props로 API URL을 넘겨준다면 가능하겠지만 내 생각에는 굳이...? 재사용할 수 있을까? 싶긴 하다) `PostListBody.tsx`는 도메인에서 분리하기 힘들 것 같다.  
+하지만 `PostListHeader.tsx`나 `PostListRow.tsx`는 넘겨받은 데이터를 뿌려주기만 하는 presentational 컴포넌트이므로 충분히 도메인을 제거할 수 있겠다.
+
+```tsx
+interface Props {
+    style?: React.CSSProperties;
+    headers: string[];
+}
+
+function TableHeader({ headers, style }: Props) {
+    return (
+        <thead style={{ ...style }}>
+            <tr className="row">
+                {headers.map((header) => (
+                    <td key={header} className="cell">
+                        {header}
+                    </td>
+                ))}
+            </tr>
+        </thead>
+    );
+}
+
+export default TableHeader;
+```
+
+```tsx
+interface Props {
+    style?: React.CSSProperties;
+    cells: React.ReactNode[];
+}
+
+function TableRow({ cells, style }: Props) {
+    return (
+        <tr className="row" style={{ ...style }}>
+            {cells.map((cell) => (
+                <td className="cell">{cell}</td>
+            ))}
+        </tr>
+    );
+}
+
+export default TableRow;
+```
+
+위와 같이 말이다.  
+이제 `TableHeader`, `TableRow` 두 컴포넌트는 테이블을 만드는 여러 페이지에서 재사용할 수 있다.
+
+하지만 (애플리케이션마다 다르겠지만) 위와 같이 변경한 것이 끝이 아닐 수 있다.  
+`TableHeader`나 `TableRow`는 `style`만이 아니라 각각 `thead`, `tr` 태그가 받을 수 있는 모든 `props`를 받고 싶게 변경할 수도 있다.  
+그러면 `TableHeader`는 아래와 같이 변경할 수도 있다(`TableRow`는 비슷하므로 생략).
+
+```tsx
+import { HTMLAttributes } from "react";
+
+interface Props extends HTMLAttributes<HTMLTableCellElement> {
+    style?: React.CSSProperties;
+    headers: string[];
+}
+
+function TableHeader({ headers, style, ...props }: Props) {
+    return (
+        <thead {...props}>
+            <tr className="row">
+                {headers.map((header) => (
+                    <td key={header} className="cell">
+                        {header}
+                    </td>
+                ))}
+            </tr>
+        </thead>
+    );
+}
+```
 
 ### 2) 디자인 시스템을 이용한다.
 
