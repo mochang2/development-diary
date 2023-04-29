@@ -205,7 +205,7 @@ export default request;
 ```ts
 // src/store/storage.ts
 
-export default class Storage {
+class Storage {
   static #instance: Storage;
 
   constructor() {
@@ -224,6 +224,8 @@ export default class Storage {
     localStorage.setItem(key, value);
   }
 }
+
+export default Storage;
 ```
 
 ```ts
@@ -281,11 +283,6 @@ tbody {
 
 ```tsx
 // src/App.tsx
-
-import { useState, useEffect } from 'react';
-import Storage from './store/storage';
-import request from './api/fetch';
-import { Post } from 'types';
 
 function App() {
   const HEADERS = ['NO', '제목', '작성자', '삭제'];
@@ -386,11 +383,6 @@ export default App;
 ```tsx
 // src/app.tsx
 
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import PostList from './pages/PostList';
-import Storage from './store/storage';
-
 function App() {
   useEffect(() => {
     new Storage().set('USER_ID', 'user1');
@@ -412,9 +404,6 @@ export default App;
 
 ```tsx
 // src/pages/post-list.tsx
-
-import PostListHeader from '../components/PostListHeader';
-import PostListBody from '../components/PostListBody';
 
 function PostList() {
   const HEADERS = ['NO', '제목', '작성자', '삭제'];
@@ -621,11 +610,15 @@ function TableHeader({ headers, style, ...props }: Props) {
     </thead>
   );
 }
+
+export default TableHeader;
 ```
 
 ### 2) 디자인 시스템을 이용한다.
 
 ### 3) 디자인 패턴을 사용한다.
+
+Presentational - Container / Custom Hook을 디자인 패턴이라고까지 말하기는 좀 그렇지만 일단 여기에 추가했다.
 
 #### Presentational - Container
 
@@ -676,6 +669,8 @@ function PostList() {
     </ul>
   );
 }
+
+export default PostList
 ```
 
 위 컴포넌트는 복잡한 구조가 없어서 큰 문제가 없지만 삭제 버튼, 조건부 렌더링 등이 추가되면 하나의 컴포넌트가 담당하는 기능이 점점 커지게 된다.  
@@ -699,6 +694,8 @@ function PostContainer() {
 
   return <ListPresentational data={posts} />;
 }
+
+export default PostContainer;
 ```
 
 ```tsx
@@ -713,6 +710,8 @@ function ListPresentational({ data, ...props }: Props) {
     </ul>
   )
 }
+
+export default ListPresentational
 ```
 
 #### Custom Hook
@@ -748,6 +747,8 @@ function usePost() {
     posts,
   };
 }
+
+export default usePost;
 ```
 
 ```tsx
@@ -764,9 +765,185 @@ function PostList() {
     </ul>
   );
 }
+
+export default PostList
 ```
 
 #### Compound
+
+도입 이유(비슷한 UI를 해결하기 위해서 조건부 렌더링을 이용해 하나의 컴포넌트에서 처리하다가 결국 괴물 컴포넌트가 됨)부터 결과까지 잘 말해준 [카카오 엔터테인먼트 기술 블로그](https://fe-developers.kakaoent.com/2022/220731-composition-component/)를 참고했다.
+
+다음과 같은 특징이 있다.
+
+- 장점
+  - API 복잡도가 낮다. 비슷한 UI / 기능을 가졌을 때 손쉽게 재사용 가능하다.
+  - 사용자가 Compound 패턴으로 선언된 컴포넌트를 자세히 몰라도 사용하기 쉽다.
+  - 불필요한 props drilling을 없앤다. 보통 내부적으로 Context API를 사용하기 때문이다.
+- 단점
+  - 자유도가 커서 처음 컴포넌트를 설계했을 때와 다르게 사용할 수 있다.
+
+API 복잡도가 낮다는 것은 하나의 거대한 부모 컴포넌트에 모든 `props`을 때려넣고 자식 컴포넌트에 꽂아주는 방법보다 각각의 `props`이 각각의 서브컴포넌트에 붙어있다는 뜻이다.
+
+```tsx
+function Component() {
+  // ...
+
+  return (
+    <Counter
+      label="label"
+      max={10}
+      iconDecrement="minus"
+      iconIncrement="plus"
+      onChange={handleChangeCounter}
+    />
+  );
+}
+```
+
+위 방법은 API 복잡도가 높다.  
+Compound 패턴을 적용하면 아래와 같이 사용이 가능하다.
+
+```tsx
+function Component() {
+  // ...
+
+  return (
+    <Counter onChange={handleChangeCounter}>
+      <Counter.Decrement icon={'minus'} />
+      <Counter.Label>Counter</Counter.Label>
+      <Counter.Count max={10} />
+      <Counter.Increment icon={'plus'} />
+    </Counter>
+  );
+}
+```
+
+##### 코드 예시
+
+dimmed 처리 여부, arrow가 있는 버튼 존재 여부 등에 따라 동작이나 UI가 달라지는 bottom sheet가 있다고 하자.  
+`BottomSheet1`은 dimmed 有, arrow 버튼 有  
+`BottomSheet2`은 dimmed 無, arrow 버튼 有  
+`BottomSheet3`은 dimmed 無, arrow 버튼 無 라고 하겠다.
+
+```tsx
+// src/components/__compounds__/bottom-sheet.tsx
+
+const Store = createContext<boolean | null>(null);
+
+function BottomSheet({ children }: BottomSheetProps) {
+  const [dimmed, setDimmed] = useState<boolean>(true);
+
+  const handleDimmed = () => {
+    setDimmed((dimmed) => !dimmed);
+  };
+
+  return (
+    <Store.Provider value={{ dimmed, handleDimmed }}>{children}</Store.Provider>
+  );
+}
+
+function Dimmed() {
+  const { dimmed, handleDimmed } = useContext(Store);
+
+  if (!dimmed) {
+    return <></>;
+  }
+
+  return (
+    <div>
+      dimmed 됐다고 가정 <button onClick={handleDimmed}>버튼</button>
+    </div>
+  );
+}
+
+function Title({ children }: TitleProps) {
+  return <h1>{children}</h1>;
+}
+
+function Description({ children }: DescriptionProps) {
+  return <div>{children}</div>;
+}
+
+function Button({ children, hasArrow }: ButtonProps) {
+  return (
+    <>
+      {hasArrow ? '->' : ''}
+      <button>{children}</button>
+    </>
+  );
+}
+
+BottomSheet.Dimmed = Dimmed;
+BottomSheet.Title = Title;
+BottomSheet.Description = Description;
+BottomSheet.Button = Button;
+
+export default BottomSheet;
+```
+
+```tsx
+// components/bottom-sheet1.tsx
+
+function BottomSheet1({ title, description, buttonTexts }: Prps) {
+  // dimmed, arrow 버튼 모두 존재
+  return (
+    <BottomSheet>
+      <BottomSheet.Dimmed />
+      <BottomSheet.Title>{title}</BottomSheet.Title>
+      <BottomSheet.Description>{description}</BottomSheet.Description>
+      {buttonTexts.map((text) => (
+        <BottomSheet.Button hasArrow={text % 2 === 0} key={text}>
+          {text}
+        </BottomSheet.Button>
+      ))}
+    </BottomSheet>
+  );
+}
+
+export default BottomSheet1;
+```
+
+```tsx
+// components/bottom-sheet2.tsx
+
+function BottomSheet2({ title, description, buttonTexts }: Prps) {
+  // dimmed 미존재, arrow 버튼 존재
+  return (
+    <BottomSheet>
+      <BottomSheet.Title>{title}</BottomSheet.Title>
+      <BottomSheet.Description>{description}</BottomSheet.Description>
+      {buttonTexts.map((text) => (
+        <BottomSheet.Button hasArrow={text % 2 === 0} key={text}>
+          {text}
+        </BottomSheet.Button>
+      ))}
+    </BottomSheet>
+  );
+}
+
+export default BottomSheet2;
+```
+
+```tsx
+// components/bottom-sheet3.tsx
+
+function BottomSheet3({ title, description, buttonTexts }: Prps) {
+  // dimmed 미존재, arrow 버튼 존재
+  return (
+    <BottomSheet>
+      <BottomSheet.Title>{title}</BottomSheet.Title>
+      <BottomSheet.Description>{description}</BottomSheet.Description>
+      {buttonTexts.map((text) => (
+        <BottomSheet.Button hasArrow={false} key={text}>
+          {text}
+        </BottomSheet.Button>
+      ))}
+    </BottomSheet>
+  );
+}
+
+export default BottomSheet3;
+```
 
 #### Render Props
 
