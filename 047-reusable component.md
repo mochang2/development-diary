@@ -22,7 +22,8 @@ https://velog.io/@dnr6054/%EC%9C%A0%EC%9A%A9%ED%95%9C-%EB%A6%AC%EC%95%A1%ED%8A%B
 https://fe-developers.kakaoent.com/2022/220731-composition-component/  
 https://javascript.plainenglish.io/5-react-design-patterns-you-should-know-629030e2e2c7  
 https://tecoble.techcourse.co.kr/post/2021-04-26-presentational-and-container/  
-https://www.turing.com/blog/custom-react-js-hooks-how-to-use/
+https://www.turing.com/blog/custom-react-js-hooks-how-to-use/  
+https://ko.legacy.reactjs.org/docs/render-props.html
 
 ## 1. 컴포넌트란
 
@@ -882,7 +883,7 @@ export default BottomSheet;
 ```
 
 ```tsx
-// components/bottom-sheet1.tsx
+// src/components/bottom-sheet1.tsx
 
 function BottomSheet1({ title, description, buttonTexts }: Prps) {
   // dimmed, arrow 버튼 모두 존재
@@ -904,7 +905,7 @@ export default BottomSheet1;
 ```
 
 ```tsx
-// components/bottom-sheet2.tsx
+// src/components/bottom-sheet2.tsx
 
 function BottomSheet2({ title, description, buttonTexts }: Prps) {
   // dimmed 미존재, arrow 버튼 존재
@@ -925,7 +926,7 @@ export default BottomSheet2;
 ```
 
 ```tsx
-// components/bottom-sheet3.tsx
+// src/components/bottom-sheet3.tsx
 
 function BottomSheet3({ title, description, buttonTexts }: Prps) {
   // dimmed 미존재, arrow 버튼 존재
@@ -946,6 +947,154 @@ export default BottomSheet3;
 ```
 
 #### Render Props
+
+[React 레거시 공식문서](https://ko.legacy.reactjs.org/docs/render-props.html)에 따르면 이 패턴도 대부분 custom hook으로 대체되었다고 한다.  
+custom hook은 로직을 추상화하고 재사용 가능한 함수로 만들어 컴포넌트 간에 상태와 동작을 공유할 수 있도록 도와주기 때문이다.  
+그냥 Render Props 패턴이 왜 사용됐는지 정도만 알아보자.
+
+##### 코드 예시
+
+마우스 움직임을 트래킹해야 되는 컴포넌트가 있다고 하자.  
+아래와 같이 만들 수 있을 것이다.
+
+```tsx
+// src/pages/mouse-tracker.tsx
+
+function MouseTracker() {
+  const [location, setLocation] = useState<Axis>({ x: 0, y: 0 });
+
+  function handleMouseMove(event) {
+    setLocation({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  }
+
+  return (
+    <div style={{ height: '100vh' }} onMouseMove={handleMouseMove}>
+      <p>
+        마우스 위치 - x: ({location.x}, y: {location.y})
+      </p>
+    </div>
+  );
+}
+
+export default MouseTracker;
+```
+
+만약 다른 페이지에서 `<p>` 태그 이외에 내용을 넣고 마우스를 트래킹하는 로직만을 재사용하는 방법은 필요하다고 하자.  
+아래처럼 `<p>` 태그 위치에 별도의 컴포넌트를 선언해서 렌더링하는 것도 하나의 방법일 것이다.
+
+```tsx
+// src/pages/mouse-tracker2.tsx
+
+function MouseTracker2() {
+  const [location, setLocation] = useState<Axis>({ x: 0, y: 0 });
+
+  function handleMouseMove(event: MouseEvent) {
+    setLocation({
+      x: event.clientX,
+      y: event.clientY,
+    });
+  }
+
+  return (
+    <div style={{ height: '100vh' }} onMouseMove={handleMouseMove}>
+      <Component mouse={location} />
+    </div>
+  );
+}
+
+export default MouseTracker2;
+```
+
+하지만 이렇게 하면 마우스 트래킹 로직을 사용할 때마다 매번 새로운 컴포넌트를 선언해야 한다.  
+이때 사용할 수 있는 것이 Render Props 패턴이다.  
+이 패턴은 로직을 사용하는 쪽에서 렌더링 결과물도 결정해준다.
+
+```tsx
+// src/components/mouse.tsx
+
+// 반드시 'render'이라는 이름이 아니어도 됨
+function Mouse({ render }: Props) {
+  const [position, setPosition] = useState<Axis>({ x: 0, y: 0 });
+
+  const handleMouseMove = (event: MouseEvent) => {
+    setPosition({ x: event.clientX, y: event.clientY });
+  };
+
+  return <div onMouseMove={handleMouseMove}>{render(position)}</div>;
+}
+
+export default Mouse;
+```
+
+```tsx
+// src/pages/mouse-tracker.tsx
+
+function MouseTracker() {
+  return (
+    <div>
+      <Mouse
+        render={(position) => (
+          <p>
+            마우스 위치 - x: {position.x}, y: {position.y}
+          </p>
+        )}
+      />
+    </div>
+  );
+}
+
+export default MouseTracker;
+```
+
+이 내용을 Custom API로도 바꿔보겠다.
+
+```tsx
+// src/hooks/use-mouse.tsx
+
+function useMouse() {
+  const [position, setPosition] = useState<Axis>({ x: 0, y: 0 });
+
+  const handleMouseMove = (event: MouseEvent) => {
+    setPosition({ x: event.clientX, y: event.clientY });
+  };
+
+  useEffect(() => {
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+  return position;
+}
+
+export default useMouse;
+```
+
+```tsx
+// src/pages/mouse-tracker.tsx
+
+function MouseTracker() {
+  const position = useMouse();
+
+  return (
+    <div>
+      <p>
+        마우스 위치 - x: {position.x}, y: {position.y}
+      </p>
+    </div>
+  );
+}
+
+export default MouseTracker;
+```
+
+취향 차이일 수도 있겠다만 나는 custom hook을 사용하는 것이 더 깔끔한 것 같다.  
+그리고 무엇보다 Render Props보다 각각의 컴포넌트가 하는 역할이 명확히 구분되어서 더 나은 것 같다.
 
 #### Control Props
 
