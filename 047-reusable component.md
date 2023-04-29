@@ -384,7 +384,7 @@ export default App;
 그리고 props가 없다면 `memo`로 감싸면 좋겠지만 현재는 성능 관련된 내용을 이야기하는 것이 아니니 pass.
 
 ```tsx
-// src/App.tsx
+// src/app.tsx
 
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
@@ -411,7 +411,7 @@ export default App;
 ```
 
 ```tsx
-// src/pages/PostList.tsx
+// src/pages/post-list.tsx
 
 import PostListHeader from '../components/PostListHeader';
 import PostListBody from '../components/PostListBody';
@@ -438,7 +438,7 @@ export default PostList;
 ```
 
 ```tsx
-// src/components/PostListHeader.tsx
+// src/components/post-list/post-list-header.tsx
 
 interface Props {
   style?: React.CSSProperties;
@@ -463,13 +463,7 @@ export default PostListHeader;
 ```
 
 ```tsx
-// src/components/PostListBody.tsx
-
-import { useState, useEffect } from 'react';
-import PostListRow from '../components/PostListRow';
-import request from '../api/fetch';
-import Storage from '../store/storage';
-import { Post } from 'types';
+// src/components/post-list/post-list-body.tsx
 
 function PostListBody() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -524,7 +518,7 @@ export default PostListBody;
 ```
 
 ```tsx
-// src/components/PostListRow.tsx
+// src/components/post-list/post-list-row.tsx
 
 interface Props {
   style?: React.CSSProperties;
@@ -552,6 +546,8 @@ export default PostListRow;
 하지만 `PostListHeader.tsx`나 `PostListRow.tsx`는 넘겨받은 데이터를 뿌려주기만 하는 presentational 컴포넌트이므로 충분히 도메인을 제거할 수 있겠다.
 
 ```tsx
+// src/components/table-header.tsx
+
 interface Props {
   style?: React.CSSProperties;
   headers: string[];
@@ -575,6 +571,8 @@ export default TableHeader;
 ```
 
 ```tsx
+// src/components/table-row.tsx
+
 interface Props {
   style?: React.CSSProperties;
   cells: React.ReactNode[];
@@ -601,6 +599,8 @@ export default TableRow;
 그러면 `TableHeader`는 아래와 같이 변경할 수도 있다(`TableRow`는 비슷하므로 생략).
 
 ```tsx
+// src/components/table-row.tsx
+
 import { HTMLAttributes } from 'react';
 
 interface Props extends HTMLAttributes<HTMLTableCellElement> {
@@ -644,7 +644,8 @@ React 컴포넌트는 상태, DOM, 이벤트 등을 모두 관리할 수 있지�
 이 패턴은 다음과 같은 장점이 있다.
 
 1. 재사용성을 높일 수 있다. 로직이 포함되어 있지 않은 presentational 컴포넌트는 그저 받아온 정보를 화면에 표현할 뿐이므로 다양한 container 컴포넌트와 조합하여 재사용할 수 있다.
-2. 구조에 대한 이해가 쉬워진다. 기능과 UI가 명확히 분리되므로
+2. 구조에 대한 이해가 쉬워진다. 기능과 UI가 명확히 분리되기 때문이다.
+3. 테스트하기 쉽다.
 
 ##### 코드 예시
 
@@ -652,6 +653,8 @@ React 컴포넌트는 상태, DOM, 이벤트 등을 모두 관리할 수 있지�
 아래와 같이 게시글 목록을 가져와서 보여주는 컴포넌트가 있다고 하자.
 
 ```tsx
+// src/pages/post-list.tsx
+
 function PostList() {
   const [posts, setPosts] = useState<Post[]>([]);
 
@@ -679,6 +682,8 @@ function PostList() {
 데이터 목록을 받아 뿌려주는 부분이 많다면 위 `PostList`를 아래와 같이 `PostConatiner`, `ListPresentational`로 분리할 수 있을 것이다.
 
 ```tsx
+// src/components/post-list/post-container.tsx
+
 function PostContainer() {
   const [posts, setPosts] = useState<Post[]>([]);
 
@@ -697,6 +702,8 @@ function PostContainer() {
 ```
 
 ```tsx
+// src/components/list-presentational.tsx
+
 function ListPresentational({ data, ...props }: Props) {
   return (
     <ul>
@@ -709,6 +716,55 @@ function ListPresentational({ data, ...props }: Props) {
 ```
 
 #### Custom Hook
+
+hook은 React 16.8부터 도입된 개념이다.  
+`useState`, `useEffect`가 대표적인 예시이다.  
+이 내용은 [여기](https://github.com/mochang2/development-diary/blob/main/030-react.md)에 정리했었으니까 자세한 내용을 알고 싶다면 참고하자.
+
+React에서 기본적으로 제공하는 hook 이외에도 사용자가 공통된 코드를 추상화할 수 있는 방법이 custom hook을 이용하는 것이다.  
+(Vue의 composition이나 class 컴포넌트의 HoC하고 비슷하다)
+
+Presentational - Container 패턴하고 비슷한 장점을 가진다.
+
+##### 코드 예시
+
+```tsx
+// src/hooks/post-list/use-post.tsx
+
+function usePost() {
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    async function getPosts() {
+      const { data } = await request(URL);
+
+      setPosts(data);
+    }
+
+    getPosts();
+  }, []);
+
+  return {
+    posts,
+  };
+}
+```
+
+```tsx
+// src/pages/post-list.tsx
+
+function PostList() {
+  const {posts} = usePost();
+
+  return (
+    <ul>
+      {posts.map(post) => (
+        <li key={post.id}>{post.text}</li>
+      )}
+    </ul>
+  );
+}
+```
 
 #### Compound
 
