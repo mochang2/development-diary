@@ -16,7 +16,13 @@ FE 개발자로서... 이런 부분에 대해 대답을 못 한다면 공부해�
 http://www.ktword.co.kr/test/view/view.php?m_temp1=2837  
 http://wiki.hash.kr/index.php/%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8  
 https://as-you-say.tistory.com/221  
-https://jbee.io/web/components-should-be-flexible/
+https://jbee.io/web/components-should-be-flexible/  
+https://velog.io/@jay/%EB%A6%AC%EC%97%91%ED%8A%B8-%EB%94%94%EC%9E%90%EC%9D%B8-%ED%8C%A8%ED%84%B4-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EC%84%A4%EA%B3%84#container-presentational-components  
+https://velog.io/@dnr6054/%EC%9C%A0%EC%9A%A9%ED%95%9C-%EB%A6%AC%EC%95%A1%ED%8A%B8-%ED%8C%A8%ED%84%B4-5%EA%B0%80%EC%A7%80  
+https://fe-developers.kakaoent.com/2022/220731-composition-component/  
+https://javascript.plainenglish.io/5-react-design-patterns-you-should-know-629030e2e2c7  
+https://tecoble.techcourse.co.kr/post/2021-04-26-presentational-and-container/  
+https://www.turing.com/blog/custom-react-js-hooks-how-to-use/
 
 ## 1. 컴포넌트란
 
@@ -59,24 +65,24 @@ React의 장점 중 하나로 꼽히는 것이 컴포넌트 기반으로 개발�
 '컴포넌트를 2개로 따로 선언하는 것이 재사용성을 해치니까 나는 1개로 선언해야지! 이 프로젝트에 버튼 컴포넌트는 무조건 하나야'라는 생각으로 다음과 같이 선언할 수 있다.
 
 ```ts
-function Button({ onClick, className = "", children, isClose }: Props) {
-    return isClose ? (
-        <button
-            onClick={onClick}
-            className={`button-base ${className}`}
-            style={{ margin: 3 }}
-        >
-            X
-        </button>
-    ) : (
-        <button
-            onClick={onClick}
-            className={`button-base ${className}`}
-            style={{ margin: 4 }}
-        >
-            {children}
-        </button>
-    );
+function Button({ onClick, className = '', children, isClose }: Props) {
+  return isClose ? (
+    <button
+      onClick={onClick}
+      className={`button-base ${className}`}
+      style={{ margin: 3 }}
+    >
+      X
+    </button>
+  ) : (
+    <button
+      onClick={onClick}
+      className={`button-base ${className}`}
+      style={{ margin: 4 }}
+    >
+      {children}
+    </button>
+  );
 }
 ```
 
@@ -85,30 +91,30 @@ function Button({ onClick, className = "", children, isClose }: Props) {
 `isClose`나 인터페이스나 삼항 연산자 문법이 필요 없기 때문이다.
 
 ```tsx
-function BootstrapButton({ onClick, className = "", children }: Props) {
-    return (
-        <button
-            onClick={onClick}
-            className={`button-base ${className}`}
-            style={{ margin: 4 }}
-        >
-            {children}
-        </button>
-    );
+function BootstrapButton({ onClick, className = '', children }: Props) {
+  return (
+    <button
+      onClick={onClick}
+      className={`button-base ${className}`}
+      style={{ margin: 4 }}
+    >
+      {children}
+    </button>
+  );
 }
 ```
 
 ```tsx
-function CloseButton({ onClick, className = "" }: Props) {
-    return (
-        <button
-            onClick={onClick}
-            className={`button-base ${className}`}
-            style={{ margin: 3 }}
-        >
-            X
-        </button>
-    );
+function CloseButton({ onClick, className = '' }: Props) {
+  return (
+    <button
+      onClick={onClick}
+      className={`button-base ${className}`}
+      style={{ margin: 3 }}
+    >
+      X
+    </button>
+  );
 }
 ```
 
@@ -141,38 +147,38 @@ function CloseButton({ onClick, className = "" }: Props) {
 // public/result.json
 
 {
-    "posts": [
-        {
-            "id": 1,
-            "title": "제목입니다1",
-            "author": "user1"
-        },
-        {
-            "id": 2,
-            "title": "제목입니다2",
-            "author": "user2"
-        },
-        {
-            "id": 3,
-            "title": "제목입니다3",
-            "author": "user3"
-        },
-        {
-            "id": 4,
-            "title": "제목입니다4",
-            "author": "user4"
-        },
-        {
-            "id": 5,
-            "title": "제목입니다5",
-            "author": "user5"
-        },
-        {
-            "id": 6,
-            "title": "제목입니다6",
-            "author": "user6"
-        }
-    ]
+  "posts": [
+    {
+      "id": 1,
+      "title": "제목입니다1",
+      "author": "user1"
+    },
+    {
+      "id": 2,
+      "title": "제목입니다2",
+      "author": "user2"
+    },
+    {
+      "id": 3,
+      "title": "제목입니다3",
+      "author": "user3"
+    },
+    {
+      "id": 4,
+      "title": "제목입니다4",
+      "author": "user4"
+    },
+    {
+      "id": 5,
+      "title": "제목입니다5",
+      "author": "user5"
+    },
+    {
+      "id": 6,
+      "title": "제목입니다6",
+      "author": "user6"
+    }
+  ]
 }
 ```
 
@@ -180,17 +186,17 @@ function CloseButton({ onClick, className = "" }: Props) {
 // src/api/fetch.ts
 
 const request = async (url: string) => {
-    try {
-        const data = await fetch(url);
+  try {
+    const data = await fetch(url);
 
-        if (!data.ok) {
-            throw new Error("데이터 fetch 에러 발생");
-        }
-
-        return await data.json();
-    } catch (error) {
-        // 무시
+    if (!data.ok) {
+      throw new Error('데이터 fetch 에러 발생');
     }
+
+    return await data.json();
+  } catch (error) {
+    // 무시
+  }
 };
 
 export default request;
@@ -200,35 +206,35 @@ export default request;
 // src/store/storage.ts
 
 export default class Storage {
-    static #instance: Storage;
+  static #instance: Storage;
 
-    constructor() {
-        if (Storage.#instance) {
-            return Storage.#instance;
-        }
-
-        Storage.#instance = this;
+  constructor() {
+    if (Storage.#instance) {
+      return Storage.#instance;
     }
 
-    get(key: string) {
-        return localStorage.getItem(key) || "저장된 데이터가 없습니다";
-    }
+    Storage.#instance = this;
+  }
 
-    set(key: string, value: string) {
-        localStorage.setItem(key, value);
-    }
+  get(key: string) {
+    return localStorage.getItem(key) || '저장된 데이터가 없습니다';
+  }
+
+  set(key: string, value: string) {
+    localStorage.setItem(key, value);
+  }
 }
 ```
 
 ```ts
 // src/types.d.ts
 
-declare module "types" {
-    interface Post {
-        id: number;
-        title: string;
-        author: string;
-    }
+declare module 'types' {
+  interface Post {
+    id: number;
+    title: string;
+    author: string;
+  }
 }
 ```
 
@@ -236,38 +242,38 @@ declare module "types" {
 /* src/style.css */
 
 button {
-    background-color: #0a0a23;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 4px 8px;
+  background-color: #0a0a23;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 4px 8px;
 }
 
 button:hover {
-    outline-color: transparent;
-    outline-style: solid;
-    box-shadow: 0 0 0 4px #5a01a7;
-    transition: 0.7s;
+  outline-color: transparent;
+  outline-style: solid;
+  box-shadow: 0 0 0 4px #5a01a7;
+  transition: 0.7s;
 }
 
 thead {
-    font-weight: 600;
+  font-weight: 600;
 }
 
 tbody {
-    font-weight: 300;
+  font-weight: 300;
 }
 
 .warning {
-    color: red;
+  color: red;
 }
 
 .post-list .row {
-    display: flex;
+  display: flex;
 }
 
 .post-list .cell {
-    flex: 1 0 250px;
+  flex: 1 0 250px;
 }
 ```
 
@@ -276,88 +282,84 @@ tbody {
 ```tsx
 // src/App.tsx
 
-import { useState, useEffect } from "react";
-import Storage from "./store/storage";
-import request from "./api/fetch";
-import { Post } from "types";
+import { useState, useEffect } from 'react';
+import Storage from './store/storage';
+import request from './api/fetch';
+import { Post } from 'types';
 
 function App() {
-    const HEADERS = ["NO", "제목", "작성자", "삭제"];
-    const [posts, setPosts] = useState<Post[]>([]);
+  const HEADERS = ['NO', '제목', '작성자', '삭제'];
+  const [posts, setPosts] = useState<Post[]>([]);
 
-    useEffect(() => {
-        new Storage().set("USER_ID", "user1");
-    }, []);
+  useEffect(() => {
+    new Storage().set('USER_ID', 'user1');
+  }, []);
 
-    useEffect(() => {
-        async function getPosts() {
-            const { posts }: { posts: Post[] } = await request("result.json");
+  useEffect(() => {
+    async function getPosts() {
+      const { posts }: { posts: Post[] } = await request('result.json');
 
-            if (posts) {
-                setPosts(posts);
-            }
-        }
-
-        getPosts();
-    }, []);
-
-    function onClickCreationButton() {
-        alert("게시글 등록 페이지로 이동합니다.");
+      if (posts) {
+        setPosts(posts);
+      }
     }
 
-    function onClickDeleteButton(id: number) {
-        alert("게시글을 삭제합니다."); // API 요청 가정
+    getPosts();
+  }, []);
 
-        setPosts((posts) => posts.filter((post) => post.id !== id));
-    }
+  function onClickCreationButton() {
+    alert('게시글 등록 페이지로 이동합니다.');
+  }
 
-    function getUserId() {
-        return new Storage().get("USER_ID");
-    }
+  function onClickDeleteButton(id: number) {
+    alert('게시글을 삭제합니다.'); // API 요청 가정
 
-    return (
-        <div className="App">
-            <div className="post-list">
-                <button onClick={onClickCreationButton}>게시글 추가</button>
-                <table>
-                    <thead>
-                        <tr className="row">
-                            {HEADERS.map((header) => (
-                                <td key={header} className="cell">
-                                    {header}
-                                </td>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {posts.map(({ id, title, author }) => (
-                            <tr key={id} className="row">
-                                <td className="cell">{id}</td>
-                                <td className="cell">{title}</td>
-                                <td className="cell">{author}</td>
-                                <td className="cell">
-                                    {getUserId() === author ? (
-                                        <button
-                                            onClick={() =>
-                                                onClickDeleteButton(id)
-                                            }
-                                        >
-                                            삭제
-                                        </button>
-                                    ) : (
-                                        "삭제 불가능한 게시글입니다."
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                    {posts.length === 0 && (
-                        <h1 className="warning">게시글이 없습니다.</h1>
-                    )}
-                </table>
-            </div>
-        </div>
-    );
+    setPosts((posts) => posts.filter((post) => post.id !== id));
+  }
+
+  function getUserId() {
+    return new Storage().get('USER_ID');
+  }
+
+  return (
+    <div className="App">
+      <div className="post-list">
+        <button onClick={onClickCreationButton}>게시글 추가</button>
+        <table>
+          <thead>
+            <tr className="row">
+              {HEADERS.map((header) => (
+                <td key={header} className="cell">
+                  {header}
+                </td>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {posts.map(({ id, title, author }) => (
+              <tr key={id} className="row">
+                <td className="cell">{id}</td>
+                <td className="cell">{title}</td>
+                <td className="cell">{author}</td>
+                <td className="cell">
+                  {getUserId() === author ? (
+                    <button onClick={() => onClickDeleteButton(id)}>
+                      삭제
+                    </button>
+                  ) : (
+                    '삭제 불가능한 게시글입니다.'
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          {posts.length === 0 && (
+            <h1 className="warning">게시글이 없습니다.</h1>
+          )}
+        </table>
+      </div>
+    </div>
+  );
 }
 
 export default App;
@@ -384,25 +386,25 @@ export default App;
 ```tsx
 // src/App.tsx
 
-import { useEffect } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import PostList from "./pages/PostList";
-import Storage from "./store/storage";
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import PostList from './pages/PostList';
+import Storage from './store/storage';
 
 function App() {
-    useEffect(() => {
-        new Storage().set("USER_ID", "user1");
-    }, []);
+  useEffect(() => {
+    new Storage().set('USER_ID', 'user1');
+  }, []);
 
-    return (
-        <div className="App">
-            <BrowserRouter>
-                <Routes>
-                    <Route path="/" element={<PostList />} />
-                </Routes>
-            </BrowserRouter>
-        </div>
-    );
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<PostList />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+  );
 }
 
 export default App;
@@ -411,25 +413,25 @@ export default App;
 ```tsx
 // src/pages/PostList.tsx
 
-import PostListHeader from "../components/PostListHeader";
-import PostListBody from "../components/PostListBody";
+import PostListHeader from '../components/PostListHeader';
+import PostListBody from '../components/PostListBody';
 
 function PostList() {
-    const HEADERS = ["NO", "제목", "작성자", "삭제"];
+  const HEADERS = ['NO', '제목', '작성자', '삭제'];
 
-    function onClickCreationButton() {
-        alert("게시글 등록 페이지로 이동합니다.");
-    }
+  function onClickCreationButton() {
+    alert('게시글 등록 페이지로 이동합니다.');
+  }
 
-    return (
-        <div className="post-list">
-            <button onClick={onClickCreationButton}>게시글 추가</button>
-            <table>
-                <PostListHeader headers={HEADERS} />
-                <PostListBody />
-            </table>
-        </div>
-    );
+  return (
+    <div className="post-list">
+      <button onClick={onClickCreationButton}>게시글 추가</button>
+      <table>
+        <PostListHeader headers={HEADERS} />
+        <PostListBody />
+      </table>
+    </div>
+  );
 }
 
 export default PostList;
@@ -439,22 +441,22 @@ export default PostList;
 // src/components/PostListHeader.tsx
 
 interface Props {
-    style?: React.CSSProperties;
-    headers: string[];
+  style?: React.CSSProperties;
+  headers: string[];
 }
 
 function PostListHeader({ headers, style }: Props) {
-    return (
-        <thead style={{ ...style }}>
-            <tr className="row">
-                {headers.map((header) => (
-                    <td key={header} className="cell">
-                        {header}
-                    </td>
-                ))}
-            </tr>
-        </thead>
-    );
+  return (
+    <thead style={{ ...style }}>
+      <tr className="row">
+        {headers.map((header) => (
+          <td key={header} className="cell">
+            {header}
+          </td>
+        ))}
+      </tr>
+    </thead>
+  );
 }
 
 export default PostListHeader;
@@ -463,63 +465,59 @@ export default PostListHeader;
 ```tsx
 // src/components/PostListBody.tsx
 
-import { useState, useEffect } from "react";
-import PostListRow from "../components/PostListRow";
-import request from "../api/fetch";
-import Storage from "../store/storage";
-import { Post } from "types";
+import { useState, useEffect } from 'react';
+import PostListRow from '../components/PostListRow';
+import request from '../api/fetch';
+import Storage from '../store/storage';
+import { Post } from 'types';
 
 function PostListBody() {
-    const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
-    useEffect(() => {
-        async function getPosts() {
-            const { posts }: { posts: Post[] } = await request("result.json");
+  useEffect(() => {
+    async function getPosts() {
+      const { posts }: { posts: Post[] } = await request('result.json');
 
-            if (posts) {
-                setPosts(posts);
-            }
-        }
-
-        getPosts();
-    }, []);
-
-    function onClickDeleteButton(id: number) {
-        alert("게시글을 삭제합니다.");
-
-        setPosts((posts) => posts.filter((post) => post.id !== id));
+      if (posts) {
+        setPosts(posts);
+      }
     }
 
-    function getUserId() {
-        return new Storage().get("USER_ID");
-    }
+    getPosts();
+  }, []);
 
-    return (
-        <>
-            <tbody>
-                {posts.map(({ id, title, author }) => (
-                    <PostListRow
-                        key={id}
-                        cells={[
-                            id,
-                            title,
-                            author,
-                            getUserId() === author ? (
-                                <button onClick={() => onClickDeleteButton(id)}>
-                                    삭제
-                                </button>
-                            ) : (
-                                "삭제 불가능한 게시글입니다."
-                            ),
-                        ]}
-                    />
-                ))}
-            </tbody>
-            {posts.length === 0 && (
-                <h1 className="warning">게시글이 없습니다.</h1>
-            )}
-        </>
-    );
+  function onClickDeleteButton(id: number) {
+    alert('게시글을 삭제합니다.');
+
+    setPosts((posts) => posts.filter((post) => post.id !== id));
+  }
+
+  function getUserId() {
+    return new Storage().get('USER_ID');
+  }
+
+  return (
+    <>
+      <tbody>
+        {posts.map(({ id, title, author }) => (
+          <PostListRow
+            key={id}
+            cells={[
+              id,
+              title,
+              author,
+              getUserId() === author ? (
+                <button onClick={() => onClickDeleteButton(id)}>삭제</button>
+              ) : (
+                '삭제 불가능한 게시글입니다.'
+              ),
+            ]}
+          />
+        ))}
+      </tbody>
+      {posts.length === 0 && <h1 className="warning">게시글이 없습니다.</h1>}
+    </>
+  );
 }
 
 export default PostListBody;
@@ -529,18 +527,18 @@ export default PostListBody;
 // src/components/PostListRow.tsx
 
 interface Props {
-    style?: React.CSSProperties;
-    cells: React.ReactNode[];
+  style?: React.CSSProperties;
+  cells: React.ReactNode[];
 }
 
 function PostListRow({ cells, style }: Props) {
-    return (
-        <tr className="row" style={{ ...style }}>
-            {cells.map((cell) => (
-                <td className="cell">{cell}</td>
-            ))}
-        </tr>
-    );
+  return (
+    <tr className="row" style={{ ...style }}>
+      {cells.map((cell) => (
+        <td className="cell">{cell}</td>
+      ))}
+    </tr>
+  );
 }
 
 export default PostListRow;
@@ -555,22 +553,22 @@ export default PostListRow;
 
 ```tsx
 interface Props {
-    style?: React.CSSProperties;
-    headers: string[];
+  style?: React.CSSProperties;
+  headers: string[];
 }
 
 function TableHeader({ headers, style }: Props) {
-    return (
-        <thead style={{ ...style }}>
-            <tr className="row">
-                {headers.map((header) => (
-                    <td key={header} className="cell">
-                        {header}
-                    </td>
-                ))}
-            </tr>
-        </thead>
-    );
+  return (
+    <thead style={{ ...style }}>
+      <tr className="row">
+        {headers.map((header) => (
+          <td key={header} className="cell">
+            {header}
+          </td>
+        ))}
+      </tr>
+    </thead>
+  );
 }
 
 export default TableHeader;
@@ -578,18 +576,18 @@ export default TableHeader;
 
 ```tsx
 interface Props {
-    style?: React.CSSProperties;
-    cells: React.ReactNode[];
+  style?: React.CSSProperties;
+  cells: React.ReactNode[];
 }
 
 function TableRow({ cells, style }: Props) {
-    return (
-        <tr className="row" style={{ ...style }}>
-            {cells.map((cell) => (
-                <td className="cell">{cell}</td>
-            ))}
-        </tr>
-    );
+  return (
+    <tr className="row" style={{ ...style }}>
+      {cells.map((cell) => (
+        <td className="cell">{cell}</td>
+      ))}
+    </tr>
+  );
 }
 
 export default TableRow;
@@ -603,25 +601,25 @@ export default TableRow;
 그러면 `TableHeader`는 아래와 같이 변경할 수도 있다(`TableRow`는 비슷하므로 생략).
 
 ```tsx
-import { HTMLAttributes } from "react";
+import { HTMLAttributes } from 'react';
 
 interface Props extends HTMLAttributes<HTMLTableCellElement> {
-    style?: React.CSSProperties;
-    headers: string[];
+  style?: React.CSSProperties;
+  headers: string[];
 }
 
 function TableHeader({ headers, style, ...props }: Props) {
-    return (
-        <thead {...props}>
-            <tr className="row">
-                {headers.map((header) => (
-                    <td key={header} className="cell">
-                        {header}
-                    </td>
-                ))}
-            </tr>
-        </thead>
-    );
+  return (
+    <thead {...props}>
+      <tr className="row">
+        {headers.map((header) => (
+          <td key={header} className="cell">
+            {header}
+          </td>
+        ))}
+      </tr>
+    </thead>
+  );
 }
 ```
 
@@ -629,9 +627,102 @@ function TableHeader({ headers, style, ...props }: Props) {
 
 ### 3) 디자인 패턴을 사용한다.
 
+#### Presentational - Container
+
+처음 이 패턴을 소개한 Dan Abramov는 2019년 기준으로 현재는 이 패턴을 사용하지 말라고 [언급](https://medium.com/@dan_abramov/smart-and-dumb-components-7ca2f9a7c7d0)했다.
+
+> Update from 2019: I wrote this article a long time ago and my views have since evolved. In particular, I don’t suggest splitting your components like this anymore. If you find it natural in your codebase, this pattern can be handy. But I’ve seen it enforced without any necessity and with almost dogmatic fervor far too many times. The main reason I found it useful was because it let me separate complex stateful logic from other aspects of the component. Hooks let me do the same thing without an arbitrary division. This text is left intact for historical reasons but don’t take it too seriously.
+
+hook 개념이 나오고 이 패턴은 deprecated 된 느낌이다.  
+그래도 가장 유명하고 오래된 패턴이니까 간단히만 짚고 넘어가겠다.
+
+React 컴포넌트는 상태, DOM, 이벤트 등을 모두 관리할 수 있지만 코드 재사용하는 방법이 없었다.  
+그래서 컴포넌트 내에서도 로직과 view를 분리하기 위함으로써 의존도를 낮추는 방법으로 등장한 것이 Presentational - Container 패턴이다.
+
+대체적으로 presentational 컴포넌트는 stateless하고 container 컴포넌트는 stateful하다.
+
+이 패턴은 다음과 같은 장점이 있다.
+
+1. 재사용성을 높일 수 있다. 로직이 포함되어 있지 않은 presentational 컴포넌트는 그저 받아온 정보를 화면에 표현할 뿐이므로 다양한 container 컴포넌트와 조합하여 재사용할 수 있다.
+2. 구조에 대한 이해가 쉬워진다. 기능과 UI가 명확히 분리되므로
+
+##### 코드 예시
+
+엄청 간단한 예시이다.  
+아래와 같이 게시글 목록을 가져와서 보여주는 컴포넌트가 있다고 하자.
+
+```tsx
+function PostList() {
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    async function getPosts() {
+      const { data } = await request(URL);
+
+      setPosts(data);
+    }
+
+    getPosts();
+  }, []);
+
+  return (
+    <ul>
+      {posts.map(post) => (
+        <li key={post.id}>{post.text}</li>
+      )}
+    </ul>
+  );
+}
+```
+
+위 컴포넌트는 복잡한 구조가 없어서 큰 문제가 없지만 삭제 버튼, 조건부 렌더링 등이 추가되면 하나의 컴포넌트가 담당하는 기능이 점점 커지게 된다.  
+데이터 목록을 받아 뿌려주는 부분이 많다면 위 `PostList`를 아래와 같이 `PostConatiner`, `ListPresentational`로 분리할 수 있을 것이다.
+
+```tsx
+function PostContainer() {
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  useEffect(() => {
+    async function getPosts() {
+      const { data } = await request(URL);
+
+      setPosts(data);
+    }
+
+    getPosts();
+  }, []);
+
+  return <ListPresentational data={posts} />;
+}
+```
+
+```tsx
+function ListPresentational({ data, ...props }: Props) {
+  return (
+    <ul>
+      {data.map(datum) => (
+        <li key={datum.id}>{datum.text}</li>
+      )}
+    </ul>
+  )
+}
+```
+
+#### Custom Hook
+
+#### Compound
+
+#### Render Props
+
+#### Control Props
+
+#### Props Getters
+
+#### State Reducer
+
 ---
 
-컴포넌트 다시 생각하기 요약  
+(FE conf) 컴포넌트 다시 생각하기 요약  
 컴포넌트: props + hooks에게 의존성을 주입 받음.  
 그런한 것 중.
 
