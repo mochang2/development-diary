@@ -23,7 +23,8 @@ https://fe-developers.kakaoent.com/2022/220731-composition-component/
 https://javascript.plainenglish.io/5-react-design-patterns-you-should-know-629030e2e2c7  
 https://tecoble.techcourse.co.kr/post/2021-04-26-presentational-and-container/  
 https://www.turing.com/blog/custom-react-js-hooks-how-to-use/  
-https://ko.legacy.reactjs.org/docs/render-props.html
+https://ko.legacy.reactjs.org/docs/render-props.html  
+https://flowergeoji.me/react/react-pattern-control-props/
 
 ## 1. 컴포넌트란
 
@@ -1097,6 +1098,138 @@ export default MouseTracker;
 그리고 무엇보다 Render Props보다 각각의 컴포넌트가 하는 역할이 명확히 구분되어서 더 나은 것 같다.
 
 #### Control Props
+
+`props`를 통해 외부에서 컴포넌트 상태를 제어할 수 있도록 만드는 방법이다.  
+간단히 `button` 태그의 `onClick`을 외부에서 내려주는 것이라고 생각할 수 있다.
+
+```tsx
+function Button({ children, hasArrow, onClick }: Props) {
+  return (
+    <>
+      {hasArrow ? '->' : ''}
+      <button onClick={onClick}>{children}</button>
+    </>
+  );
+}
+```
+
+Control Props 패턴은 외부에서 `props`가 존재하면 해당 값을 사용하고, 존재하지 않으면 내부의 state로 컴포넌트의 상태를 관리할 수 있도록 할 수 있다.  
+또한 hook을 사용해 아주 간결하게 제어 컴포넌트를 간결하게 만들 수도 있다.
+
+Control Props 패턴은 두 가지 장점이 있다.
+
+1. 사용자한테 좀 더 유연성과 제어권을 줄 수 있다(IOC, Inversion Of Control).
+2. 상태를 한곳에서 관리하는 SSOT(Single Source Of Truth)가 가능해진다.
+
+##### 코드 예시
+
+`value`와 `onChange`를 `props`로 전달 받는 `Counter` 컴포넌트가 존재한다고 하자.  
+`Counter`는 `value`를 전달 받으면 `state`를 관리하지 않고(uncontrolled)(상위 컴포넌트에서 관리), 전달 받지 않으면 스스로 `state`를 관리한다(controlled).
+
+```tsx
+interface Props {
+  value?: number;
+  onChange: (next: number) => void;
+}
+
+function Counter({ value: countProp, onChange }: Props) {
+  const [count, setCount] = useState(countProp ?? 0);
+
+  function onClickUp() {
+    if (value === undefined) {
+      const nextCount = count + 1;
+      setCount(nextCount);
+      onChange(nextCount);
+    } else {
+      onChange(countProp + 1);
+    }
+  }
+
+  function onClickDown() {
+    if (value === undefined) {
+      const nextCount = count - 1;
+      setCount(nextCount);
+      onChange(nextCount);
+    } else {
+      onChange(countProp - 1);
+    }
+  }
+
+  return (
+    <div>
+      <span>{countProp ?? count}</span>
+      <button onClick={onClickUp}>up</button>
+      <button onClick={onClickDown}>down</button>
+    </div>
+  );
+}
+```
+
+hook을 선언하면 `value === undefined` 확인 로직을 custom hook에서 처리하고 `ControlledCounter`를 더 간결하게 만들 수 있다.
+
+```ts
+interface Arguments<T extends any> {
+  valueProp?: T;
+  defaultValue: T;
+}
+
+type Return<T extends any> = [T | undefined, Dispatch<SetStateAction<T>>];
+
+function useControlled<T extends any>({
+  valueProp,
+  defaultValue,
+}: Arguments<T>): Return<T> {
+  const { current: isControlled } = useRef(valueProp !== undefined);
+  const [state, setState] = useState<T>(defaultValue);
+
+  // controlled이면 valueProp 사용, uncontrolled면 state사용
+  const value = isControlled ? valueProp : state;
+
+  // uncontrolled이면 setState로 내부 상태 변경
+  // controlled이면 외부에서 상태 값을 넣어줄 것이므로 아무것도 하지 않음
+  const setValue: Dispatch<SetStateAction<T>> = useCallback(
+    (newState: T | ((prev: T) => T)) => {
+      !isControlled && setState(newState);
+    },
+    [isControlled]
+  );
+
+  return [value, setValue];
+}
+```
+
+```tsx
+interface Props {
+  value?: number;
+  onChange: (next: number) => void;
+}
+
+function Counter({ value: countProp, onChange }: Props) {
+  // count는 number | undefined
+  const [count, setCount] = useControlled<number>({
+    valueProp: countProp,
+    defaultValue: 0,
+  });
+
+  function onClickUp() {
+    setCount((count) => (count ? count + 1 : 1));
+    onChange(count ? count + 1 : 1);
+  }
+
+  function onClickDown() {
+    setCount((count) => (count ? count - 1 : -1));
+    onChange(count ? count - 1 : -1);
+  }
+
+  return (
+    <div>
+      <span>{count}</span>
+      <button onClick={onClickUp}>up</button>
+      <button onClick={onClickDown}>down</button>
+    </div>
+  );
+}
+```
 
 #### Props Getters
 
