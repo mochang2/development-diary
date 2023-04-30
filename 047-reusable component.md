@@ -137,7 +137,7 @@ function CloseButton({ onClick, className = '' }: Props) {
 
 <br />
 
-예시로 거대한 게시판 목록 페이지를 하나를 만들고 역할과 책임에 따라 분리해보겠다.  
+예시로 거대한 게시판 목록 페이지 하나를 만들고 역할과 책임에 따라 분리해보겠다.  
 해당 어플리케이션의 table header는 text만 들어오고 `font-weight: 600`으로 고정되어 있다.  
 또한 table body는 text도 `React.ReactNode`도 들어올 수 있고, `font-weight: 300`으로 고정되어 있다.  
 간단히 만들기 위해서 페이지네이션은 없다고 가정하겠다.
@@ -618,9 +618,7 @@ export default TableHeader;
 
 ### 2) 디자인 시스템을 이용한다.
 
-### 3) 디자인 패턴을 사용한다.
-
-Presentational - Container / Custom Hook을 디자인 패턴이라고까지 말하기는 좀 그렇지만 일단 여기에 추가했다.
+### 3) 패턴을 사용한다.
 
 #### Presentational - Container
 
@@ -1115,7 +1113,7 @@ function Button({ children, hasArrow, onClick }: Props) {
 ```
 
 Control Props 패턴은 외부에서 `props`가 존재하면 해당 값을 사용하고, 존재하지 않으면 내부의 state로 컴포넌트의 상태를 관리할 수 있도록 할 수 있다.  
-또한 hook을 사용해 아주 간결하게 제어 컴포넌트를 간결하게 만들 수도 있다.
+또한 custom hook을 사용해 제어 컴포넌트를 간결하게 만들 수도 있다.
 
 Control Props 패턴은 두 가지 장점이 있다.
 
@@ -1233,6 +1231,141 @@ function Counter({ value: countProp, onChange }: Props) {
 ```
 
 #### Props Getters
+
+getter의 return값을 spread 연산자로 컴포넌트에게 뿌려주는 패턴이다.  
+유연하고 유저가 원한다면 props를 오버로드할 수 있지만 변화 추적이 힘들다.
+
+Control Props 패턴처럼 자식 컴포넌트가 부모 컴포넌트에게 데이터나 콜백을 전달할 수 있는 패턴이다.
+
+##### 코드 예시
+
+먼저 `props.children`을 통해 별도의 컴포넌트 없이 자식 컴포넌트에게 `props`를 전달하는 방법을 알아야 한다.
+
+```tsx
+// src/components/toggle.tsx
+
+function Toggle({ children }: Props) {
+  const [isOn, setIsOn] = useState(false);
+  const togglerProps = {
+    onClick: toggle,
+  };
+
+  function toggle() {
+    setIsOn((isOn) => !isOn);
+  }
+
+  return children({ isOn, togglerProps });
+}
+
+export default Toggle;
+```
+
+```tsx
+// src/app.tsx
+
+function App() {
+  return (
+    <div className="App">
+      <Toggle>
+        {({ isOn, togglerProps }) => {
+          return (
+            <>
+              <div>토글: {isOn ? 'ON' : 'OFF'}</div>
+              <button {...togglerProps}>click</button>
+            </>
+          );
+        }}
+      </Toggle>
+    </div>
+  );
+}
+
+export default App;
+```
+
+`button`을 클릭할 때마다 토글이 된다.  
+다만 아직까지는 자식 컴포넌트에서 부모 컴포넌트로 무언가를 전달할 수 있는 상황이 아니다.
+
+위에서 `togglerProps`를 일반 객체가 아니라 콜백으로 변경한다면 `Toggle.props.children`에서 `Toggle`에게 데이터를 전달할 수 있다.  
+추가적으로 커링 기법을 이용하는 `compose`라는 유틸 함수가 추가된다면 로직을 더 간결하게 표현할 수도 있다.
+
+```ts
+// src/utils/function.ts
+
+type AnyFunction = (x: any) => any;
+
+function compose(...fns: ((x: any) => any)[]): AnyFunction {
+  return (x: any) => {
+    return fns.reduce((acc, fn) => fn(acc), x);
+  };
+}
+```
+
+```tsx
+// src/components/toggle.tsx
+
+interface ChildrenProps {
+  isOn: boolean;
+  getTogglerProps: ({ onClick }: { onClick: AnyFunction }) => any;
+}
+
+interface Props {
+  children: ({ isOn, getTogglerProps }: ChildrenProps) => JSX.Element;
+}
+
+function Toggle({ children }: Props) {
+  const [isOn, setIsOn] = useState(false);
+
+  function getTogglerProps({ onClick }: { onClick: AnyFunction }) {
+    return {
+      onClick: compose(toggle, onClick),
+    };
+
+    // 또는
+    // return {
+    //   onClick: () => {
+    //     toggle()
+    //     onClick()
+    //   }
+    // }
+  }
+
+  function toggle() {
+    setIsOn((isOn) => !isOn);
+  }
+
+  return children({ isOn, getTogglerProps });
+}
+```
+
+```tsx
+// src/app.tsx
+
+function App() {
+  return (
+    <div className="App">
+      <Toggle>
+        {({ isOn, getTogglerProps }) => {
+          return (
+            <>
+              <div>토글: {isOn ? 'ON' : 'OFF'}</div>
+              <button
+                {...getTogglerProps({
+                  onClick: () => {
+                    alert('1234');
+                  },
+                })}
+              >
+                click
+              </button>
+            </>
+          );
+        }}
+      </Toggle>
+    </div>
+  );
+}
+```
 
 #### State Reducer
 
