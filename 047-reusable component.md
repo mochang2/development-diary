@@ -1001,6 +1001,7 @@ function MouseTracker2() {
 
   return (
     <div style={{ height: '100vh' }} onMouseMove={handleMouseMove}>
+      {/* 원래는 <p>태그였음 */}
       <Component mouse={location} />
     </div>
   );
@@ -1235,7 +1236,215 @@ function Counter({ value: countProp, onChange }: Props) {
 
 #### State Reducer
 
+위에 나온 모든 패턴 중에 가장 자유도(유연성)가 높고 제어의 정도가 낮다.  
+모든 내부 action들을 외부에서 접근가능하며 오버라이드할 수 있다.  
+이 말은 반대로 사용자가 책임지고 이해해야 하는 부분이 많고 컴포넌트 내부 로직에 대한 이해도가 필요하다는 말이다.
+
+~이 내용은 좀 뇌피셜이다.~  
+React의 [useReducer](https://react.dev/reference/react/useReducer) 훅을 이용한 것에서 시작한 말인 것 같다.  
+`useReducer`는 dispatch를 이용해 상태 업데이트 로직을 컴포넌트 밖에서 수행하도록 선언할 수 있는 훅이다.  
+아래와 같이 사용 가능하다.
+
+```ts
+// src/reducers/count-reducer.ts
+
+interface CountState {
+  count: number;
+}
+
+export const ACTION = {
+  INCREMENT: 'INCREMENT',
+  DECREMENT: 'DECREMENT',
+};
+
+type CountAction = (typeof ACTION)[keyof typeof ACTION];
+
+function countReducer(state: CountState, action: { type: CountAction }) {
+  switch (action.type) {
+    case ACTION.INCREMENT:
+      return { count: state.count + 1 };
+    case ACTION.DECREMENT:
+      return { count: state.count - 1 };
+    default:
+      throw new Error('올바르지 않은 reducer action 타입');
+  }
+}
+
+export default counterReducer;
+```
+
+```tsx
+// src/pages/counter.tsx
+
+function Counter() {
+  const [{ count }, dispatch] = useReducer(countReducer, { count: 0 });
+
+  return (
+    <div className="App">
+      <span>count: {count}</span>
+      <button onClick={() => dispatch({ type: ACTION.INCREMENT })}>+1</button>
+      <button onClick={() => dispatch({ type: ACTION.DECREMENT })}>-1</button>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+##### 코드 예시
+
+toggle 예시를 보자.  
+toggle이 자주 사용돼서 toggle에 대한 로직을 custom hook으로 뺀 상황이다.  
+`Switch`는 on/off slide가 되는 이미 선언된 컴포넌트라고 가정하겠다.  
+`Toggle` 컴포넌트는 `useToggle` hook을 이용한 단순한 UI이다.
+
+```ts
+// src/hooks/use-toggle.ts
+
+function useToggle() {
+  const [on, setOn] = useState<boolean>(false);
+
+  const toggle = () => setOnState((o) => !o);
+  const setOn = () => setOnState(true);
+  const setOff = () => setOnState(false);
+
+  return { on, toggle, setOn, setOff };
+}
+```
+
+```tsx
+// src/components/toggle.tsx
+
+// 이렇게 사용되고 있었음
+function Toggle() {
+  const { on, toggle, setOn, setOff } = useToggle();
+
+  return (
+    <div>
+      <button onClick={setOff}>Switch Off</button>
+      <button onClick={setOn}>Switch On</button>
+      <Switch on={on} onClick={toggle} />
+    </div>
+  );
+}
+```
+
+만약 toggle은 연속 최대 4번만 가능하고, 이후에 toggle을 하고 싶다면 reset 버튼을 눌러야지만 가능하게 해야 한다는 요구사항이 생기면 어떻게 할 수 있을까?  
+쉽게 아래와 같이 가능할 것이다.
+
+```tsx
+// src/components/limited-toggle.tsx
+
+function LimitedToggle({ clickCount }: Props) {
+  const [clicksSinceReset, setClicksSinceReset] = useState(0);
+  const clickAvailable = clicksSinceReset < clickCount;
+
+  const { on, toggle, setOn, setOff } = useToggle();
+
+  function handleClick() {
+    if (clickAvaiable) {
+      toggle();
+      setClicksSinceReset((count) => count + 1);
+    }
+  }
+
+  return (
+    <div>
+      <button onClick={setOff}>Switch Off</button>
+      <button onClick={setOn}>Switch On</button>
+      <Switch on={on} onClick={handleClick} />
+      {tooManyClicks ? (
+        <button onClick={() => setClicksSinceReset(0)}>Reset</button>
+      ) : null}
+    </div>
+  );
+}
+```
+
+만약 이렇게 toggle 행위에 제한이 걸린 `~~Toggle` 컴포넌트가 많이 생기면 어떻게 될까?  
+해당 컴포넌트들이 위 `LimitedToggle`처럼 `clickAvailable` 등의 변수를 선언하고 로직을 컴포넌트 안에서 다뤄야만 할까?  
+이에 대한 해답을 제시해주는 것이 State Reducer 패턴이 될 수 있다.  
+default reducer를 선언하지만 컴포넌트에 따라 이를 오버라이드하고, 업데이트 로직을 `useToggle` 안으로 밀어넣을 수 있다.
+
+```ts
+// src/hooks/use-toggle.ts
+
+export const ACTION = {
+  TOGGLE: 'TOGGLE',
+  ON: 'ON',
+  OFF: 'OFF',
+};
+
+type ToggleAction = (typeof ACTION)[keyof typeof ACTION];
+
+export function toggleReducer(state: { on: boolean }, action: ToggleAction) {
+  switch (action.type) {
+    case ACTION.TOGGLE: {
+      return { on: !state.on };
+    }
+    case ACTION.ON: {
+      return { on: true };
+    }
+    case ACTION.OFF: {
+      return { on: false };
+    }
+    default: {
+      throw new Error('올바르지 않은 reducer action 타입');
+    }
+  }
+}
+
+function useToggle({ reducer = toggleReducer }: Props = {}) {
+  const [{ on }, dispatch] = useReducer(reducer, { on: false });
+
+  const toggle = () => dispatch({ type: ACTION.TOGGLE });
+  const setOn = () => dispatch({ type: ACTION.ON });
+  const setOff = () => dispatch({ type: ACTION.OFF });
+
+  return { on, toggle, setOn, setOff };
+}
+
+export default useToggle;
+```
+
+```tsx
+// src/components/limited-toggle.tsx
+
+function LimitedToggle() {
+  const [clicksSinceReset, setClicksSinceReset] = useState(0);
+  const tooManyClicks = clicksSinceReset >= 4;
+
+  const { on, toggle, setOn, setOff } = useToggle({
+    reducer(currentState, action) {
+      const changes = toggleReducer(currentState, action);
+
+      return tooManyClicks && action.type === ACTION.TOGGLE
+        ? { ...changes, on: currentState.on }
+        : changes;
+    },
+  });
+
+  function handleClick() {
+    toggle();
+    setClicksSinceReset((count) => count + 1);
+  }
+
+  return (
+    <div>
+      <button onClick={setOff}>Switch Off</button>
+      <button onClick={setOn}>Switch On</button>
+      <Switch onClick={handleClick} on={on} />
+      {tooManyClicks ? (
+        <button onClick={() => setClicksSinceReset(0)}>Reset</button>
+      ) : null}
+    </div>
+  );
+}
+```
+
 ---
+
+(작성 중)
 
 (FE conf) 컴포넌트 다시 생각하기 요약  
 컴포넌트: props + hooks에게 의존성을 주입 받음.  
