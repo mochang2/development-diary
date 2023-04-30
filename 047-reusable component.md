@@ -1428,7 +1428,7 @@ export default Counter;
 
 toggle 예시를 보자.  
 toggle이 자주 사용돼서 toggle에 대한 로직을 custom hook으로 뺀 상황이다.  
-`Switch`는 on/off slide가 되는 이미 선언된 컴포넌트라고 가정하겠다.  
+`Switch`는 on/off slide가 되는 컴포넌트라고 가정하겠다.  
 `Toggle` 컴포넌트는 `useToggle` hook을 이용한 단순한 UI이다.
 
 ```ts
@@ -1463,7 +1463,7 @@ function Toggle() {
 ```
 
 만약 toggle은 연속 최대 4번만 가능하고, 이후에 toggle을 하고 싶다면 reset 버튼을 눌러야지만 가능하게 해야 한다는 요구사항이 생기면 어떻게 할 수 있을까?  
-쉽게 아래와 같이 가능할 것이다.
+쉽게 아래와 같이 요구 사항을 반영할 수 있다.
 
 ```tsx
 // src/components/limited-toggle.tsx
@@ -1510,7 +1510,10 @@ export const ACTION = {
 
 type ToggleAction = (typeof ACTION)[keyof typeof ACTION];
 
-export function toggleReducer(state: { on: boolean }, action: ToggleAction) {
+export function toggleReducer(
+  state: { on: boolean },
+  action: { type: ToggleAction }
+) {
   switch (action.type) {
     case ACTION.TOGGLE: {
       return { on: !state.on };
@@ -1527,7 +1530,7 @@ export function toggleReducer(state: { on: boolean }, action: ToggleAction) {
   }
 }
 
-function useToggle({ reducer = toggleReducer }: Props = {}) {
+function useToggle({ reducer = toggleReducer } = {}) {
   const [{ on }, dispatch] = useReducer(reducer, { on: false });
 
   const toggle = () => dispatch({ type: ACTION.TOGGLE });
