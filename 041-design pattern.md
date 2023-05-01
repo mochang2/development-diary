@@ -41,11 +41,13 @@ https://www.devh.kr/2021/Design-Patterns-In-JavaScript/
 참고  
 https://ko.wikipedia.org/wiki/%EA%B0%9D%EC%B2%B4_(%EC%BB%B4%ED%93%A8%ED%84%B0_%EA%B3%BC%ED%95%99)  
 http://klausbreaktime.blogspot.com/2017/07/blog-post.html  
-https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=tipsware&logNo=221029211791
+https://m.blog.naver.com/PostView.naver?isHttpsRedirect=true&blogId=tipsware&logNo=221029211791  
+책 - 객체지향의 사실과 오해
 
 공통적으로 사용되는 '객체'의 개념을 먼저 정리하고자 한다.  
 가장 중요한 오해인 `객체 지향 == 클래스`를 해소하기 위한 내용이다.  
-클래스는 객체 타입을 정의하기 위한 한 가지 문법일 뿐이다.
+객체를 분류하는 기준은 타입이며, 타입을 나누는 기준은 객체가 수행하는 행동이다.  
+클래스는 객체 타입을 정의(또는 구현)하기 위한 한 가지 문법일 뿐이다.
 
 관점에 따라 '객체'에 대한 정의가 달라진다.
 
