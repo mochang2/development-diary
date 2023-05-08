@@ -12,7 +12,7 @@
 그런데 이 부분에 대해 고민했다고 말해서 이러쿵 저러쿵 하다가... "재사용 가능한 컴포넌트가 무엇일까"라는 말에 말문이 막혔다.  
 FE 개발자로서... 이런 부분에 대해 대답을 못 한다면 공부해야겠지??
 
-참고  
+참고 및 출처 
 http://www.ktword.co.kr/test/view/view.php?m_temp1=2837  
 http://wiki.hash.kr/index.php/%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8  
 https://as-you-say.tistory.com/221  
@@ -67,7 +67,7 @@ React의 장점 중 하나로 꼽히는 것이 컴포넌트 기반으로 개발�
 '컴포넌트를 2개로 따로 선언하는 것이 재사용성을 해치니까 나는 1개로 선언해야지! 이 프로젝트에 버튼 컴포넌트는 무조건 하나야'라는 생각으로 다음과 같이 선언할 수 있다.
 
 ```ts
-function Button({ onClick, className = '', children, isClose }: Props) {
+function Button({ onClick, className = '', children, isClose }: TProps) {
   return isClose ? (
     <button
       onClick={onClick}
@@ -93,7 +93,7 @@ function Button({ onClick, className = '', children, isClose }: Props) {
 `isClose`나 인터페이스나 삼항 연산자 문법이 필요 없기 때문이다.
 
 ```tsx
-function BootstrapButton({ onClick, className = '', children }: Props) {
+function BootstrapButton({ onClick, className = '', children }: TProps) {
   return (
     <button
       onClick={onClick}
@@ -107,7 +107,7 @@ function BootstrapButton({ onClick, className = '', children }: Props) {
 ```
 
 ```tsx
-function CloseButton({ onClick, className = '' }: Props) {
+function CloseButton({ onClick, className = '' }: TProps) {
   return (
     <button
       onClick={onClick}
@@ -383,7 +383,7 @@ export default App;
 그리고 props가 없다면 `memo`로 감싸면 좋겠지만 현재는 성능 관련된 내용을 이야기하는 것이 아니니 pass.
 
 ```tsx
-// src/app.tsx
+// src/routes/App.tsx
 
 function App() {
   useEffect(() => {
@@ -405,7 +405,7 @@ export default App;
 ```
 
 ```tsx
-// src/pages/post-list.tsx
+// src/pages/PostList.tsx
 
 function PostList() {
   const HEADERS = ['NO', '제목', '작성자', '삭제'];
@@ -429,14 +429,14 @@ export default PostList;
 ```
 
 ```tsx
-// src/components/post-list/post-list-header.tsx
+// src/components/post-list/PostListHeader.tsx
 
-interface Props {
+type TProps = {
   style?: React.CSSProperties;
   headers: string[];
 }
 
-function PostListHeader({ headers, style }: Props) {
+function PostListHeader({ headers, style }: TProps) {
   return (
     <thead style={{ ...style }}>
       <tr className="row">
@@ -454,7 +454,7 @@ export default PostListHeader;
 ```
 
 ```tsx
-// src/components/post-list/post-list-body.tsx
+// src/components/post-list/PostListBody.tsx
 
 function PostListBody() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -509,14 +509,14 @@ export default PostListBody;
 ```
 
 ```tsx
-// src/components/post-list/post-list-row.tsx
+// src/components/post-list/PostListRow.tsx
 
-interface Props {
+type TProps = {
   style?: React.CSSProperties;
   cells: React.ReactNode[];
 }
 
-function PostListRow({ cells, style }: Props) {
+function PostListRow({ cells, style }: TProps) {
   return (
     <tr className="row" style={{ ...style }}>
       {cells.map((cell) => (
@@ -537,14 +537,14 @@ export default PostListRow;
 하지만 `PostListHeader.tsx`나 `PostListRow.tsx`는 넘겨받은 데이터를 뿌려주기만 하는 presentational 컴포넌트이므로 충분히 도메인을 제거할 수 있겠다.
 
 ```tsx
-// src/components/table-header.tsx
+// src/components/TableHeader.tsx
 
-interface Props {
+type TProps = {
   style?: React.CSSProperties;
   headers: string[];
 }
 
-function TableHeader({ headers, style }: Props) {
+function TableHeader({ headers, style }: TProps) {
   return (
     <thead style={{ ...style }}>
       <tr className="row">
@@ -562,14 +562,14 @@ export default TableHeader;
 ```
 
 ```tsx
-// src/components/table-row.tsx
+// src/components/TableRow.tsx
 
-interface Props {
+type TProps = {
   style?: React.CSSProperties;
   cells: React.ReactNode[];
 }
 
-function TableRow({ cells, style }: Props) {
+function TableRow({ cells, style }: TProps) {
   return (
     <tr className="row" style={{ ...style }}>
       {cells.map((cell) => (
@@ -590,7 +590,7 @@ export default TableRow;
 그러면 `TableHeader`는 아래와 같이 변경할 수도 있다(`TableRow`는 비슷하므로 생략).
 
 ```tsx
-// src/components/table-row.tsx
+// src/components/TableRow.tsx
 
 import { HTMLAttributes } from 'react';
 
@@ -617,6 +617,195 @@ export default TableHeader;
 ```
 
 ### 2) 디자인 시스템을 이용한다.
+
+_사진 및 디자인 출처_  
+[리메인](https://www.remain.co.kr)
+
+디자인 시스템은 디자인 원칙과 규격, 재사용할 수 있는 UI 패턴과 컴포넌트, 코드를 포괄하는 시스템을 말한다.  
+컴포넌트가 잘 정의되어 있지 않으면 재사용이 불가능한 것처럼, 디자이너들도 매번 버튼을 새로 만들거나, 일관되지 않은 디자인을 만들거나, 유지 보수에 불편함을 겪는다고 한다.  
+
+예를 들어 통일성 없이 만들어진 input과 button이 있다.  
+처음 선언했던 곳에서는 각자의 역할을 잘 했고, 검색 컴포넌트를 만드는 과정에서 두 컴포넌트를 합치고 싶다고 하자.  
+하지만 `font-size`나 `padding`, `height`(아래 사진에는 안 나와있지만 `box-sizing`)의 차이 때문에 새로운 컴포넌트를 또 만들어야 한다.
+
+![reason to need design system](https://user-images.githubusercontent.com/63287638/236710883-2720290e-2dd1-4159-a24b-f03dacaf10bb.png)
+
+이러한 문제에 대해 디자인 시스템을 해결책을 제시한다.  
+잘 정의된 디자인 시스템은 UI/UX 가이드라인을 제공하고 재사용 가능한 디자인을 만든다.  
+자세한 내용은 [토스 디자인 시스템](https://www.youtube.com/watch?v=LmLchZ4tCXc)을 참고한다.
+
+#### 코드 예시(SCSS)
+
+디자인 쪽은 문외한이라서 리메인에서 제공하는 [컴포넌트 코어 시스템](https://www.remain.co.kr/page/designsystem/component-core.php)을 참고했다.  
+(브랜드, 시스템 색상 시스템도 예시로 제공할 수 있겠지만) 위 사진에서 제기한 height 문제를 해결해보고자 한다.
+
+디자인 시스템이 없는 코드를 먼저 보자.  
+
+```tsx
+// src/components/home/Button.tsx
+
+export default function Button({onClick, text}: TProps) {
+  return (
+    <button onClick={onClick} className="search-from__login-button">
+      {text}
+    </button>
+  )
+}
+```
+
+```tsx
+// src/components/post/Button.tsx
+
+export default function Button({onClick, children}: TProps) {
+  return (
+    <button onClick={onClick} className="search-from__submit-button">
+      {children}
+    </button>
+  )
+}
+```
+
+사실 위 두 가지 컴포넌트에서 다른 것은 `className`밖에 없다. `text` prop은 `string`일 것이고 이는 `chilren` 타입에 포함된다.  
+UI와 관련된 부분이 통일되지 않아서, 컴포넌트를 분리해도 특정 도메인과 엮여있어서 재사용하지 못할 가능성이 크다.  
+또한 위 사진처럼 `height`가 달라 `Button` 컴포넌트를 다른 `Input` 컴포넌트와 합쳐서 `Search`와 같은 조금 더 큰 컴포넌트를 만들지 못할 수도 있다.
+
+하지만 디자인 시스템이 갖춰져 있다면 초기 설계 비용이 크지만 아래와 같이 재사용 가능한 컴포넌트를 만들 수 있다.  
+참고로 JS in CSS가 아니라서 utility-first css 방법론을 이용해서 컴포넌트 이름 자체로 역할을 명시(`Button` -> `WarningButton`)하지 않고 `className`으로 버튼의 역할을 암시한다.  
+(JSS in CSS를 사용하면 className을 직접 지정하지 않을 수 있다)
+
+```scss
+// src/assets/styles/presets.scss
+
+* {
+  margin: 0;
+  padding: 0;
+
+  box-sizing: border-box;
+}
+
+```
+
+```scss
+// src/assets/styles/common/boxes.scss
+
+$PAD: 4;
+$HEIGHT: 4;
+
+@mixin box-xxxs {
+  height: #{$HEIGHT * 6}px;
+}
+
+@mixin box-xxs {
+  padding: 0 #{$PAD * 1}px;
+
+  height: #{$HEIGHT * 7}px;
+}
+
+@mixin box-xs {
+  padding: 0 #{$PAD * 2}px;
+
+  height: #{$HEIGHT * 8}px;
+}
+
+// ...
+```
+
+```scss
+// src/assets/styles/utility-first.scss
+
+@import "./common/boxes";
+
+// button
+button {
+  &.xxxs {
+    @include box-xxxs;
+
+    font-size: 10px;
+  }
+
+  &.xxs {
+    @include box-xxs;
+
+    font-size: 12px;
+  }
+
+  &.xs {
+    @include box-xs;
+
+    font-size: 12px;
+  }
+}
+```
+
+```tsx
+// src/components/Button.tsx
+
+export default function Button({onClick, children, ...props}: TProps) {
+  return (
+    <button onClick={onClick} {...props}>
+      {children}
+    </button>
+  )
+}
+```
+
+~그냥 `button` 태그 쓰는 거랑 큰 차이가 없지만 예시니까 그러려니 하자~  
+이제 `Button` 컴포넌트는 도메인과 분리돼서 사용할 수 있다.  
+`props`에 `className`을 전달함으로써 `height`를 조정할 수 있고, 여기저기서 사용 가능한 `Input` 컴포넌트와 합쳐 새로운 `Search` 컴포넌트를 만들 수 있다.  
+새로운 컴포넌트나 스타일을 선언하지 않고도 말이다.  
+만약 특정 도메인에서 `font-size`만 달라져야 한다고 해도 `style` props를 전달해줘서 inline으로 이를 설정할 수도 있다.
+
+#### 코드 예시(Storybook)
+
+Storybook은 개발자, 디자이너 및 프로젝트 관리자에게 UI 개발과 관리를 보다 효율적으로 처리할 수 있는 도구이다.  
+Storybook을 사용하면 다음과 같은 장점이 있다.
+
+1. 디자이너와 협업하기 용이하다. Storybook은 UI 컴포넌트의 디자인과 동작을 독립적으로 테스트하고 문서화할 수 있으며, 디자이너와 개발자 간에 UI의 외관과 기능을 공유하기 쉽다.
+2. 재사용 가능한 컴포넌트를 만들 수 있다. Storybook을 사용하여 UI 컴포넌트를 작성하고 문서화하면, 재사용 가능한 UI 컴포넌트 라이브러리를 만들 수 있다. 이는 프로젝트에서 일관성 있는 UI를 제공하고 코드의 재사용성을 높이는 데 도움이 된다.
+3. UI 컴포넌트를 테스트하고 디버그하기 쉽다. Storybook은 UI 컴포넌트를 독립적으로 테스트하고, 개발자가 UI 컴포넌트를 디버그하고 수정할 수 있도록 도와준다.
+4. 개발 속도를 높일 수 있다(다만 모든 구조가 그렇듯이 프로젝트에 자리 잡기 전에는 오히려 속도가 느리다). Storybook은 UI 컴포넌트를 독립적으로 개발하고 테스트할 수 있으므로, 개발자는 더 빠르게 개발을 진행할 수 있다.
+
+```js
+// src/components/Task.stories.js
+// 단순 홈페이지 예시
+
+import Task from './Task';
+
+export default {
+  component: Task,
+  title: 'Task',
+};
+
+const Template = (args) => <Task {...args} />;
+
+export const Default = Template.bind({});
+Default.args = {
+  task: {
+    id: '1',
+    title: 'Test Task',
+    state: 'TASK_INBOX',
+    updatedAt: new Date(2021, 0, 1, 9, 0),
+  },
+};
+
+export const Pinned = Template.bind({});
+Pinned.args = {
+  task: {
+    ...Default.args.task,
+    state: 'TASK_PINNED',
+  },
+};
+
+export const Archived = Template.bind({});
+Archived.args = {
+  task: {
+    ...Default.args.task,
+    state: 'TASK_ARCHIVED',
+  },
+};
+```
+
+TODO: 당장에 디자이너와 일할 일이 없어서... 내가 직접 사용할 일이 생기면 불편했던 점, 개선됐으면 하는 점, 잘 사용하는 방법을 추가할 예정이다. 
 
 ### 3) 패턴을 사용한다.
 
@@ -646,7 +835,7 @@ React 컴포넌트는 상태, DOM, 이벤트 등을 모두 관리할 수 있지�
 아래와 같이 게시글 목록을 가져와서 보여주는 컴포넌트가 있다고 하자.
 
 ```tsx
-// src/pages/post-list.tsx
+// src/pages/PostList.tsx
 
 function PostList() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -677,7 +866,7 @@ export default PostList
 데이터 목록을 받아 뿌려주는 부분이 많다면 위 `PostList`를 아래와 같이 `PostConatiner`, `ListPresentational`로 분리할 수 있을 것이다.
 
 ```tsx
-// src/components/post-list/post-container.tsx
+// src/components/post-list/PostContainer.tsx
 
 function PostContainer() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -699,9 +888,9 @@ export default PostContainer;
 ```
 
 ```tsx
-// src/components/list-presentational.tsx
+// src/components/ListPresentational.tsx
 
-function ListPresentational({ data, ...props }: Props) {
+function ListPresentational({ data, ...props }: TProps) {
   return (
     <ul>
       {data.map(datum) => (
@@ -728,7 +917,7 @@ Presentational - Container 패턴하고 비슷한 장점을 가진다.
 ##### 코드 예시
 
 ```tsx
-// src/hooks/post-list/use-post.tsx
+// src/hooks/post-list/use-post.ts
 
 function usePost() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -752,7 +941,7 @@ export default usePost;
 ```
 
 ```tsx
-// src/pages/post-list.tsx
+// src/pages/PostList.tsx
 
 function PostList() {
   const {posts} = usePost();
@@ -826,7 +1015,7 @@ dimmed 처리 여부, arrow가 있는 버튼 존재 여부 등에 따라 동작�
 `BottomSheet3`은 dimmed 無, arrow 버튼 無 라고 하겠다.
 
 ```tsx
-// src/components/__compounds__/bottom-sheet.tsx
+// src/components/__compounds__/BottomSheet.tsx
 
 const Store = createContext<boolean | null>(null);
 
@@ -882,9 +1071,9 @@ export default BottomSheet;
 ```
 
 ```tsx
-// src/components/bottom-sheet1.tsx
+// src/components/BottomSheet1.tsx
 
-function BottomSheet1({ title, description, buttonTexts }: Prps) {
+function BottomSheet1({ title, description, buttonTexts }: TProps) {
   // dimmed, arrow 버튼 모두 존재
   return (
     <BottomSheet>
@@ -904,9 +1093,9 @@ export default BottomSheet1;
 ```
 
 ```tsx
-// src/components/bottom-sheet2.tsx
+// src/components/BottomSheet2.tsx
 
-function BottomSheet2({ title, description, buttonTexts }: Prps) {
+function BottomSheet2({ title, description, buttonTexts }: TProps) {
   // dimmed 미존재, arrow 버튼 존재
   return (
     <BottomSheet>
@@ -925,9 +1114,9 @@ export default BottomSheet2;
 ```
 
 ```tsx
-// src/components/bottom-sheet3.tsx
+// src/components/BottomSheet3.tsx
 
-function BottomSheet3({ title, description, buttonTexts }: Prps) {
+function BottomSheet3({ title, description, buttonTexts }: TProps) {
   // dimmed 미존재, arrow 버튼 존재
   return (
     <BottomSheet>
@@ -957,7 +1146,7 @@ custom hook은 로직을 추상화하고 재사용 가능한 함수로 만들어
 아래와 같이 만들 수 있을 것이다.
 
 ```tsx
-// src/pages/mouse-tracker.tsx
+// src/pages/MouseTracker.tsx
 
 function MouseTracker() {
   const [location, setLocation] = useState<Axis>({ x: 0, y: 0 });
@@ -985,7 +1174,7 @@ export default MouseTracker;
 아래처럼 `<p>` 태그 위치에 별도의 컴포넌트를 선언해서 렌더링하는 것도 하나의 방법일 것이다.
 
 ```tsx
-// src/pages/mouse-tracker2.tsx
+// src/pages/MouseTracker2.tsx
 
 function MouseTracker2() {
   const [location, setLocation] = useState<Axis>({ x: 0, y: 0 });
@@ -1013,10 +1202,10 @@ export default MouseTracker2;
 이 패턴은 로직을 사용하는 쪽에서 렌더링 결과물도 결정해준다.
 
 ```tsx
-// src/components/mouse.tsx
+// src/components/Mouse.tsx
 
 // 반드시 'render'이라는 이름이 아니어도 됨
-function Mouse({ render }: Props) {
+function Mouse({ render }: TProps) {
   const [position, setPosition] = useState<Axis>({ x: 0, y: 0 });
 
   const handleMouseMove = (event: MouseEvent) => {
@@ -1030,7 +1219,7 @@ export default Mouse;
 ```
 
 ```tsx
-// src/pages/mouse-tracker.tsx
+// src/pages/MouseTracker.tsx
 
 function MouseTracker() {
   return (
@@ -1052,7 +1241,7 @@ export default MouseTracker;
 이 내용을 Custom API로도 바꿔보겠다.
 
 ```tsx
-// src/hooks/use-mouse.tsx
+// src/hooks/use-mouse.ts
 
 function useMouse() {
   const [position, setPosition] = useState<Axis>({ x: 0, y: 0 });
@@ -1076,7 +1265,7 @@ export default useMouse;
 ```
 
 ```tsx
-// src/pages/mouse-tracker.tsx
+// src/pages/MouseTracker.tsx
 
 function MouseTracker() {
   const position = useMouse();
@@ -1102,7 +1291,7 @@ export default MouseTracker;
 간단히 `button` 태그의 `onClick`을 외부에서 내려주는 것이라고 생각할 수 있다.
 
 ```tsx
-function Button({ children, hasArrow, onClick }: Props) {
+function Button({ children, hasArrow, onClick }: TProps) {
   return (
     <>
       {hasArrow ? '->' : ''}
@@ -1126,12 +1315,12 @@ Control Props 패턴은 두 가지 장점이 있다.
 `Counter`는 `value`를 전달 받으면 `state`를 관리하지 않고(uncontrolled)(상위 컴포넌트에서 관리), 전달 받지 않으면 스스로 `state`를 관리한다(controlled).
 
 ```tsx
-interface Props {
+type TProps = {
   value?: number;
   onChange: (next: number) => void;
 }
 
-function Counter({ value: countProp, onChange }: Props) {
+function Counter({ value: countProp, onChange }: TProps) {
   const [count, setCount] = useState(countProp ?? 0);
 
   function onClickUp() {
@@ -1198,12 +1387,12 @@ function useControlled<T extends any>({
 ```
 
 ```tsx
-interface Props {
+type TProps = {
   value?: number;
   onChange: (next: number) => void;
 }
 
-function Counter({ value: countProp, onChange }: Props) {
+function Counter({ value: countProp, onChange }: TProps) {
   // count는 number | undefined
   const [count, setCount] = useControlled<number>({
     valueProp: countProp,
@@ -1242,9 +1431,9 @@ Control Props 패턴처럼 자식 컴포넌트가 부모 컴포넌트에게 데�
 먼저 `props.children`을 통해 별도의 컴포넌트 없이 자식 컴포넌트에게 `props`를 전달하는 방법을 알아야 한다.
 
 ```tsx
-// src/components/toggle.tsx
+// src/components/Toggle.tsx
 
-function Toggle({ children }: Props) {
+function Toggle({ children }: TProps) {
   const [isOn, setIsOn] = useState(false);
   const togglerProps = {
     onClick: toggle,
@@ -1261,7 +1450,7 @@ export default Toggle;
 ```
 
 ```tsx
-// src/app.tsx
+// src/App.tsx
 
 function App() {
   return (
@@ -1290,11 +1479,11 @@ export default App;
 추가적으로 커링 기법을 이용하는 `compose`라는 유틸 함수가 추가된다면 로직을 더 간결하게 표현할 수도 있다.
 
 ```ts
-// src/utils/function.ts
+// src/utils/functions.ts
 
 type AnyFunction = (x: any) => any;
 
-function compose(...fns: ((x: any) => any)[]): AnyFunction {
+export function compose(...fns: ((x: any) => any)[]): AnyFunction {
   return (x: any) => {
     return fns.reduce((acc, fn) => fn(acc), x);
   };
@@ -1302,18 +1491,18 @@ function compose(...fns: ((x: any) => any)[]): AnyFunction {
 ```
 
 ```tsx
-// src/components/toggle.tsx
+// src/components/Toggle.tsx
 
-interface ChildrenProps {
+type ChildrenProps = {
   isOn: boolean;
   getTogglerProps: ({ onClick }: { onClick: AnyFunction }) => any;
 }
 
-interface Props {
+type TProps = {
   children: ({ isOn, getTogglerProps }: ChildrenProps) => JSX.Element;
 }
 
-function Toggle({ children }: Props) {
+function Toggle({ children }: TProps) {
   const [isOn, setIsOn] = useState(false);
 
   function getTogglerProps({ onClick }: { onClick: AnyFunction }) {
@@ -1339,7 +1528,7 @@ function Toggle({ children }: Props) {
 ```
 
 ```tsx
-// src/app.tsx
+// src/App.tsx
 
 function App() {
   return (
@@ -1407,7 +1596,7 @@ export default counterReducer;
 ```
 
 ```tsx
-// src/pages/counter.tsx
+// src/pages/Counter.tsx
 
 function Counter() {
   const [{ count }, dispatch] = useReducer(countReducer, { count: 0 });
@@ -1446,7 +1635,7 @@ function useToggle() {
 ```
 
 ```tsx
-// src/components/toggle.tsx
+// src/components/Toggle.tsx
 
 // 이렇게 사용되고 있었음
 function Toggle() {
@@ -1466,9 +1655,9 @@ function Toggle() {
 쉽게 아래와 같이 요구 사항을 반영할 수 있다.
 
 ```tsx
-// src/components/limited-toggle.tsx
+// src/components/LimitedToggle.tsx
 
-function LimitedToggle({ clickCount }: Props) {
+function LimitedToggle({ clickCount }: TProps) {
   const [clicksSinceReset, setClicksSinceReset] = useState(0);
   const clickAvailable = clicksSinceReset < clickCount;
 
@@ -1544,7 +1733,7 @@ export default useToggle;
 ```
 
 ```tsx
-// src/components/limited-toggle.tsx
+// src/components/LimitedToggle.tsx
 
 function LimitedToggle() {
   const [clicksSinceReset, setClicksSinceReset] = useState(0);
