@@ -15,6 +15,16 @@ angular는 jQuery를 써서 DOM을 조작(느리고)했고 앱이 커질수록 u
 3. diffing algorithm으로 빠르게 re-rendering 할 수 있다(이때 virtual DOM을 이용하지만 virtual DOM 자체가 re-rendering을 빠르게 하지는 않는다. [이는 virtual DOM 없이도 가능하지만 virtual DOM은 단순히 이를 추상화, 자동화한 것이다.](https://velopert.com/3236)).
 4. component를 통해 재사용성과 독립성을 얻어냈다.
 
++) 추가사항 위 1번과 관련해서 React 패키지의 구성 요소를 알아보겠다.
+
+React 패키지는 크게 다섯 가지로 구성되어 있다.  
+
+1. Core: Component가 정의되어 있다. 다른 패키지에 의존성이 없어서 다양한 플랫폼(브라우저, 모바일)에 올려서 사용 가능하다.  
+2. Renderer: `react-dom`, `react-native-renderer` 등 호스트 렌더링 환경에 의존한다. 아래 Reconciler와 Legacy-events 패키지와 의존성이 있다.
+3. Event(Legacy-events): 기존 웹에서의 event를 wrapping하여 사용하기 쉽게 만든 모듈이다.
+4. Scheduler: React에서 task(`setState` 등)를 비동기로 실행하기 위한 모듈이다.  
+5. Reconciler: 컴포넌트 호출 및 Virtual DOM 재조정(변경 사항 파악)을 담당한다. Renderer과 분리되어 있기 때문에 다양한 플랫폼에서 서로 다른 조합을 가지고 Core를 사용할 수 있다.
+
 ### 목차
 
 - [명령형 프로그래밍 vs 선언형 프로그래밍](https://github.com/mochang2/development-diary/blob/main/030-react.md#1-%EB%AA%85%EB%A0%B9%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Dimperative-programming-vs-%EC%84%A0%EC%96%B8%ED%98%95-%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8Ddeclarative-programming)
