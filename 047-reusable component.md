@@ -12,7 +12,7 @@
 그런데 이 부분에 대해 고민했다고 말해서 이러쿵 저러쿵 하다가... "재사용 가능한 컴포넌트가 무엇일까"라는 말에 말문이 막혔다.  
 FE 개발자로서... 이런 부분에 대해 대답을 못 한다면 공부해야겠지??
 
-참고 및 출처 
+참고 및 출처
 http://www.ktword.co.kr/test/view/view.php?m_temp1=2837  
 http://wiki.hash.kr/index.php/%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8  
 https://as-you-say.tistory.com/221  
@@ -24,7 +24,9 @@ https://javascript.plainenglish.io/5-react-design-patterns-you-should-know-62903
 https://tecoble.techcourse.co.kr/post/2021-04-26-presentational-and-container/  
 https://www.turing.com/blog/custom-react-js-hooks-how-to-use/  
 https://ko.legacy.reactjs.org/docs/render-props.html  
-https://flowergeoji.me/react/react-pattern-control-props/
+https://flowergeoji.me/react/react-pattern-control-props/  
+https://yozm.wishket.com/magazine/detail/1830/  
+https://velog.io/@mrbartrns/%EC%9E%AC%EC%82%AC%EC%9A%A9-%EA%B0%80%EB%8A%A5%ED%95%9C-%EB%B2%84%ED%8A%BC-%EC%BB%B4%ED%8F%AC%EB%84%8C%ED%8A%B8-%EB%A7%8C%EB%93%A4%EA%B8%B0-React
 
 ## 1. 컴포넌트란
 
@@ -434,7 +436,7 @@ export default PostList;
 type TProps = {
   style?: React.CSSProperties;
   headers: string[];
-}
+};
 
 function PostListHeader({ headers, style }: TProps) {
   return (
@@ -514,7 +516,7 @@ export default PostListBody;
 type TProps = {
   style?: React.CSSProperties;
   cells: React.ReactNode[];
-}
+};
 
 function PostListRow({ cells, style }: TProps) {
   return (
@@ -542,7 +544,7 @@ export default PostListRow;
 type TProps = {
   style?: React.CSSProperties;
   headers: string[];
-}
+};
 
 function TableHeader({ headers, style }: TProps) {
   return (
@@ -567,7 +569,7 @@ export default TableHeader;
 type TProps = {
   style?: React.CSSProperties;
   cells: React.ReactNode[];
-}
+};
 
 function TableRow({ cells, style }: TProps) {
   return (
@@ -622,7 +624,7 @@ _사진 및 디자인 출처_
 [리메인](https://www.remain.co.kr)
 
 디자인 시스템은 디자인 원칙과 규격, 재사용할 수 있는 UI 패턴과 컴포넌트, 코드를 포괄하는 시스템을 말한다.  
-컴포넌트가 잘 정의되어 있지 않으면 재사용이 불가능한 것처럼, 디자이너들도 매번 버튼을 새로 만들거나, 일관되지 않은 디자인을 만들거나, 유지 보수에 불편함을 겪는다고 한다.  
+컴포넌트가 잘 정의되어 있지 않으면 재사용이 불가능한 것처럼, 디자이너들도 매번 버튼을 새로 만들거나, 일관되지 않은 디자인을 만들거나, 유지 보수에 불편함을 겪는다고 한다.
 
 예를 들어 통일성 없이 만들어진 input과 button이 있다.  
 처음 선언했던 곳에서는 각자의 역할을 잘 했고, 검색 컴포넌트를 만드는 과정에서 두 컴포넌트를 합치고 싶다고 하자.  
@@ -639,29 +641,29 @@ _사진 및 디자인 출처_
 디자인 쪽은 문외한이라서 리메인에서 제공하는 [컴포넌트 코어 시스템](https://www.remain.co.kr/page/designsystem/component-core.php)을 참고했다.  
 (브랜드, 시스템 색상 시스템도 예시로 제공할 수 있겠지만) 위 사진에서 제기한 height 문제를 해결해보고자 한다.
 
-디자인 시스템이 없는 코드를 먼저 보자.  
+디자인 시스템이 없는 코드를 먼저 보자.
 
 ```tsx
 // src/components/home/Button.tsx
 
-export default function Button({onClick, text}: TProps) {
+export default function Button({ onClick, text }: TProps) {
   return (
     <button onClick={onClick} className="search-from__login-button">
       {text}
     </button>
-  )
+  );
 }
 ```
 
 ```tsx
 // src/components/post/Button.tsx
 
-export default function Button({onClick, children}: TProps) {
+export default function Button({ onClick, children }: TProps) {
   return (
     <button onClick={onClick} className="search-from__submit-button">
       {children}
     </button>
-  )
+  );
 }
 ```
 
@@ -682,7 +684,6 @@ UI와 관련된 부분이 통일되지 않아서, 컴포넌트를 분리해도 �
 
   box-sizing: border-box;
 }
-
 ```
 
 ```scss
@@ -713,7 +714,7 @@ $HEIGHT: 4;
 ```scss
 // src/assets/styles/utility-first.scss
 
-@import "./common/boxes";
+@import './common/boxes';
 
 // button
 button {
@@ -734,18 +735,20 @@ button {
 
     font-size: 12px;
   }
+
+  // ...
 }
 ```
 
 ```tsx
 // src/components/Button.tsx
 
-export default function Button({onClick, children, ...props}: TProps) {
+export default function Button({ onClick, children, ...props }: TProps) {
   return (
     <button onClick={onClick} {...props}>
       {children}
     </button>
-  )
+  );
 }
 ```
 
@@ -805,7 +808,20 @@ Archived.args = {
 };
 ```
 
-TODO: 당장에 디자이너와 일할 일이 없어서... 내가 직접 사용할 일이 생기면 불편했던 점, 개선됐으면 하는 점, 잘 사용하는 방법을 추가할 예정이다. 
+# TODO: 당장에 디자이너와 일할 일이 없어서... 내가 직접 사용할 일이 생기면 불편했던 점, 개선됐으면 하는 점, 잘 사용하는 방법을 추가할 예정이다.
+
+디자인 시스템은 디자인 원칙과 규격, 재사용할 수 있는 UI 패턴과 컴포넌트, 코드를 포괄하는 시스템을 말한다.  
+컴포넌트가 잘 정의되어 있지 않으면 재사용이 불가능한 것처럼, 디자이너들도 매번 버튼을 새로 만들거나, 일관되지 않은 디자인을 만들거나, 유지 보수에 불편함을 겪는다고 한다.  
+이러한 문제에 대해 디자인 시스템을 해결책을 제시한다.  
+잘 정의된 디자인 시스템은 UI/UX 가이드라인을 제공하고 재사용 가능한 디자인을 만든다.  
+자세한 내용은 [토스 디자인 시스템](https://www.youtube.com/watch?v=LmLchZ4tCXc)을 참고하자.
+
+디자인 쪽은 문외한이라서 리메인에서 제공하는 [컴포넌트 코어 시스템](https://www.remain.co.kr/page/designsystem/component-core.php), [브랜드 컬러](https://www.remain.co.kr/page/designsystem/brand-color.php), [시스템 컬러](https://www.remain.co.kr/page/designsystem/system-color.php), 내가 임의로 정한 폰트 사이즈를 스타일로 선언했다.
+
+TODO 1. style component global style로 넘겨줄 수 있는 요소 파악(변수나 theme을 넘겨줄 수 있으면 scss 사용하지 않아도 될 듯 => 이후에 fill / outline 정하자)
+TODO 2. px(4px 단위), color(브랜드 color는 lighten-5: white, darkent-5: black 추가해서) 등 자주 사용되는 것은 변수로 지정.
+TODO 3. radius, box shadow, icon size => button, input 정도는 별도 클래스로 선언?
+TODO 4. 박스 모델 size 클래스 선언(추가적으로 box-sizing도 선언), margin, padding, flex, grid, elipcis 정도는 어디서든 쓸 수 있으니까 공통으로 선언.
 
 ### 3) 패턴을 사용한다.
 
@@ -1238,7 +1254,7 @@ function MouseTracker() {
 export default MouseTracker;
 ```
 
-이 내용을 Custom API로도 바꿔보겠다.
+이 내용을 custom hook으로도 바꿔보겠다.
 
 ```tsx
 // src/hooks/use-mouse.ts
@@ -1318,7 +1334,7 @@ Control Props 패턴은 두 가지 장점이 있다.
 type TProps = {
   value?: number;
   onChange: (next: number) => void;
-}
+};
 
 function Counter({ value: countProp, onChange }: TProps) {
   const [count, setCount] = useState(countProp ?? 0);
@@ -1390,7 +1406,7 @@ function useControlled<T extends any>({
 type TProps = {
   value?: number;
   onChange: (next: number) => void;
-}
+};
 
 function Counter({ value: countProp, onChange }: TProps) {
   // count는 number | undefined
@@ -1496,11 +1512,11 @@ export function compose(...fns: ((x: any) => any)[]): AnyFunction {
 type ChildrenProps = {
   isOn: boolean;
   getTogglerProps: ({ onClick }: { onClick: AnyFunction }) => any;
-}
+};
 
 type TProps = {
   children: ({ isOn, getTogglerProps }: ChildrenProps) => JSX.Element;
-}
+};
 
 function Toggle({ children }: TProps) {
   const [isOn, setIsOn] = useState(false);

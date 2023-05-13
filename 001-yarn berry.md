@@ -1,12 +1,12 @@
 ## 0. 공부하게 된 계기
 
 double nc에서 다양한 프로젝트가 있었는데 그 중 일부는 node modules로 패키지를 관리하지 않고 yarn berry로 패키지를 관리하고 있었다.  
-node modules로 관리할 때의 단점을 많이 커버할 수 있다고 한다.  
+node modules로 관리할 때의 단점을 많이 커버할 수 있다고 한다.
 
 참고
 https://toss.tech/article/node-modules-and-yarn-berry  
 https://blog.dramancompany.com/2023/02/%EB%A6%AC%EB%A9%A4%EB%B2%84-%EC%9B%B9-%EC%84%9C%EB%B9%84%EC%8A%A4-%EC%A2%8C%EC%B6%A9%EC%9A%B0%EB%8F%8C-yarn-berry-%EB%8F%84%EC%9E%85%EA%B8%B0/  
-https://kasterra.github.io/setting-yarn-berry/  
+https://kasterra.github.io/setting-yarn-berry/
 
 ## 1. 사전 지식 - Node.js
 

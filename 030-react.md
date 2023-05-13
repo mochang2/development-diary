@@ -17,12 +17,12 @@ angular는 jQuery를 써서 DOM을 조작(느리고)했고 앱이 커질수록 u
 
 +) 추가사항 위 1번과 관련해서 React 패키지의 구성 요소를 알아보겠다.
 
-React 패키지는 크게 다섯 가지로 구성되어 있다.  
+React 패키지는 크게 다섯 가지로 구성되어 있다.
 
-1. Core: Component가 정의되어 있다. 다른 패키지에 의존성이 없어서 다양한 플랫폼(브라우저, 모바일)에 올려서 사용 가능하다.  
+1. Core: Component가 정의되어 있다. 다른 패키지에 의존성이 없어서 다양한 플랫폼(브라우저, 모바일)에 올려서 사용 가능하다.
 2. Renderer: `react-dom`, `react-native-renderer` 등 호스트 렌더링 환경에 의존한다. 아래 Reconciler와 Legacy-events 패키지와 의존성이 있다.
 3. Event(Legacy-events): 기존 웹에서의 event를 wrapping하여 사용하기 쉽게 만든 모듈이다.
-4. Scheduler: React에서 task(`setState` 등)를 비동기로 실행하기 위한 모듈이다.  
+4. Scheduler: React에서 task(`setState` 등)를 비동기로 실행하기 위한 모듈이다.
 5. Reconciler: 컴포넌트 호출 및 Virtual DOM 재조정(변경 사항 파악)을 담당한다. Renderer과 분리되어 있기 때문에 다양한 플랫폼에서 서로 다른 조합을 가지고 Core를 사용할 수 있다.
 
 ### 목차
@@ -54,36 +54,36 @@ UI 라이브러리/프레임워크에서 '선언적'이라는 특징이 react만
 ```javascript
 // // 명령형 프로그래밍
 // 원하는 것을 달성하는 '방법'에 중점
-let string = 'THis is the midday show with Cheryl Waters'
-let urlFriendly = ''
+let string = 'THis is the midday show with Cheryl Waters';
+let urlFriendly = '';
 
 for (var i = 0; i < string.length; i++) {
   if (string[i] === ' ') {
-    urlFriendly += '-'
+    urlFriendly += '-';
   } else {
-    urlFriendly += string[i]
+    urlFriendly += string[i];
   }
 }
 
-console.log(urlFriendly)
+console.log(urlFriendly);
 
 // // 선언형 프로그래밍
 // 추상화를 이용
-const string = 'This is the midday show with Cheryl Waters'
-const urlFriendly = string.replace(/ /g, '-')
+const string = 'This is the midday show with Cheryl Waters';
+const urlFriendly = string.replace(/ /g, '-');
 
-console.log(urlFriendly)
+console.log(urlFriendly);
 ```
 
 아래는 'hello world'를 쓰기 위한 실제 DOM 조작과 관련된 예시이다.
 
 ```javascript
 // vanilla.js의 절차적 프로그래밍
-const app = document.querySelector('#app')
-const header = document.createElement('h1')
-header.innerText = 'hello world'
+const app = document.querySelector('#app');
+const header = document.createElement('h1');
+header.innerText = 'hello world';
 
-app.appendChild(header)
+app.appendChild(header);
 ```
 
 ```jsx
@@ -93,11 +93,11 @@ function App() {
     <div id="app">
       <h1>hello world</h1>
     </div>
-  )
+  );
 }
 
 // 바벨을 이용하지 않는다면
-ReactDOM.render(<h1>hello world</h1>, document.querySelector('#app'))
+ReactDOM.render(<h1>hello world</h1>, document.querySelector('#app'));
 ```
 
 (이상한 예시지만) 만약 위 코드에서 'hello'와 'world'를 각각의 `<h1>`으로 분리하고 싶다고 하자.  
@@ -146,10 +146,10 @@ side effect는 다음 사항들을 포함한다.
 
 ```jsx
 function App({ name }) {
-  document.title = name
+  document.title = name;
   // This is a side effect. Don't do this in the component body!
 
-  return <h1>{name}</h1>
+  return <h1>{name}</h1>;
 }
 ```
 
@@ -185,17 +185,17 @@ react는 hook을 통해 넘긴 함수(effect)를 기억했다가 DOM 업데이�
 ```jsx
 class Example extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       count: 0,
-    }
+    };
   }
 
   componentDidMount() {
-    document.title = `You clicked ${this.state.count} times`
+    document.title = `You clicked ${this.state.count} times`;
   }
   componentDidUpdate() {
-    document.title = `You clicked ${this.state.count} times`
+    document.title = `You clicked ${this.state.count} times`;
   }
 
   render() {
@@ -206,27 +206,27 @@ class Example extends React.Component {
           Click me
         </button>
       </div>
-    )
+    );
   }
 }
 ```
 
 ```jsx
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
 function Example() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    document.title = `You clicked ${count} times`
-  })
+    document.title = `You clicked ${count} times`;
+  });
 
   return (
     <div>
       <p>You clicked {count} times</p>
       <button onClick={() => setCount(count + 1)}>Click me</button>
     </div>
-  )
+  );
 }
 ```
 
@@ -279,12 +279,12 @@ react, redux, CRA의 저자인 Dan Abramov가 [본인의 블로그](https://medi
 ```jsx
 // 함수형 컴포넌트
 function Welcome(props) {
-  return <h1>Hello, {props.name}</h1>
+  return <h1>Hello, {props.name}</h1>;
 }
 
 // 컴파일 결과
 function Welcome(props) {
-  return _react2.default.createElement('h1', null, 'Hello, ', props.name)
+  return _react2.default.createElement('h1', null, 'Hello, ', props.name);
 }
 ```
 
@@ -292,16 +292,16 @@ function Welcome(props) {
 // 클래스형 컴포넌트
 class Welcome extends React.Component {
   render() {
-    return <h1>Hello, {this.props.name}</h1>
+    return <h1>Hello, {this.props.name}</h1>;
   }
 }
 
 // 컴파일 결과
 var Welcome = (function (_React$Component) {
-  _inherits(Welcome, _React$Component)
+  _inherits(Welcome, _React$Component);
 
   function Welcome() {
-    _classCallback(this, Welcome)
+    _classCallback(this, Welcome);
 
     return _possibleConstructorReturn(
       this,
@@ -309,7 +309,7 @@ var Welcome = (function (_React$Component) {
         this,
         arguments
       )
-    )
+    );
   }
 
   _createClass(Welcome, [
@@ -321,13 +321,13 @@ var Welcome = (function (_React$Component) {
           null,
           'Hello, ',
           this.props.name
-        )
+        );
       },
     },
-  ])
+  ]);
 
-  return Welcome
-})(_react2.default.Component)
+  return Welcome;
+})(_react2.default.Component);
 ```
 
 결과적으로 번들 사이즈 측면에서는 함수형 컴포넌트가 유리하다.
@@ -362,9 +362,9 @@ _참고) hook 사용 규칙_
 // Content.jsx
 const Wrapper = styled.div`
   padding-left: ${({ paddingLeft }) => paddingLeft};
-`
+`;
 function Content({ paddingLeft, children }: ContentProps) {
-  return <Wrapper paddingLeft={paddingLeft}>{children}</Wrapper>
+  return <Wrapper paddingLeft={paddingLeft}>{children}</Wrapper>;
 }
 ```
 
@@ -372,9 +372,9 @@ function Content({ paddingLeft, children }: ContentProps) {
 // Header.jsx
 const Wrapper = styled.div`
   padding: ${({ paddingLeft }) => `20px 4vw 30px ${paddingLeft}`};
-`
+`;
 function Header({ paddingLeft }) {
-  return <Wrapper paddingLeft={paddingLeft}>header</Wrapper>
+  return <Wrapper paddingLeft={paddingLeft}>header</Wrapper>;
 }
 ```
 
@@ -382,19 +382,19 @@ function Header({ paddingLeft }) {
 // VerticalNavBar.jsx
 const Wrapper = styled.div`
   width: ${({ width }) => width};
-`
+`;
 function VerticalNavBar({ width }) {
-  return <Wrapper width={width}>{/* some content */}</Wrapper>
+  return <Wrapper width={width}>{/* some content */}</Wrapper>;
 }
 ```
 
 ```jsx
 // VerticalLayout.jsx
-import Content from 'components/common/Content'
-import Header from './Header'
-import VerticalNavBar from './VerticalNavBar'
+import Content from 'components/common/Content';
+import Header from './Header';
+import VerticalNavBar from './VerticalNavBar';
 
-const NAV_BAR_WIDTH = '326px'
+const NAV_BAR_WIDTH = '326px';
 
 function VerticalLayout({ children }) {
   return (
@@ -403,17 +403,17 @@ function VerticalLayout({ children }) {
       <Header paddingLeft={NAV_BAR_WIDTH} />
       <Content paddingLeft={NAV_BAR_WIDTH}>{children}</Content>
     </React.Fragment>
-  )
+  );
 }
 ```
 
 ```jsx
 // Page.tsx
-import { VerticalLayout } from 'components/layout'
+import { VerticalLayout } from 'components/layout';
 
 // 합성된 컴포넌트 이용
 function Page() {
-  return <VerticalLayout>{/* Page 내용 */}</VerticalLayout>
+  return <VerticalLayout>{/* Page 내용 */}</VerticalLayout>;
 }
 ```
 
@@ -432,14 +432,14 @@ function Dialog(props) {
       <h1 className="Dialog-title">{props.title}</h1>
       <p className="Dialog-message">{props.message}</p>
     </FancyBorder>
-  )
+  );
 }
 
 // specific component
 function WelcomeDialog() {
   return (
     <Dialog title="Welcome" message="Thank you for visiting our spacecraft!" />
-  )
+  );
 }
 ```
 
@@ -453,7 +453,7 @@ hook이 현재 react에서 대세지만 HOC가 완전히 사라진 것은 아니
 
 주의할 점은 다음과 같다.
 
-- HOC 내부에서 원본 컴포넌트를 변경하지 않도록 해야 한다.  
+- HOC 내부에서 원본 컴포넌트를 변경하지 않도록 해야 한다.
 - render 메서드 안에서 사용하면 안된다(렌더링될 때마다 계속해서 새로운 컴포넌트를 만들어내므로).
 - static method는 복사되지 않기 때문에 따로 복사해서 넣어줘야 한다(오픈 라이브러리를 가끔 보면 `hoistStatics`와 같은 함수가 해당 역할을 해주는 코드를 볼 수 있음).
 - ref는 전달되지 않으므로 `React.forwardRef`라는 기능을 사용해야 한다.
@@ -469,28 +469,28 @@ HOC의 장점은 다음과 같다.
 
 class CommentList extends React.Component {
   constructor(props) {
-    super(props)
-    this.handleChange = this.handleChange.bind(this)
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
     this.state = {
       comments: DataSource.getComments(),
-    }
+    };
   }
 
   componentDidMount() {
     // 변화감지를 위해 리스너를 추가
-    DataSource.addChangeListener(this.handleChange)
+    DataSource.addChangeListener(this.handleChange);
   }
 
   componentWillUnmount() {
     // 리스너를 제거
-    DataSource.removeChangeListener(this.handleChange)
+    DataSource.removeChangeListener(this.handleChange);
   }
 
   handleChange() {
     // 데이터 소스가 변경될때 마다 comments를 업데이트
     this.setState({
       comments: DataSource.getComments(),
-    })
+    });
   }
 
   render() {
@@ -500,35 +500,35 @@ class CommentList extends React.Component {
           <Comment comment={comment} key={comment.id} />
         ))}
       </div>
-    )
+    );
   }
 }
 
 class BlogPost extends React.Component {
   constructor(props) {
-    super(props)
-    this.handleChange = this.handleChange.bind(this)
+    super(props);
+    this.handleChange = this.handleChange.bind(this);
     this.state = {
       blogPost: DataSource.getBlogPost(props.id),
-    }
+    };
   }
 
   componentDidMount() {
-    DataSource.addChangeListener(this.handleChange)
+    DataSource.addChangeListener(this.handleChange);
   }
 
   componentWillUnmount() {
-    DataSource.removeChangeListener(this.handleChange)
+    DataSource.removeChangeListener(this.handleChange);
   }
 
   handleChange() {
     this.setState({
       blogPost: DataSource.getBlogPost(this.props.id),
-    })
+    });
   }
 
   render() {
-    return <TextBlock text={this.state.blogPost} />
+    return <TextBlock text={this.state.blogPost} />;
   }
 }
 ```
@@ -571,14 +571,14 @@ const BlogPostWithSubscription = withSubscription(
 
 ```jsx
 const fetchData = () => {
-  return { data: TODOS }
-}
+  return { data: TODOS };
+};
 
 const App = () => {
-  const { data } = fetchData()
+  const { data } = fetchData();
 
-  return <TodoList data={data} />
-}
+  return <TodoList data={data} />;
+};
 ```
 
 여기서
@@ -591,39 +591,39 @@ const App = () => {
 
 ```jsx
 const fetchData = () => {
-  return { data: null, isLoading: true }
-}
+  return { data: null, isLoading: true };
+};
 
 const App = () => {
-  const { data, isLoading } = fetchData()
+  const { data, isLoading } = fetchData();
 
-  if (isLoading) return <div>Loading data.</div>
-  if (!data) return <div>No data loaded yet.</div>
-  if (!data.length) return <div>Data is empty.</div>
+  if (isLoading) return <div>Loading data.</div>;
+  if (!data) return <div>No data loaded yet.</div>;
+  if (!data.length) return <div>Data is empty.</div>;
 
-  return <TodoList data={data} />
-}
+  return <TodoList data={data} />;
+};
 ```
 
 이를 HoC를 이용하면 로직 처리를 분리함으로써 좀더 우아하게 바꿀 수 있다.
 
 ```jsx
 const withConditionalFeedback = (Component) => (props) => {
-  if (props.isLoading) return <div>Loading data.</div>
-  if (!props.data) return <div>No data loaded yet.</div>
-  if (!props.data.length) return <div>Data is empty.</div>
+  if (props.isLoading) return <div>Loading data.</div>;
+  if (!props.data) return <div>No data loaded yet.</div>;
+  if (!props.data.length) return <div>Data is empty.</div>;
 
-  return <Component {...props} />
-}
+  return <Component {...props} />;
+};
 
-const TodoList = withConditionalFeedback(BaseTodoList)
+const TodoList = withConditionalFeedback(BaseTodoList);
 // BaseTodoList는 위 예시의 TodoList에서 같은 컴포넌트
 
 const App = () => {
-  const { data, isLoading } = fetchData()
+  const { data, isLoading } = fetchData();
 
-  return <TodoList data={data} isLoading={isLoading} />
-}
+  return <TodoList data={data} isLoading={isLoading} />;
+};
 ```
 
 다음과 같은 방식으로 configuration을 추가할 수도 있다.
@@ -633,15 +633,16 @@ const withConditionalFeedback =
   ({ loadingFeedback, noDataFeedback, dataEmptyFeedback }) =>
   (Component) =>
   (props) => {
-    if (props.isLoading) return <div>{loadingFeedback || 'Loading data.'}</div>
+    if (props.isLoading) return <div>{loadingFeedback || 'Loading data.'}</div>;
 
-    if (!props.data) return <div>{noDataFeedback || 'No data loaded yet.'}</div>
+    if (!props.data)
+      return <div>{noDataFeedback || 'No data loaded yet.'}</div>;
 
     if (!props.data.length)
-      return <div>{dataEmptyFeedback || 'Data is empty.'}</div>
+      return <div>{dataEmptyFeedback || 'Data is empty.'}</div>;
 
-    return <Component {...props} />
-  }
+    return <Component {...props} />;
+  };
 
 // ...
 
@@ -649,26 +650,26 @@ const TodoList = withConditionalFeedback({
   loadingFeedback: 'Loading Todos.',
   noDataFeedback: 'No Todos loaded yet.',
   dataEmptyFeedback: 'Todos are empty.',
-})(BaseTodoList)
+})(BaseTodoList);
 ```
 
 마지막으로 `loadingFeedback`, `noDataFeedback`, `dataEmptyFeedback` 자체를 HOC로 만들 수 있다.
 
 ```jsx
 const withLoadingFeedback = (Component) => (props) => {
-  if (props.isLoading) return <div>Loading data.</div>
-  return <Component {...props} />
-}
+  if (props.isLoading) return <div>Loading data.</div>;
+  return <Component {...props} />;
+};
 
 const withNoDataFeedback = (Component) => (props) => {
-  if (!props.data) return <div>No data loaded yet.</div>
-  return <Component {...props} />
-}
+  if (!props.data) return <div>No data loaded yet.</div>;
+  return <Component {...props} />;
+};
 
 const withDataEmptyFeedback = (Component) => (props) => {
-  if (!props.data.length) return <div>Data is empty.</div>
-  return <Component {...props} />
-}
+  if (!props.data.length) return <div>Data is empty.</div>;
+  return <Component {...props} />;
+};
 
 const compose = (...fns) =>
   fns.reduceRight(
@@ -676,18 +677,18 @@ const compose = (...fns) =>
       (...args) =>
         nextFn(prevFn(...args)),
     (value) => value
-  )
+  );
 
 const TodoList = compose(
   withLoadingFeedback,
   withNoDataFeedback,
   withDataEmptyFeedback
-)(BaseTodoList)
+)(BaseTodoList);
 
 // compose는 다음과 같은 결과를 return한다
 const TodoList = withLoadingFeedback(
   withNoDataFeedback(withDataEmptyFeedback(BaseTodoList))
-)
+);
 ```
 
 +) 참고로 [공식문서](https://ko.reactjs.org/docs/composition-vs-inheritance.html)에서 '합성'은 좋은 구조이지만 '상속'을 사용하는 좋은 사례는 발견하지 못했다고 한다.
@@ -708,41 +709,42 @@ const TodoList = withLoadingFeedback(
 ```html
 <!-- index.html -->
 <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <div id="modal-root"></div>  <!-- 추가 -->
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <div id="modal-root"></div>
+  <!-- 추가 -->
 </body>
 ```
 
 ```js
 // App.js
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom';
 
 const Modal = ({ children }) => (
-    <div className="Modal">
-        {children}
-        <button>Button</button>
-    </div>
+  <div className="Modal">
+    {children}
+    <button>Button</button>
+  </div>
 );
 
 const PortalModal = (props) => {
-    const modalRoot = document.querySelector("#modal-root"); // 모달이 마운트 될 엘리먼트.
-    // 모달 앨리먼트를 modalRoot에 마운트.
-    return ReactDOM.createPortal(<Modal {...props} />, modalRoot);
+  const modalRoot = document.querySelector('#modal-root'); // 모달이 마운트 될 엘리먼트.
+  // 모달 앨리먼트를 modalRoot에 마운트.
+  return ReactDOM.createPortal(<Modal {...props} />, modalRoot);
 };
 
 function App() {
-    const handleClick = (e) => {
-        // button에서 발생한 이벤트 버블링됨.
-        console.log(e.target); // <button>
-    };
+  const handleClick = (e) => {
+    // button에서 발생한 이벤트 버블링됨.
+    console.log(e.target); // <button>
+  };
 
-    return (
-        <div className="App" onClick={handleClick}>
-            App
-            <PortalModal>Modal</PortalModal>
-        </div>
-    );
+  return (
+    <div className="App" onClick={handleClick}>
+      App
+      <PortalModal>Modal</PortalModal>
+    </div>
+  );
 }
 
 export default App;
@@ -761,17 +763,18 @@ export default App;
 ```jsx
 // Input.jsx
 
-import { forwardRef } from "react";
+import { forwardRef } from 'react';
 
 export default forwardRef(function (props = {}, ref) {
-    return (
-        <div>
-            <p>Input</p>
-            <input ref={ref} />
-        </div>
-    );
+  return (
+    <div>
+      <p>Input</p>
+      <input ref={ref} />
+    </div>
+  );
 });
 ```
 
 ```jsx
 
+```
