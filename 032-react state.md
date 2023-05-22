@@ -662,7 +662,8 @@ context란 단순히 react component에서 props가 아닌 또 다른 방식으�
     - 이는 또다른 문제점인 provider hell(또는 wrapper hell)을 야기한다.
     - provider hell은 `reduce`를 통해 해결할 수 있다(현재는 이 방법에 **best practice**라고 생각한다).
     - 결국 불필요한 리렌더링 발생이 단점이라고 말하기 좀 애매한 것 같다.
-  - 특정 '컴포넌트 간'이 아닌 전역적으로 상태를 공유해야 한다면 이미 다른 훌륭한 라이브러리가 많다.
+  - context shadowing이 발생할 수 있다(context의 name이 같으면 더 가까운 context만 사용 가능).
+  - 특정 '컴포넌트 간'이 아닌 전역적으로 상태를 공유해야 한다면 이미 get, set에 대해 래핑한 다른 라이브러리가 많다.
 
 #### 코드 예시
 
