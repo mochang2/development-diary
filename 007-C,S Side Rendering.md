@@ -38,13 +38,13 @@ SSR은 Server Side Rendering의 약어로, 사용자가 페이지를 이동할 �
   - 페이지 이동시 화면이 깜빡거림
   - 사이트 상호 작용의 부족
   - 서버 측 부하 발생
-
-내가 장고로 개발을 할 때 이런 방식이었다.
+  - TTV와 TTI가 불일치
 
 ### CSR
 
 CSR은 Client Side Rendering의 약어로, 브라우저에서 첫 요청 시 한 페이지만 불러온다.  
 일반적으로 브라우저에서 자바스크립트를 사용하여 콘텐츠를 렌더링하는 것을 의미한다.  
+사용자 인터렉션으로 변화되는 내용만 AJAX를 통해 서버에 요청하고 데이터를 받음으로써 사용 가능한 렌더링 방식이다.  
 _SPA와 항상 같이 나오는 개념이라고 생각해도 된다._  
 React.js와 같은 경우 `index.js`(또는 `.ts`)에서 모든 페이지 내용을 가지고 있고, 사용자는 `index.js`만 받아서 화면에 표시한다.  
 장단점은 다음과 같다
@@ -53,6 +53,7 @@ React.js와 같은 경우 `index.js`(또는 `.ts`)에서 모든 페이지 내용
   - 처음 로딩 이후 사용자의 행동에 따라 필요한 부분만 다시 읽어들이기 때문에(특히 React.js가 변화된 부분만 빠르게 캐치하는 엄청난 알고리즘이 있다고 한다) SSR보다 빠른 응답을 기대 가능
   - 웹 애플리케이션에 좋음
   - 사이트 상호 작용 활발
+  - TTV와 TTI가 일치
 - 단점
   - 검색엔진 최적화(SEO, Search Engine Optimization)가 어려움
   - 초기 로딩에 많은 시간이 걸림
@@ -86,15 +87,15 @@ Gatsby는 정적 사이트 생성(SSG)을 위해 사용하는 프레임워크로
 
 ```typescript
 // [id].ts
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
 
 export default () => {
-  const router = useRouter()
+  const router = useRouter();
   useEffect(() => {
-    console.log(router.query.id)
-  })
-}
+    console.log(router.query.id);
+  });
+};
 ```
 
 #### routing
@@ -201,32 +202,32 @@ export default class MyDocument extends Document {
 
 ```typescript
 // document.ts
-import React from 'react'
-import Document, { Html, Head, Main, NextScript } from 'next/document'
-import { ServerStyleSheets } from '@mui/styles'
+import React from 'react';
+import Document, { Html, Head, Main, NextScript } from 'next/document';
+import { ServerStyleSheets } from '@mui/styles';
 
 export default class MyDocument extends Document {
   static getInitialProps = async (ctx) => {
-    const materialSheets = new ServerStyleSheets()
-    const originalRenderPage = ctx.renderPage
+    const materialSheets = new ServerStyleSheets();
+    const originalRenderPage = ctx.renderPage;
 
     ctx.renderPage = () =>
       originalRenderPage({
         enhanceApp: (App) => (props) =>
           materialSheets.collect(<App {...props} />),
-      })
+      });
 
-    const initialProps = await Document.getInitialProps(ctx)
+    const initialProps = await Document.getInitialProps(ctx);
     return {
       ...initialProps,
       styles: <>{initialProps.styles}</>,
-    }
-  }
+    };
+  };
 }
 
 // app.ts
-import type { AppProps } from 'next/app'
-import CssBaseline from '@mui/material/CssBaseline'
+import type { AppProps } from 'next/app';
+import CssBaseline from '@mui/material/CssBaseline';
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
@@ -234,10 +235,10 @@ const App = ({ Component, pageProps }: AppProps) => {
       <CssBaseline />
       <Component {...pageProps} />
     </>
-  )
-}
+  );
+};
 
-export default App
+export default App;
 ```
 
 **styled component 사용법**
@@ -308,23 +309,23 @@ next에서는 \_app -> page component 순으로 페이지가 렌더링된다.
 ```typescript
 // app.ts
 function MyApp({ Component, pageProps }) {
-  return <Component ponent {...pageProps} />
+  return <Component ponent {...pageProps} />;
 }
 
 MyApp.getInitialProps = async ({ Component, ctx }) => {
-  let pageProps = {}
+  let pageProps = {};
   // 하위 컴포넌트에 getInitialProps가 있다면 추가 (각 개별 컴포넌트에서 사용할 값 추가)
   if (Component.getInitialProps) {
-    pageProps = await Component.getInitialProps(ctx)
+    pageProps = await Component.getInitialProps(ctx);
   }
 
   // _app에서 props 추가 (모든 컴포넌트에서 공통적으로 사용할 값 추가)
-  pageProps = { ...pageProps, extra: { id: 1234, property: 'what' } }
+  pageProps = { ...pageProps, extra: { id: 1234, property: 'what' } };
 
-  return { pageProps }
-}
+  return { pageProps };
+};
 
-export default MyApp
+export default MyApp;
 ```
 
 **2. getInitialProps는 서버에서 실행된다**
@@ -351,23 +352,23 @@ function Blog({ posts }) {
         <li>{post.title}</li>
       ))}
     </ul>
-  )
+  );
 }
 
 // This function gets called at build time on server-side.
 // It won't be called on client-side, so you can even do direct database queries.
 export async function getStaticProps() {
-  const res = await fetch('https://.../posts') // any data fetching library. ex) swr
-  const posts = await res.json()
+  const res = await fetch('https://.../posts'); // any data fetching library. ex) swr
+  const posts = await res.json();
 
   return {
     props: {
       posts,
     },
-  }
+  };
 }
 
-export default Blog
+export default Blog;
 ```
 
 **getStaticPaths**  
@@ -414,25 +415,25 @@ function Page({ data }) {
 
 // This gets called on every request
 export async function getServerSideProps() {
-  const res = await fetch(`https://.../data`)
-  const data = await res.json()
+  const res = await fetch(`https://.../data`);
+  const data = await res.json();
 
   // Pass data to the page via props
-  return { props: { data } }
+  return { props: { data } };
 }
 
-export default Page
+export default Page;
 
 // 캐시하는 방법
 export async function getServerSideProps({ req, res }) {
   res.setHeader(
     'Cache-Control',
     'public, s-maxage=10, stale-while-revalidate=59'
-  )
+  );
 
   return {
     props: {},
-  }
+  };
 }
 ```
 
