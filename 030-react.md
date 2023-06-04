@@ -342,6 +342,60 @@ react v16.8에서 hook이라는 개념이 등장하면서 함수형 컴포넌트
 `useState` 훅이 등장하면서 함수형 컴포넌트에서 별도로 state 관리가 가능해졌고 'lift the state up'과 같은 방법을 사용하지 않을 수 있게 되었다.  
 `useState`는 JS의 [클로저](https://github.com/mochang2/development-diary/blob/main/025-fundamentals%20of%20js.md#3-closure)라는 개념을 활용하여 구현했다고 한다.
 
+_추가 사항_  
+참고  
+https://overreacted.io/why-do-hooks-rely-on-call-order/  
+https://pozafly.github.io/react/react-is-managing-hooks-as-an-array/
+
+`useState`는 state를 배열(정확히 말하면 Linked List)에 넣어서 관리한다.  
+그렇다면 왜 배열일까?  
+고유한 key값이 있는 객체나 `Map`은 안될까?
+
+```js
+const [value1, setValue1] = useState(true);
+const [value2, setValue2] = useState(true);
+```
+
+위와 같이 선언하면 사용자는 `value1`, `value2` 각각이 가리키는 값이 무엇인지 안다.  
+하지만 React 입장에서는 state를 index로 접근 가능한 배열 형태로 관리하지 않는다면, `value1`, `value2`를 구분할 키값이 필요하다.  
+아래와 같이 말이다.
+
+```js
+const [value1, setValue1] = useState('value1', true);
+const [value2, setValue2] = useState('value2', true);
+```
+
+`useState`는 정말 많이 사용되는 훅인데 매번 key값이 중복되는지, 아닌지 체크하다보면 편의성이 떨어질 것이다.  
+Context API 등에서도 key 값이 같으면 더 먼 Provider에서 제공된 값이 덮어씌어지는 것처럼 [믹스인 다중 상속 문제](https://pozafly.github.io/react/react-is-managing-hooks-as-an-array/#%EB%AF%B9%EC%8A%A4%EC%9D%B8-%EB%8B%A4%EC%A4%91-%EC%83%81%EC%86%8D-%EB%AC%B8%EC%A0%9C%EB%8B%A4%EC%9D%B4%EC%95%84%EB%AA%AC%EB%93%9C-%EB%AC%B8%EC%A0%9C)가 발생하는 것을 피해야 하기 때문이다.
+
+그렇다면 JS의 `Symbol` 기능을 선택한다면 괜찮지 않을까?
+
+```js
+const symbol1 = Symbol();
+
+function useCustomHook() {
+  const [value, setValue] = useState(symbol1);
+  return [value, setValue];
+}
+```
+
+React는 동일한 로직을 반복해서 선언하지 않도록 custom hook 기능을 제공한다.  
+하지만 `Symbol`을 사용한다면 위와 같이 `Symbol`이 custom hook이 외부에서 선언되기 때문에 `useCustomHook`을 여러 곳에서 반복적으로 호출할 수 없다.  
+`useCustomHook`을 사용하는 각각의 컴포넌트가 다른 value를 가지고 있어야 되는데 모두 동일한 value를 가리키게 되기 때문이다.
+
+마지막으로 hook 간에 데이터 전달이 불가능해진다.  
+[React Spring](https://medium.com/@drcmda/hooks-in-react-spring-a-tutorial-c6c436ad7ee4)이라는 서로 연쇄되는 값을 이용해 애니메이션을 만들 수 있는 모듈이 있다.
+
+```js
+const [{ pos1 }, set] = useSpring({ pos1: [0, 0], config: fast });
+const [{ pos2 }] = useSpring({ pos2: pos1, config: slow });
+const [{ pos3 }] = useSpring({ pos3: pos2, config: slow });
+```
+
+key값을 이용해 state를 관리한다면 같은 훅 간에 데이터를 전달하고 연쇄되는 동작을 표현할 수 없다.
+
+이러한 이유 때문에 React 팀은 개발자가 key값을 관리할 필요 없는 배열을 선택한 것 같다.
+
 _참고) hook 사용 규칙_
 
 1. 최상위(at the Top Level)에서만 hook을 호출해야 한다. 컴포넌트가 렌더링 될 때마다 항상 동일한 순서로 hook이 호출되기 위해서는 반복문, 조건문 또는 중첩된 함수 내에서 hook을 호출하면 안 된다.
