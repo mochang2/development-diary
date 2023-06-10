@@ -269,18 +269,44 @@ hoisting을 사용하지 않기 때문에, 예기치 못한 버그를 쉽게 일
 zip 파일을 이용해 패키지를 관리하기 때문에 빠진 의존성을 찾거나 의존성 파일이 변경되었음을 찾기 쉽다.  
 `node_modules`를 이용해 의존성을 관리했을 때는 폴더의 의존성 검증이 어려웠기 때문에 차라리 `node_modules`를 전부 지우고 다시 설치해야 했다.
 
-## 4. zero-install
+#### 6) zero-install
 
 의존성도 git을 이용해 버전관리를 한다는 개념이다.  
 yarn pnp는 의존성을 압축 파일로 관리하기 때문에 의존성의 용량이 작다.  
 이 때문에 의존성도 git으로 관리할 수 있다.
 
-### 장점
+## 4. `.yarn` 구조
 
-1. 새로 저장소를 복제하거나 브랜치를 바꾸었다고 해서 `yarn (install)`을 실행하지 않아도 된다.
-2. CI에서 의존성 설치하는 시간을 크게 절약할 수 있다.
+### 1) cache
 
-## 4. 사용법
+프로젝트의 의존성 패키지를 캐싱하는 데 사용되는 파일들이 저장된다.  
+이 캐시는 로컬 머신에서 패키지를 다운로드하거나 패키지를 빌드할 때 사용된다.  
+나중에 동일한 패키지를 다시 설치할 때 다시 다운로드할 필요 없이 캐시된 버전을 사용할 수 있다(zero-install).  
+기존에 `npm install`을 시행할 때 설치되던 패키지들이 압축된 형태(zip 또는 tarball)로 저장된다.
+
+### 2) releases
+
+yarn berry 자체의 실행 가능한 파일(`yarn-berry.cjs`)이 저장된다.  
+즉, yarn berry의 실행 파일이다.
+
+### 3) sdks
+
+eslint, typescript 등 해당 프로젝트를 진행할 때 필요한 sdk가 설치된다.
+
+### 4) unplugged
+
+> A package being unplugged means that instead of being referenced directly through its archive, it will be unpacked at install time in the directory configured via pnpUnpluggedFolder. Note that unpacking packages this way is generally not recommended because it'll make it harder to store your packages within the repository. However, it's a good approach to quickly and safely debug some packages, and can even sometimes be required depending on the context (for example when the package contains shellscripts).
+
+바이너리 종속성이 있는 경우(주로 C/C++로 작성된 패키지) 또는 필수 빌드 의존성이 있는 경우, 즉 컴파일러와 같은 복잡한 의존성이 필요한 패키지의 경우 컴파일된 결과물이 저장된다.  
+unplugged를 이용하여 패키지 설치 시간을 단축하고, 의존성을 컴파일하는 데 필요한 빌드 도구의 부담을 줄일 수 있다.
+
+다만 이 때문에 서로 다른 OS에서 개발을 진행할 경우 호환되지 않을 수 있다.  
+실제로 나는 Windows11에서 진행하던 프로젝트를 종종 Windows10에서 진행하려고 하니 `next-swc` 같은 패키지가 Windows10 운영 체제에 맞게 컴파일되지 않아 호환되지 않았다.  
+이럴 경우 `.yarn/unplugged`를 삭제한 후 `yarn install --immutable`을 통해 `.yarn/unplugged`를 재설치해야 한다.
+
+### 5) install-state.gz
+
+## 5. 사용법
 
 참고: https://velog.io/@altmshfkgudtjr/yarn2%EC%99%80-%ED%95%A8%EA%BB%98-Plug-n-Play%EB%A5%BC-%EC%A0%81%EC%9A%A9%ED%95%B4%EB%B3%B4%EC%9E%90  
 npm으로 yarn을 설치한 뒤 `yarn set version berry`를 이미 했다고 가정한 뒤 진행한다.
