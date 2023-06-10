@@ -302,7 +302,10 @@ unplugged를 이용하여 패키지 설치 시간을 단축하고, 의존성을 
 
 다만 이 때문에 서로 다른 OS에서 개발을 진행할 경우 호환되지 않을 수 있다.  
 실제로 나는 Windows11에서 진행하던 프로젝트를 종종 Windows10에서 진행하려고 하니 `next-swc` 같은 패키지가 Windows10 운영 체제에 맞게 컴파일되지 않아 호환되지 않았다.  
-이럴 경우 `.yarn/unplugged`를 삭제한 후 `yarn install --immutable`을 통해 `.yarn/unplugged`를 재설치해야 한다.
+그래서 애초에 이 부분은 gitignore하는 게 맞다.
+
++) 만약 gitignore하지 않았었더라면  
+`.yarn/unplugged`를 삭제한 후 `yarn install --immutable`을 통해 `.yarn/unplugged`를 재설치해야 한다.
 
 ### 5) install-state.gz
 
