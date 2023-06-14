@@ -341,8 +341,8 @@ react에서 렌더링은 컴포넌트가 현재 props와 state의 상태에 기�
 
 react는 이 단계를 의도적으로 다음 두 가지 단계로 분류하였다.
 
-- Render phase: 컴포넌트를 렌더링하고 변경사항을 계산하는 모든 작업
-- Commit phase: 돔에 변경사항을 적용하는 과정
+- Render phase: 컴포넌트를 렌더링하고 변경사항을 계산하는 모든 작업(element 추가, 수정, 삭제 등 reconciler가 컴포넌트의 변경을 DOM에 적용하기 위해 수행하는 일을 scheduler에 등록)
+- Commit phase: 돔에 변경사항을 적용하는 과정(DOM 조작을 일괄처리한 후 React가 콜스택을 비움. 이후 브라우저가 paint 시작)
 
 _cf) 권고하지 않는 사항_
 
