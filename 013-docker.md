@@ -33,10 +33,62 @@ cf) _hypervisor type_
   - **플랫폼 의존적.** 도커는 Linux에서만 실행가능. Windows나 MacOS는 별도의 프로그램이 동작해야 함.
   - **bare-metal 방식 보다는 느림.**
   - **docker를 이용하여 GUI 앱을 돌리기에는 불편.**
+  - 불필요한 리소스 사용. 이 때문에 이미지, 네트워크, 볼륨 등 사용하지 않는 부분은 적절히 삭제 필요.
+
+_cf) 불필요한 리소스 사용_  
+[마음을 전해요 사이드 프로젝트](https://github.com/meopin-top/convey-your-mind-FE) 진행 시 해당 단점 때문에 고민했던 부분이 있다.  
+~정답이 아닐 수도 있다. 만약 이후에 운영하다가 새로운 해결법을 알거나 잘못된 부분이 있으면 수정하겠다.~  
+프로젝트 진행 시 매번
+
+- ssh 연결
+- 기존 서버 종료
+- `git pull`
+- `yarn build`
+- `yarn start`
+
+를 하기 싫어 github actions를 이용해 배포를 자동화했다.  
+그래서 [github actions](https://github.com/meopin-top/convey-your-mind-FE/blob/main/.github/workflows/push_ci-cd.yaml)에서
+
+- `docker build`
+- `docker push 새로운 태그의 이미지`
+- ssh 연결
+- `docker pull 새로운 태그의 이미지`
+- `docker stop 기존 태그의 컨테이너`
+- `docker rm 기존 태그의 컨테이너`
+- `docker run 새로운 태그의 컨테이너`
+- `docker image rune`
+- `docker rmi 기존 태그의 이미지`
+
+와 같은 순서로 배포를 진행했다.  
+참고로 오케스트레이션 도구를 쓰거나 여러 개의 서버를 구동하고 있던 것이 아니었기 때문에, 기존 태그의 컨테이너와 새로운 태그의 컨테이너가 같은 포트를 사용해야 됐기 때문에 기존 태그의 컨테이너를 종료하기 전까지 새로운 태그의 컨테이너를 실행할 수 없었다.  
+즉, rolling update 같은 방식을 통한 zero-downtime은 불가능했다.  
+또한 어플리케이션(서비스) 버전이 올라갈 때마다 docker hub에 태그를 바꿔서 이미지를 새로 업로드했는데, 이는 도커 이미지를 서비스와 같은 버전으로 관리하여 변경 사항 추적을 용이하게 하기 위해서였다.
+
+명령어를 위와 같은 순서로 진행하는 데에는 다음과 같은 3가지 목적이 있었다.
+
+1. **downtime 최소화**
+2. **네트워크 통신 최소화**
+3. **디스크 용량 낭비 최소화**
+
+이를 이해하기 위해서 [docker layer](https://github.com/mochang2/development-diary/blob/main/013-docker.md#3-docker-image-layer)을 한 번 보고 오자.  
+docker layer에 대해 안다면 `docker rmi` 동작 방식도 한 번 짚고 넘어가자.
+
+<img src="https://github.com/mochang2/development-diary/assets/63287638/3ea8ec39-d92d-4efc-aded-e9148f21be03" alt="docker rmi" width="700" height="auto" />
+
+출처: ChatGPT(나도 직접 ubuntu 서버에서 여러 tag를 가지고 실험했는데 이 말이 맞는 거 같다)
+
+이 개념을 활용하여 **downtime 최소화**와 **네트워크 통신 최소화**를 달성하기 위해 `docker stop` -> `docker rm` -> `docker rmi` -> `docker pull` -> `docker run`을 진행하지 않고 `docker pull`과 `docker run` 사이에 `docker stop`과 `docker rm`을 실행했다.  
+`docker pull`을 실행함으로써 새로운 layer(기존 태그와 새로운 태그의 이미지 간 다른 layer)를 다운로드하는 시간만큼 늘어나는 downtime을 줄이기 위해서이다(하지만 위에서 말한대로 여전히 downtime은 존재한다).  
+또한 `docker rmi`를 가장 마지막에 실행함으로써 기존 태그의 이미지와 새로운 태그의 이미지는 공유하는 docker layer는 `docker pull` 명령 실행 시 다운로드하지 않아도 됐다.  
+(새로운 태그의 컨테이너를 실행해도 `docker rmi`는 사용하지 않는 layer만 삭제해주므로 서비스 실행에는 문제가 없었다)  
+**디스크 용량 낭비 최소화**를 위해 `docker rmi` 이외에도 `docker image prune`을 진행했다.  
+이 명령어는 dangling된 이미지를 삭제해주는 명령어이다.  
+이외에도 network, volume 등도 prune이 가능했지만, convey-your-mind-fe 컨테이너에서는 사용하지 않았기 때문에 따로 진행하지 않았다(이 부분은 API의 github actions에서 진행하는 게 맞는 것 같다).
 
 ## 2. 도커 라이프 사이클
 
-<img src="https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2Fdpg8ad%2Fbtq7p8EQS7r%2FLonFV2oDMsiAnO9nobx8hK%2Fimg.jpg" alt=" " width="500" height="auto" />  
+<img src="https://github.com/mochang2/development-diary/assets/63287638/a308716a-0051-4e3f-87ce-6ab90bf3ddd7" alt=" " width="500" height="auto" />
+
 출처: https://jaimemin.tistory.com/1829
 
 <br/>위 그림을 설명하자면 이미지는 레지스트리에서 pull을 받아서 사용할 수 있고, 반대로 원하는 이미지가 있다면 도커 허브에 이미지를 push할 수 있다.  
