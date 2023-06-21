@@ -712,6 +712,31 @@ _side effects 실험_
 side effects가 효과가 있는지에 대한 실험은 [stack overflow](https://stackoverflow.com/questions/49160752/what-does-webpack-4-expect-from-a-package-with-sideeffects-false)에 있으니 여기를 참고하자.  
 결론: side effects를 가진 모듈이 적을수록 번들 사이즈가 줄어든다.
 
+### 6) 사진 포맷 변경
+
+참고: https://developers.google.com/speed/webp?hl=ko
+
+내가 입사하기 전에 회사에서 사용하는 이미지 포맷을 전부 webp로 전환한 적이 있다.  
+그리고 [마음을 전해요 사이드 프로젝트](https://github.com/meopin-top/convey-your-mind-FE) 진행 시에도 (귀찮지만...) 서버에서 사진을 webp로 전환했다.  
+사진 용량을 줄임으로써 로딩 속도, 부하 등을 최소화하기 위해서이다.
+
+webp는 구글에서 만든 새로운 이미지 포맷이다.  
+구글에 따르면 다음과 같은 장점이 있다.
+
+> WebP는 웹에서 이미지에 우수한 무손실 및 손실 압축을 제공하는 최신 이미지 형식입니다. 웹마스터와 웹 개발자는 WebP를 사용하여 더 작고 풍부한 이미지를 만들어 웹을 더 빠르게 만들 수 있습니다.
+> WebP 무손실 이미지는 PNG에 비해 크기가 26% 더 작습니다. WebP 손실 이미지는 동등한 SSIM 품질 색인에서 비슷한 JPEG 이미지보다 25~34% 더 작습니다.
+> 무손실 WebP는 22% 추가 바이트의 비용으로 투명성을 지원(알파 채널이라고도 함)합니다. 손실 RGB 압축이 허용되는 경우 손실 WebP는 투명도도 지원하며, 일반적으로 PNG에 비해 3배 더 작은 파일 크기를 제공합니다.
+> 손실, 투명도, 투명도는 모두 애니메이션 WebP 이미지에서 지원되며 GIF 및 APNG에 비해 축소된 크기를 제공할 수 있습니다.
+
+[caniuse](https://caniuse.com/webp)에 따르면 23년 6월 현재 대부분의 브라우저에서 webp 형식을 제공한다.  
+~IE는 어차피 알바 아니니까...~
+
+![caniuse-webp](https://github.com/mochang2/development-diary/assets/63287638/b7c495c8-2f77-4b6c-8ef7-ebe8511c6e49)
+
+### 7) 압축
+
+TODO: 적용해본 뒤 추가하기
+
 ## 3. 초기 렌더링 빠르게 하기
 
 ### 1) additional HTML wrapper 최소화
