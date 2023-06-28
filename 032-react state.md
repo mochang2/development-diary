@@ -1430,7 +1430,8 @@ Provider가 없더라도 atom을 선언할 때 설정된 기본 값을 가진 at
 https://fe-developers.kakaoent.com/2022/220224-data-fetching-libs/  
 https://goongoguma.github.io/2021/11/04/React-Query-vs-SWR/  
 https://velog.io/@seohee0112/React-Query-vs-SWR  
-https://tech.madup.com/react-query-vs-swr/
+https://tech.madup.com/react-query-vs-swr/  
+https://soobing.github.io/react/How-to-manage-server-state-with-React-Query/
 
 ~react-query의 코드 예시나 best practice에 대한 내용은 추후에 추가 예정~
 
