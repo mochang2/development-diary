@@ -1004,6 +1004,10 @@ new Child().getName(); // parent
 이벤트 버블링은 특정 화면 요소에서 이벤트가 발생했을 때 해당 이벤트가 더 상위의 화면 요소들로 전달되어 가는 특성을 의미한다.  
 아래와 같이 코드를 짰을 경우, `div3`를 눌렀을 때, 'click `div3`' -> 'click `div2`' -> 'click `div1`' 순으로 alert가 실행된다.
 
+_참고)_  
+이벤트 발생 시 event capturing -> target -> event bubbling의 순서대로 실행된다.  
+이때 이벤트 핸들러는 (별다른 옵션을 주지 않는다면 기본적으로)event bubbling 단계에서 시작되기 때문이다.
+
 ```html
 <!DOCTYPE html>
 
