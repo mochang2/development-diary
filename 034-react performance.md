@@ -714,7 +714,8 @@ side effects가 효과가 있는지에 대한 실험은 [stack overflow](https:/
 
 ### 6) 사진 포맷 변경
 
-참고: https://developers.google.com/speed/webp?hl=ko
+참고  
+https://developers.google.com/speed/webp?hl=ko
 
 내가 입사하기 전에 회사에서 사용하는 이미지 포맷을 전부 webp로 전환한 적이 있다.  
 그리고 [마음을 전해요 사이드 프로젝트](https://github.com/meopin-top/convey-your-mind-FE) 진행 시에도 (귀찮지만...) 서버에서 사진을 webp로 전환했다.  
@@ -733,7 +734,107 @@ webp는 구글에서 만든 새로운 이미지 포맷이다.
 
 ![caniuse-webp](https://github.com/mochang2/development-diary/assets/63287638/b7c495c8-2f77-4b6c-8ef7-ebe8511c6e49)
 
-### 7) 압축
+### 7) font
+
+참고 및 출처  
+https://yceffort.kr/2021/06/ways-to-faster-web-fonts  
+https://whales.tistory.com/66  
+https://developer.chrome.com/blog/font-fallbacks/
+
+#### 개념
+
+- typeface: 서체. 글꼴 전체를 의미. 굵기나 스타일 등이 포함됨(Helvetica).
+- font: 글꼴. 단일 굵기와 스타일을 포함(10px Helvetica bold).
+- web font: 웹에서 사용 가능한 font. 사용자 로컬에 font가 없어도 브라우저가 외부 static file을 불러와서 페이지에 적용시켜 보여줄 수 있음. 다만 기본적으로 무거워서 UX를 저해시키는 요소가 존재.
+
+#### format
+
+**woff2, woff를 쓰자**  
+여러 포맷 중 일반적으로 woff2 > woff > ttf > eot > svg 순으로 파일 크기가 작아 로딩 속도가 빠르다.
+
+```scss
+@font-face {
+  font-family: hanna-11-years;
+  src: url('../fonts/bm-hanna-11-years.woff2') format('woff2'), // 브라우저에 선언된 순서대로 지원 가능한 파일 형식을 다운로드 하기 때문에 woff2를 가장 먼저 선언
+    url('../fonts/bm-hanna-11-years.woff') format('woff'); // format은 브라우저가 이해할 수 있도록 써주는 습관을 가지자
+}
+```
+
+만약 시스템에 설치된 font로도 충분하다면 `local(sans-serif)` 등으로 명시를 해 font를 다운로드 받지 않게 할 수도 있다.
+
+[caniuse woff2, woff](https://caniuse.com)에 따르면 23년 7월 현재 대부분의 브라우저에서 woff 형식을 제공하고 woff2도 IE와 opera mini를 제외하고 모든 브라우저에서 지원한다.
+
+#### font-display
+
+- Flash of Invisible Text(FOIT): 브라우저가 font를 다운로드하기 전에 font가 보이지 않는 현상. 대부분의 모던 브라우저의 기본 속성.
+- Flash of Unstyled Text(FOUT): 브라우저가 font를 다운로드하기 전에 font가 적용되지 않은 글자가 보이는 현상. IE 등의 브라우저의 기본 속성.
+
+글에 적힌 내용이 중요하다면 FOUT 방식이 UX에 더 좋은 영향을 끼칠 것이다.  
+이럴 때 `font-display: swap`을 추천한다.
+
+- auto: 브라우저 기본 옵션 적용.
+- swap: web font가 로딩되기 전까지 fallback font로 글자를 보여주는 것.
+- block: 3초 이전까지 web font가 로딩되지 않으면 글자를 보여주지 않다가 web font가 로딩되면 글자를 보여줌. web font가 3초 이후에 로딩되면 3초 이후부터는 fallback font를 보여주다가 web font 로딩 이후 web font를 적용해서 보여줌.
+- fallback: 0.1초 정도 글자가 보이지 않는 블록이 발생하며, 이후에는 fallback font를 보여줌. web font가 3초 이내로 다운로드 되지 않는다면, web font 다운로드와 상관없이 앞으로 계속 fallback font가 보여짐.
+- optional: 우선 0.1초 동안 글자가 보이지 않고 그 후 fallback font로 전환. web font를 다운로드하지만 브라우저가 네트워크 상태를 파악해 네트워크의 연결 상태가 안 좋으면 web font의 다운로드가 완료되어도 캐시에 저장만 하고 전환은 하지 않음.
+
+#### preload
+
+특정 리소스를 미리 로드하면 현재 페이지에 중요하다고 확신하기 때문에 브라우저가 검색할 때보다 더 빨리 가져오고 싶다고 알리는 기능이다.
+
+[참고](https://github.com/mochang2/development-diary/blob/main/046-css%20performance.md#preload)
+
+#### subset font
+
+subset font는 불필요한 글자를 제거하고 사용할 글자만 남겨둔 폰트이다.  
+영어는 26개 알파벳으로 이루어져 있고 영문 폰트에는 대소문자를 포함해 총 72자의 글자가 필요하지만 한글은 자음, 모음의 조합으로 구성되어 있기 때문에 모든 경우를 조합하면 한글의 글자 수는 11,172자나 된다.  
+그래서 일반적으로 한글 폰트 파일은 영문 폰트 파일보다 용량이 크다.  
+"갂, 갃, 갅, 갆, 갋, 갌, 갍, 갎, 갏, 갘" 등 거의 사용되지 않는 불필요한 글자를 폰트에서 제거하고 사용할 글자만 남겨 둔 subset font는 기본 font보다 용량이 작다.
+
+#### font fallback
+
+TODO: 적용해봤으나 육안으로 달라지는 것은 모르겠더라... 서비스 배포 이후에 웹 성능 지표에서 CLS를 확인해봐야 할 것 같다.
+
+참고로 이 부분은 성능과는 크게 관련이 없다.  
+단순히 UX 향상에 도움이 되는 부분인데 ~그냥 공부한 김에 같이 추가하고 있다.~
+
+모든 폰트마다 높낮이, 기본 사이즈 등이 달라서 폰트 적용 전과 후에 Layout Shift가 발생하는 경우가 있다.  
+아래 사진을 보면 subtitle 영역에 web font 적용 전후로 Layout이 다른 것을 알 수 있다(미세하지만 카카오톡 로고와 네이버 로고에 차이가 있다).
+
+<div style="display: flex;">
+  <img src="https://github.com/mochang2/development-diary/assets/63287638/9abb5119-8593-4e73-8118-755e11539157" alt="before web font loaded" width="300" />
+  <img src="https://github.com/mochang2/development-diary/assets/63287638/aedc9cb1-771a-4ff3-82fa-2cb562550ff8" alt="after web font loaded" width="300" />
+</div>
+
+![font 설명](https://github.com/mochang2/development-diary/assets/63287638/19b5a266-449d-4bb6-9661-fa19c9af283b)
+
+폰트에는 위와 같은 속성이 있기 때문이다.
+
+- Ascent: measures the furthest distance that a font’s glyphs extend above the baseline.
+- Descent: measures the furthest distance that a font’s glyphs extend below the baseline.
+- Line gap(leading): measures the distance between successive lines of text.
+
+아래와 같은 방식으로 선언하면 된다.
+
+```scss
+@font-face {
+  font-family: hanna-11-years;
+  src: url('../fonts/bm-hanna-11-years.woff2') format('woff2'), url('../fonts/bm-hanna-11-years.woff')
+      format('woff');
+}
+
+@font-face {
+  font-family: 'hanna-11-years fallback';
+  src: local('Segoe UI'), local('Roboto'), local(sans-serif); // ChatGPT에게 물었을 때 한나는 11살체와 비슷한 너~낌의 font들이란다
+  ascent-override: 80%;
+  descent-override: 20%;
+}
+```
+
+_참고)_  
+https://vertical-metrics.netlify.app/ 에서 font를 업로드하면 ascent, descent, units per em을 구할 수 있다.
+
+### 8) 압축
 
 TODO: 적용해본 뒤 추가하기
 
