@@ -793,8 +793,6 @@ subset font는 불필요한 글자를 제거하고 사용할 글자만 남겨둔
 
 #### font fallback
 
-TODO: 적용해봤으나 육안으로 달라지는 것은 모르겠더라... 서비스 배포 이후에 웹 성능 지표에서 CLS를 확인해봐야 할 것 같다.
-
 참고로 이 부분은 성능과는 크게 관련이 없다.  
 단순히 UX 향상에 도움이 되는 부분인데 ~그냥 공부한 김에 같이 추가하고 있다.~
 
@@ -832,7 +830,10 @@ TODO: 적용해봤으나 육안으로 달라지는 것은 모르겠더라... 서
 ```
 
 _참고)_  
-https://vertical-metrics.netlify.app/ 에서 font를 업로드하면 ascent, descent, units per em을 구할 수 있다.
+https://vertical-metrics.netlify.app/ 에서 font를 업로드하면 ascent, descent, units per em을 구할 수 있다.  
+사이드 프로젝트에서 적용해봤으나 육안으로 달라지는 것은 모르겠어서(여전히 CLS 발생) 브라우저 지원 범위인지, 한글은 지원이 안 되는지, 수치가 잘못됐는지, override 속성이 지원 안되는 폰트인지 찾아봤으나 이것들이 원인이 아니었다.  
+폰트마다 가지고 있는 `font-weight`, `font-stretch` 등의 속성 또한 반영이 돼서 생기는 문제였다.  
+~결국 내가 만든 폰트도 아니고 배민 폰트 관련돼서 더 공개된 내용도 없어서 override 속성 적용으로 CLS 해결은 포기했다.~
 
 ### 8) 압축
 
