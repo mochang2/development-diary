@@ -327,7 +327,9 @@ SPA로 제작된 큰 규모의 웹 페이지라면 virtual DOM을 사용해서 �
 
 ### React에서의 렌더링
 
-참고: https://yceffort.kr/2022/04/deep-dive-in-react-rendering
+참고 및 사진 출처  
+https://yceffort.kr/2022/04/deep-dive-in-react-rendering  
+https://vercel.com/blog/how-react-18-improves-application-performance
 
 react에서 렌더링은 컴포넌트가 현재 props와 state의 상태에 기초하여 UI를 어떻게 구성할지 컴포넌트를 호출한 후 재조정(Virtual DOM diffing -> renderer가 Real DOM에 이 내용을 삽입)하는 작업을 말한다.  
 간단히 말하면 렌더링은 DOM 업데이트를 말하며, 따라서 가시적인 변경이 없어도 컴포넌트가 렌더링될 수 있다.
@@ -343,6 +345,8 @@ react는 이 단계를 의도적으로 다음 두 가지 단계로 분류하였�
 
 - Render phase: 컴포넌트를 렌더링하고 변경사항을 계산하는 모든 작업(element 추가, 수정, 삭제 등 reconciler가 컴포넌트의 변경을 DOM에 적용하기 위해 수행하는 일을 scheduler에 등록)
 - Commit phase: 돔에 변경사항을 적용하는 과정(DOM 조작을 일괄처리한 후 React가 콜스택을 비움. 이후 브라우저가 paint 시작)
+
+![react phases](https://github.com/mochang2/development-diary/assets/63287638/4d8dc6dc-82f7-46bc-9674-4ae3f2d7cc3d)
 
 _cf) 권고하지 않는 사항_
 
