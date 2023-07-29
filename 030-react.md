@@ -749,7 +749,10 @@ const TodoList = withLoadingFeedback(
 
 ## 4. 포탈
 
-참고: https://jeonghwan-kim.github.io/2022/06/02/react-portal , https://velog.io/@dfd1123/react-create-portal-%EC%97%90-%EB%8C%80%ED%95%98%EC%97%AC , https://ko.reactjs.org/docs/portals.html
+참고  
+https://jeonghwan-kim.github.io/2022/06/02/react-portal  
+https://velog.io/@dfd1123/react-create-portal-%EC%97%90-%EB%8C%80%ED%95%98%EC%97%AC  
+https://ko.reactjs.org/docs/portals.html
 
 > Portal은 부모 컴포넌트의 DOM 계층 구조 바깥에 있는 DOM 노드로 자식을 렌더링하는 최고의 방법을 제공합니다.
 
@@ -803,6 +806,10 @@ function App() {
 
 export default App;
 ```
+
+### vs shadow DOM
+
+혹시 둘이 뭐가 다른가 싶으면 [여기](https://github.com/mochang2/development-diary/blob/main/050-shadow%20dom.md#vs-react-portal)를 확인하자.
 
 ## 5. forwardRef
 
