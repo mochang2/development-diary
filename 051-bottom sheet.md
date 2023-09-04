@@ -198,6 +198,41 @@ export default BottomSheet;
 
 ## 3. history API
 
+브라우저 히스토리(스택)를 조작하는 API이다.  
+참고로 [BrowserRouter vs HistoryRouter](https://github.com/mochang2/development-diary/blob/main/033-vanilla%20js.md#9-history)에서도 비교했듯이 history API는 SPA에서 라우팅을 위해 자주 사용되는 API이다(물론 화면을 바꿔야하기 때문에 라이브러리나 프레임워크에 따라 추가적인 조작은 가미된다).  
+~(이건 정확하진 않은데... 그래서 내 기억에 React에서 단순히 `history.pushState` 사용하면 state는 변경되어도 원하는 페이지로 바뀌지 않는다)~
+
+### location API
+
+반면 이 API는 현재 페이지의 URL을 조작하기 위한 API이다.
+
+React 개발 도중 `location.href` 이런 문구를 몇 번 써봤어서... 그러면 history API하고 다른 게 뭐지...? 싶어서 한 번 공부하는 김에 정리해봤다.  
+가장 헷갈렸던 부분은 `history.pushState`와 `location.href`였다.  
+
+이 두 부분만 먼저 간단히 정리하자면 `history.pushState`는 HTTP 요청이나 페이지 새로고침이 없지만 어플리케이션 상태를 유지할 수 있다.  
+하지만 `location.href`는 HTTP 요청이나 페이지 새로고침이 있지만 어플리케이션 상태를 유지할 수 있다.  
+
+**각각의 API 상세 설명**
+
+- `location.href`: protocol, domain, path, query string, hash 등 포함한 전체적인 URL을 return한다. 직접적으로 '=' 연산자를 통해 할당하고 URL을 수정할 수 있다.
+- `location.protocol`: 현재 페이지의 protocol을 반환한다. 직접적으로 '=' 연산자를 통해 할당하고 URL을 수정할 수 있다.
+- `location.hostname`: 현재 페이지의 hostname을 반환한다. 직접적으로 '=' 연산자를 통해 할당하고 URL을 수정할 수 있다.
+- `location.pathname`: 현재 페이지의 hostname을 반환한다. 직접적으로 '=' 연산자를 통해 할당하고 URL을 수정할 수 있다.
+- `location.search`: 현재 페이지의 query string 반환한다. 직접적으로 '=' 연산자를 통해 할당하고 URL을 수정할 수 있다.
+- `location.hash`: 현재 페이지의 hash을 반환한다. 직접적으로 '=' 연산자를 통해 할당하고 URL을 수정할 수 있다.
+- `location.assign`: *페이지 URL을 설정하고 새로고침*한다. 히스토리에 새로운 스택을 쌓는다.
+- `location.replace`: *페이지 URL을 설정하고 새로고침*한다. 히스토에 최상단 스택을 대체한다.
+
+- `history.back`: 히스토리의 이전 페이지를 불러온다.
+- `history.forward`: 히스토리의 다음 페이지를 불러온다.
+- `history.go`: 히스토리의 몇 번째 페이지를 불러온다.
+- `history.pushState`: *페이지 새로고침 없이 state를 변경*한다. 히스토리에 새로운 스택을 쌓는다.
+- `history.replaceState`: *페이지 새로고침 없이 state를 변경*한다. 히스토리에 최상단 스택을 대체한다.
+
+~(여담이지만... 바텀 시트 작성 때 필요한 지식과는 크게 상관이 없는 비교인 것 같다)~
+
+### 
+
 (작성중)
 
 ## 4. next link
