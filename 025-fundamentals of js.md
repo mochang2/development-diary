@@ -1002,7 +1002,7 @@ new Child().getName(); // parent
 ## 5. Event Bubbling
 
 이벤트 버블링은 특정 화면 요소에서 이벤트가 발생했을 때 해당 이벤트가 더 상위의 화면 요소들로 전달되어 가는 특성을 의미한다.  
-아래와 같이 코드를 짰을 경우, `div3`를 눌렀을 때, 'click `div3`' -> 'click `div2`' -> 'click `div1`' 순으로 alert가 실행된다.
+아래와 같이 코드를 짰을 경우, `div3`를 눌렀을 때, 'click `div3`' -> 'click `div2`' -> 'click `div1`' (-> `document.addEventListener`가 있다면 마지막에 실행) 순으로 alert가 실행된다.
 
 _참고)_  
 이벤트 발생 시 event capturing -> target -> event bubbling의 순서대로 실행된다.  
@@ -1108,7 +1108,7 @@ div1.addEventListener('click', (e) => {
 
 이벤트가 전파되는데, bubbling과는 반대 방향으로 전파된다.  
 즉, 부모의 이벤트가 먼저 실행되는 것이다.  
-아래와 같은 코드면 `click div1` -> `click div2` -> `click div3` 순으로 실행된다.
+아래와 같은 코드면 (`document.addEventListener {capture: true}`가 있다면 처음에 실행 ->) `click div1` -> `click div2` -> `click div3` 순으로 실행된다.
 
 ```javascript
 const div3 = document.getElementById('div3');
