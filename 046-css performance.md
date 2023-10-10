@@ -8,7 +8,8 @@ CSS 성능 향상을 위한 모든 방법은 아니므로 혹시 최적화가 �
 
 https://yceffort.kr/2021/03/improve-css-performance  
 https://pustelto.com/blog/optimizing-css-for-faster-page-loads/  
-https://kinsta.com/blog/optimize-css/
+https://kinsta.com/blog/optimize-css/  
+https://pozafly.github.io/css/explore-how-to-apply-modern-css/#CSS-in-JS-%EB%B8%8C%EB%9D%BC%EC%9A%B0%EC%A0%80-%EC%A0%81%EC%9A%A9-%EB%B0%A9%EB%B2%95
 
 참고 및 사진 출처  
 https://beomy.github.io/tech/browser/critical-rendering-path/#%EB%A6%AC%EC%86%8C%EC%8A%A4-%EC%9A%B0%EC%84%A0%EC%88%9C%EC%9C%84-%EC%A7%80%EC%A0%95  
