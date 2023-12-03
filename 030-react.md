@@ -836,6 +836,201 @@ export default forwardRef(function (props = {}, ref) {
 });
 ```
 
-```jsx
+## 6. flushSync
 
+[react state 2번](https://github.com/mochang2/development-diary/blob/main/032-react%20state.md#props-vs-state)에서 알아봤듯이 state는 비동기적으로 변경된다.  
+이로 인해 API 호출 시 문제가 발생한 적이 있어, 해당 기억을 기록하고자 한다.
+
+```tsx
+'use client';
+
+// import ...
+
+type TResponse = {
+  totalCount: number;
+  projects: TProject[];
+};
+
+const INITIAL_PROJECT_DATA: TResponse = {
+  totalCount: 0,
+  projects: [],
+};
+
+const App = () => {
+  const { getFirstPage, getLastPage } = usePagination();
+
+  const [projectData, setProjectData] =
+    useState<TResponse>(INITIAL_PROJECT_DATA);
+  const [page, setPage] = useState(getFirstPage());
+
+  const searchParams = useSearchParams();
+
+  const [inputPage, handleInputPage, setInputPage] = useInput(
+    getFirstPage().toString()
+  );
+
+  const COUNT_PER_PAGE = 5;
+  const isOpenSearchParams = searchParams.get(OPEN) === ALL_PROJECTS;
+
+  useEffect(() => {
+    if (isOpenSearchParams) {
+      fetchProjectData();
+    }
+  }, [isOpenSearchParams]);
+
+  function clickPaginationArrow(page: number) {
+    setPage(page);
+    handleInputPage({
+      target: { value: page.toString() },
+    } as TInputChangeEvent);
+    fetchProjectData(); // 1 페이지일 때 Pagination 컴포넌트에서 ">" 버튼을 누르면 2 페이지에 대한 API를 호출할 것이라고 기대
+  }
+
+  async function fetchProjectData() {
+    // API 연동
+  }
+
+  return (
+    <>
+      <BottomSheet isOpen={isBottomSheetOpen} onClose={closeBottomSheet}>
+        {/* 렌더링 될 내용 */}
+        <Pagination
+          page={page}
+          inputPage={inputPage}
+          totalCount={projectData.totalCount}
+          countPerPage={COUNT_PER_PAGE}
+          handleInputPage={handleInputPage}
+          clickPaginationArrow={clickPaginationArrow}
+        />
+      </BottomSheet>
+    </>
+  );
+};
+
+export default App;
 ```
+
+위 코드는 페이지네이션에 input 변경 시 또는 페이지네이션의 화살표("<", ">") 클릭 시 자동으로 해당 페이지 API를 호출하고자 했던 내용이다.  
+하지만 page가 원하는 대로 불리지 않았다.  
+예를 들어 현재 1 페이지에서 ">"를 누르면 input은 2로 올바르게 변경되었지만 API는 1페이지를 호출했다.  
+이 문제를 해결하기 위해 `flushSync`라는 기능이 있다는 것을 알고 `setPage`와 `handleInputPage` 부분을 `flushSync`로 감싸봤지만, 올바르게 동작하지 않았다.
+
+알고 보니 `flushSync`는 좀 다른 문제를 해결하기 위해 마련된 기능이었다.  
+아주 심플하게 말한다면 `flushSync`는 `async/await`과 같은 역할이라고 할 수 있겠다.
+
+```tsx
+import { useState } from 'react';
+import { flushSync } from 'react=-dom';
+
+const App = () => {
+  const [count, setCount] = useState(0);
+
+  function handleClick() {
+    flushSync(() => {
+      setCount(count + 1);
+      console.log(count); // 가장 먼저 실행됨 0
+    });
+
+    // 이 시점에 DOM에 렌더링되는 count는 이미 +1된 상태임
+    console.log(count); // 가장 마지막에 실행됨 0
+  }
+
+  useEffect(() => {
+    console.log(count); // 두 번째로 실행됨 1
+  }, [count]);
+
+  return (
+    <div>
+      <button onClick={handleClick}>+1</button>
+      {count}
+    </div>
+  );
+};
+```
+
+위 코드는 DOM에 변경이 반영되는 시점이 워낙 빨라서 잘 확인이 안 되지만 [공식 문서](https://react.dev/reference/react-dom/flushSync) 예시를 보면 더 확실히 알 수 있다.  
+이처럼 `flushSync`는 state의 비동기 업데이트를 동기적으로 메모리에서 반영하기 위한 용도가 아닌, DOM 업데이트에서 반영하기 위한 용도이다.
+
+아래와 같이 input에 `task`을 추가할 때, 그에 맞춰 스크롤이 가장 마지막 `task`를 따라 이동하고 싶다면 `flushSync`를 유용하게 사용할 수 있다.  
+다만, 공식 문서에서 이야기한 것처럼 `flushSync`는 성능에 안 좋은 영향을 끼칠 수 있고 `Suspense`와 사용한다면 강제로 fallback state를 표시할 수 있으므로 사용을 최소화하는 것이 좋다.
+
+```json
+[
+  {
+    "id": "0",
+    "task": "업무1"
+  },
+  {
+    "id": "1",
+    "task": "업무2"
+  },
+  {
+    "id": "2",
+    "task": "업무3"
+  },
+  {
+    "id": "3",
+    "task": "업무4"
+  },
+  {
+    "id": "4",
+    "task": "업무5"
+  },
+  {
+    "id": "5",
+    "task": "업무6"
+  }
+]
+```
+
+```jsx
+import { useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
+import mockTodos from './mock.json';
+
+function App() {
+  const [todos, setTodos] = useState(mockTodos);
+  const [taskInput, setTaskInput] = useState('');
+
+  const listRef = useRef();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!taskInput) return;
+    setTaskInput('');
+    handleAdd(taskInput);
+  };
+
+  const handleAdd = (input) => {
+    setTodos([...todos, { id: todos.length, task: input }]);
+    listRef.current.scrollTop = listRef.current.scrollHeight;
+  };
+
+  return (
+    <section>
+      <h1>Todos</h1>
+      <ul ref={listRef} style={{ height: '100px', overflowY: 'scroll' }}>
+        {todos.map((todo) => (
+          <li key={todo.id}>{todo.task}</li>
+        ))}
+      </ul>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="input 기입"
+          value={taskInput}
+          onChange={(e) => setTaskInput(e.target.value)}
+        />
+        <button>input 추가</button>
+      </form>
+    </section>
+  );
+}
+
+export default App;
+```
+
+_cf) 페이지네이션 해결 방법_  
+React class component에서 `setState`의 callback으로 API를 호출하는 것처럼, `useEffect`를 사용했다.  
+`useEffect`의 dependencies로 `page`를 전달했고, `page`가 변경될 때마다 API를 호출하도록 하니 원하는 대로 동작했다.
