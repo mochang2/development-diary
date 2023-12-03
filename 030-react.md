@@ -916,7 +916,7 @@ export default App;
 이 문제를 해결하기 위해 `flushSync`라는 기능이 있다는 것을 알고 `setPage`와 `handleInputPage` 부분을 `flushSync`로 감싸봤지만, 올바르게 동작하지 않았다.
 
 알고 보니 `flushSync`는 좀 다른 문제를 해결하기 위해 마련된 기능이었다.  
-아주 심플하게 말한다면 `flushSync`는 `async/await`과 같은 역할이라고 할 수 있겠다.
+아주 심플하게 말한다면 `flushSync`는 `async/await`과 같은 역할(또는 Vue의 `await nextTick()`)이라고 할 수 있겠다.
 
 ```tsx
 import { useState } from 'react';

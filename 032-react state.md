@@ -28,7 +28,7 @@ props와 state와 관련해서 자주 실수하는 부분이 있다.
 
 ```jsx
 function Main() {
-  const [users, setUsers] = useState(fakeUsers)
+  const [users, setUsers] = useState(fakeUsers);
 
   const getFakeUsers = () => {
     return new Promise((resolve) =>
@@ -46,24 +46,24 @@ function Main() {
           ),
         2000
       )
-    )
-  }
+    );
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const data = await getFakeUsers()
-      setUsers(data)
-    }
+      const data = await getFakeUsers();
+      setUsers(data);
+    };
 
-    fetchUsers()
-  }, [])
+    fetchUsers();
+  }, []);
 
   return (
     <div>
       <h1>부모 컴포넌트</h1>
       <List list={users} />
     </div>
-  )
+  );
 }
 
 function List({ list }) {
@@ -73,22 +73,22 @@ function List({ list }) {
         <Item key={item.id} item={item} />
       ))}
     </ul>
-  )
+  );
 }
 
 function Item({ item }) {
-  const [name, setName] = useState(item)
+  const [name, setName] = useState(item);
 
   const handleNameChange = (event) => {
-    setName({ ...name, name: element.value })
-  }
+    setName({ ...name, name: element.value });
+  };
 
   return (
     <li>
       {item.name}
       <input type="text" value={name.name} onChange={handleNameChange} />
     </li>
-  )
+  );
 }
 ```
 
@@ -96,29 +96,29 @@ function Item({ item }) {
 
 ```jsx
 function ParentComponent() {
-  const [initialValue, setInitialValue] = useState('Initial value')
+  const [initialValue, setInitialValue] = useState('Initial value');
 
   useEffect(() => {
     setTimeout(() => {
-      setInitialValue('Changed value')
-    }, 1000)
-  }, [])
+      setInitialValue('Changed value');
+    }, 1000);
+  }, []);
 
   useEffect(() => {
-    console.log(initialValue)
-  }, [initialValue])
+    console.log(initialValue);
+  }, [initialValue]);
 
-  return <ChildComponent initialValue={initialValue} />
+  return <ChildComponent initialValue={initialValue} />;
 }
 
 function ChildComponent({ initialValue }) {
-  const [inputValue, setInputValue] = useState(initialValue)
+  const [inputValue, setInputValue] = useState(initialValue);
 
   const handleChange = (e) => {
-    setInputValue(e.target.value)
-  }
+    setInputValue(e.target.value);
+  };
 
-  return <input value={inputValue} onChange={handleChange} />
+  return <input value={inputValue} onChange={handleChange} />;
 }
 ```
 
@@ -138,24 +138,24 @@ function ChildComponent({ initialValue }) {
 ```jsx
 // 주석은 `button`을 1번 눌렀을 때 console에 찍히는 내용이다.
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   const addCount = () => {
-    console.log(count) // 0
-    setCount(count + 1)
-    console.log(count) // 0
-  }
+    console.log(count); // 0
+    setCount(count + 1);
+    console.log(count); // 0
+  };
 
   useEffect(() => {
-    console.log(count) // 1
-  }, [count])
+    console.log(count); // 1
+  }, [count]);
 
   return (
     <div>
       <button onClick={addCount}>+1</button>
       <h1>{count}</h1>
     </div>
-  )
+  );
 }
 ```
 
@@ -169,25 +169,25 @@ setState가 호출되는 시점은 해당 setState가 포함된 모든 함수가
 
 ```jsx
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   const addCount = () => {
-    setCount(count + 1)
-    setCount(count + 2)
-    setCount(count + 3)
-    setCount(count + 4) // re-render은 1번만 발생
-  }
+    setCount(count + 1);
+    setCount(count + 2);
+    setCount(count + 3);
+    setCount(count + 4); // re-render은 1번만 발생
+  };
 
   useEffect(() => {
-    console.log(count) // 4
-  }, [count])
+    console.log(count); // 4
+  }, [count]);
 
   return (
     <div>
       <button onClick={addCount}>+1</button>
       <h1>{count}</h1>
     </div>
-  )
+  );
 }
 ```
 
@@ -195,25 +195,25 @@ function App() {
 
 ```jsx
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   const addCount = () => {
-    setCount((count) => count + 1)
-    setCount((count) => count + 2)
-    setCount((count) => count + 3)
-    setCount((count) => count + 4) // re-render는 1번만 발생
-  }
+    setCount((count) => count + 1);
+    setCount((count) => count + 2);
+    setCount((count) => count + 3);
+    setCount((count) => count + 4); // re-render는 1번만 발생
+  };
 
   useEffect(() => {
-    console.log(count) // 10
-  }, [count])
+    console.log(count); // 10
+  }, [count]);
 
   return (
     <div>
       <button onClick={addCount}>+1</button>
       <h1>{count}</h1>
     </div>
-  )
+  );
 }
 ```
 
@@ -225,24 +225,34 @@ _cf) automatic batching_
 `Timeout`, `Promise` 등 모든 다른 이벤트를 다룰 때는 setState마다 re-render가 발생했다.  
 아래와 같이 말이다.
 
+```js
+export async function asynchronouslyActSomething() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve();
+    }, 1000);
+  });
+}
+```
+
 ```jsx
 function App() {
-  const [count, setCount] = useState(0)
-  const [flag, setFlag] = useState(false)
+  const [count, setCount] = useState(0);
+  const [flag, setFlag] = useState(false);
 
   function handleClick() {
-    fetchSomething().then(() => {
+    asynchronouslyActSomething().then(() => {
       // React 17 and earlier does NOT batch these:
-      setCount(count + 1) // Causes a re-render
-      setFlag(!flag) // Causes a re-render
-    })
+      setCount(count + 1); // Causes a re-render
+      setFlag(!flag); // Causes a re-render
+    });
   }
 
   return (
     <div>
       <button onClick={handleClick}>+1</button>
     </div>
-  )
+  );
 }
 ```
 
@@ -251,38 +261,41 @@ function App() {
 
 ```jsx
 // index.jsx
-const root = ReactDOM.createRoot(document.getElementById('root'))
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
-)
+);
 ```
 
 ```jsx
 // App.jsx
 function App() {
-  const [count, setCount] = useState(0)
-  const [flag, setFlag] = useState(false)
+  const [count, setCount] = useState(0);
+  const [flag, setFlag] = useState(false);
 
   function handleClick() {
-    fetchSomething().then(() => {
+    asynchronouslyActSomething().then(() => {
       // React 18 batches these:
-      setCount(count + 1) // does not cause a re-render
-      setFlag(!flag) // does not cause a re-render
-    })
+      setCount(count + 1); // does not cause a re-render
+      console.log(count); // 0
+      setFlag(!flag); // does not cause a re-render
+      console.log(flag); // false
+    });
+    console.log(count, flag); // 0, false
   }
 
   return (
     <div>
       <button onClick={handleClick}>+1</button>
     </div>
-  )
+  );
 }
 ```
 
-만약 위와 같은 코드에서 batching을 적용하고 싶지 않다면 각각의 setState를 별도의 callback으로 감싸거나 `createRoot`를 이용하지 않으면 된다.
+만약 batching을 적용하고 싶지 않다면 각각의 setState를 별도의 callback으로 감싸거나 `createRoot`를 이용하지 않으면 된다.
 
 ### React의 불변성
 
@@ -309,11 +322,11 @@ react에서 불변성을 지킴으로써 다음과 같은 이점을 얻는다.
 ```jsx
 // state에 어떤 값을 추가해야 되는 상황
 function Component() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState([]);
 
   const handleData = (event) => {
-    setData([...data, event.target.dataset.id])
-  }
+    setData([...data, event.target.dataset.id]);
+  };
 }
 ```
 
@@ -369,15 +382,15 @@ props drilling을 이용해서 props를 따라간다면 코드를 실행하지 �
 
 ```tsx
 function App() {
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState('');
 
   const handleMessage = () => {
-    setMessage(message + 'click ')
-  }
+    setMessage(message + 'click ');
+  };
 
   useEffect(() => {
-    console.log('re-render app')
-  })
+    console.log('re-render app');
+  });
 
   return (
     <>
@@ -385,18 +398,18 @@ function App() {
       <Title message={message} />
       <Title />
     </>
-  )
+  );
 }
 
 interface TitleProps {
-  message?: string
+  message?: string;
 }
 function Title({ message }: TitleProps) {
   useEffect(() => {
-    console.log('re-render title')
-  })
+    console.log('re-render title');
+  });
 
-  return <div>{message}</div>
+  return <div>{message}</div>;
 }
 ```
 
@@ -409,51 +422,51 @@ props drilling을 사용할 때 중간에 단순히 `props`를 전달받는 컴�
 
 ```tsx
 function Main() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   const handleCount = () => {
-    setCount(count + 1)
-  }
+    setCount(count + 1);
+  };
 
   useEffect(() => {
-    console.log('re-render main')
-  })
+    console.log('re-render main');
+  });
 
   return (
     <div>
       여기는 메인 페이지입니다.
       <Middleware count={count} onChange={handleCount} />
     </div>
-  )
+  );
 }
 
 interface MiddlewareProps {
-  count: number
-  onChange: () => void
+  count: number;
+  onChange: () => void;
 }
 function Middleware({ count, onChange }: MiddlewareProps) {
   useEffect(() => {
-    console.log('re-render middleware')
-  })
+    console.log('re-render middleware');
+  });
 
   return (
     <div>
       여기는 미들웨어입니다.
       <Button count={count} onChange={onChange} />
     </div>
-  )
+  );
 }
 
 interface ButtonProps {
-  count: number
-  onChange: () => void
+  count: number;
+  onChange: () => void;
 }
 function Button({ count, onChange }: ButtonProps) {
   useEffect(() => {
-    console.log('re-render button')
-  })
+    console.log('re-render button');
+  });
 
-  return <button onClick={onChange}>{count}</button>
+  return <button onClick={onChange}>{count}</button>;
 }
 ```
 
@@ -468,22 +481,22 @@ function Button({ count, onChange }: ButtonProps) {
 const CountState = atom<number>({
   key: 'count-state',
   default: 0,
-})
+});
 ```
 
 1. 부모에서 전역 변수에 대해 변화를 발생시킨 뒤 부모와 자식에서 해당 값을 구독하기
 
 ```tsx
 function Main() {
-  const [count, setCount] = useRecoilState(CountState)
+  const [count, setCount] = useRecoilState(CountState);
 
   const handleCount = () => {
-    setCount(count + 1)
-  }
+    setCount(count + 1);
+  };
 
   useEffect(() => {
-    console.log('re-render main')
-  })
+    console.log('re-render main');
+  });
 
   return (
     <div>
@@ -491,30 +504,30 @@ function Main() {
       <button onClick={handleCount}>click me</button>
       <Middleware />
     </div>
-  )
+  );
 }
 
 function Middleware() {
   useEffect(() => {
-    console.log('re-render middleware')
-  })
+    console.log('re-render middleware');
+  });
 
   return (
     <div>
       여기는 미들웨어입니다.
       <Button />
     </div>
-  )
+  );
 }
 
 function Button() {
-  const count = useRecoilValue(CountState)
+  const count = useRecoilValue(CountState);
 
   useEffect(() => {
-    console.log('re-render button')
-  })
+    console.log('re-render button');
+  });
 
-  return <button>{count}</button>
+  return <button>{count}</button>;
 }
 ```
 
@@ -526,15 +539,15 @@ function Button() {
 
 ```tsx
 function Main() {
-  const setCount = useSetRecoilState(CountState)
+  const setCount = useSetRecoilState(CountState);
 
   const handleCount = () => {
-    setCount(Math.floor(Math.random() * 1000))
-  }
+    setCount(Math.floor(Math.random() * 1000));
+  };
 
   useEffect(() => {
-    console.log('re-render main')
-  })
+    console.log('re-render main');
+  });
 
   return (
     <div>
@@ -542,7 +555,7 @@ function Main() {
       <button onClick={handleCount}>click me</button>
       <Middleware />
     </div>
-  )
+  );
 }
 
 // 나머지 컴포넌트는 1)과 동일
@@ -556,45 +569,45 @@ function Main() {
 
 ```tsx
 function Main() {
-  const count = useRecoilValue(CountState)
+  const count = useRecoilValue(CountState);
 
   useEffect(() => {
-    console.log('re-render main')
-  })
+    console.log('re-render main');
+  });
 
   return (
     <div>
       여기는 메인 페이지입니다. {count}
       <Middleware />
     </div>
-  )
+  );
 }
 
 function Middleware() {
   useEffect(() => {
-    console.log('re-render middleware')
-  })
+    console.log('re-render middleware');
+  });
 
   return (
     <div>
       여기는 미들웨어입니다.
       <Button />
     </div>
-  )
+  );
 }
 
 function Button() {
-  const setCount = useSetRecoilState(CountState)
+  const setCount = useSetRecoilState(CountState);
 
   const handleCount = () => {
-    setCount(Math.floor(Math.random() * 1000))
-  }
+    setCount(Math.floor(Math.random() * 1000));
+  };
 
   useEffect(() => {
-    console.log('re-render button')
-  })
+    console.log('re-render button');
+  });
 
-  return <button onClick={handleCount}>click here</button>
+  return <button onClick={handleCount}>click here</button>;
 }
 ```
 
@@ -681,16 +694,16 @@ context란 단순히 react component에서 props가 아닌 또 다른 방식으�
 
 ```jsx
 // Context.js
-import { useState, useEffect, createContext, useContext } from 'react'
+import { useState, useEffect, createContext, useContext } from 'react';
 
-const CounterContext = createContext()
+const CounterContext = createContext();
 
 export function ParentComponent() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
-    console.log('re-render parent')
-  })
+    console.log('re-render parent');
+  });
 
   return (
     <CounterContext.Provider value={[count, setCount]}>
@@ -701,13 +714,13 @@ export function ParentComponent() {
         <ChildComponent3 />
       </div>
     </CounterContext.Provider>
-  )
+  );
 }
 
 function ChildComponent1() {
   useEffect(() => {
-    console.log('re-render child1')
-  })
+    console.log('re-render child1');
+  });
 
   return (
     <div>
@@ -715,60 +728,60 @@ function ChildComponent1() {
       <GrandChildComponent1 />
       <GrandChildComponent2 />
     </div>
-  )
+  );
 }
 
 function ChildComponent2() {
   useEffect(() => {
-    console.log('re-render chlid2')
-  })
+    console.log('re-render chlid2');
+  });
 
   return (
     <div>
       <span>여기는 child2입니다.</span>
     </div>
-  )
+  );
 }
 
 function ChildComponent3() {
-  const [, setCount] = useContext(CounterContext)
+  const [, setCount] = useContext(CounterContext);
 
   useEffect(() => {
-    console.log('re-render child3')
-  })
+    console.log('re-render child3');
+  });
 
   return (
     <div>
       <span>여기는 child3입니다.</span>
       <button onClick={() => setCount((prev) => prev + 1)}>click me!</button>
     </div>
-  )
+  );
 }
 
 function GrandChildComponent1() {
   useEffect(() => {
-    console.log('re-render grandchild1')
-  })
+    console.log('re-render grandchild1');
+  });
 
   return (
     <div>
       <span>여기는 grandchild1입니다.</span>
     </div>
-  )
+  );
 }
 
 function GrandChildComponent2() {
-  const [count] = useContext(CounterContext)
+  const [count] = useContext(CounterContext);
 
   useEffect(() => {
-    console.log('re-render grandchild2')
-  })
+    console.log('re-render grandchild2');
+  });
 
   return (
     <div>
       <span>여기는 grandchild1입니다. count: {count}</span>
     </div>
-  )
+  );
 }
 ```
 
@@ -780,7 +793,7 @@ function App() {
     <div className="App">
       <ParentComponent />
     </div>
-  )
+  );
 }
 ```
 
@@ -799,24 +812,24 @@ function App() {
 
 ```jsx
 // Context.js
-import { useState, useEffect, createContext, useContext } from 'react'
+import { useState, useEffect, createContext, useContext } from 'react';
 
-const CounterContext = createContext()
+const CounterContext = createContext();
 
 export function CounterProvider({ children }) {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
 
   return (
     <CounterContext.Provider value={[count, setCount]}>
       {children}
     </CounterContext.Provider>
-  )
+  );
 }
 
 export function ParentComponent() {
   useEffect(() => {
-    console.log('re-render parent')
-  })
+    console.log('re-render parent');
+  });
 
   return (
     <div
@@ -830,13 +843,13 @@ export function ParentComponent() {
       <ChildComponent2 />
       <ChildComponent3 />
     </div>
-  )
+  );
 }
 
 function ChildComponent1() {
   useEffect(() => {
-    console.log('re-render child1')
-  })
+    console.log('re-render child1');
+  });
 
   return (
     <div>
@@ -844,60 +857,60 @@ function ChildComponent1() {
       <GrandChildComponent1 />
       <GrandChildComponent2 />
     </div>
-  )
+  );
 }
 
 function ChildComponent2() {
   useEffect(() => {
-    console.log('re-render chlid2')
-  })
+    console.log('re-render chlid2');
+  });
 
   return (
     <div>
       <span>여기는 child2입니다.</span>
     </div>
-  )
+  );
 }
 
 function ChildComponent3() {
-  const [, setCount] = useContext(CounterContext)
+  const [, setCount] = useContext(CounterContext);
 
   useEffect(() => {
-    console.log('re-render child3')
-  })
+    console.log('re-render child3');
+  });
 
   return (
     <div>
       <span>여기는 child3입니다.</span>
       <button onClick={() => setCount((prev) => prev + 1)}>click me!</button>
     </div>
-  )
+  );
 }
 
 function GrandChildComponent1() {
   useEffect(() => {
-    console.log('re-render grandchild1')
-  })
+    console.log('re-render grandchild1');
+  });
 
   return (
     <div>
       <span>여기는 grandchild1입니다.</span>
     </div>
-  )
+  );
 }
 
 function GrandChildComponent2() {
-  const [count] = useContext(CounterContext)
+  const [count] = useContext(CounterContext);
 
   useEffect(() => {
-    console.log('re-render grandchild2')
-  })
+    console.log('re-render grandchild2');
+  });
 
   return (
     <div>
       <span>여기는 grandchild1입니다. count: {count}</span>
     </div>
-  )
+  );
 }
 ```
 
@@ -911,7 +924,7 @@ function App() {
         <ParentComponent />
       </CounterProvider>
     </div>
-  )
+  );
 }
 ```
 
@@ -936,7 +949,7 @@ function App() {
 `Array.prototype.reduce`을 사용해서 Provider를 하나로 묶을 수 있다.
 
 ```jsx
-import { SampleProvider, AnotherProvider } from 'myContexts/index'
+import { SampleProvider, AnotherProvider } from 'myContexts/index';
 
 const AppProvider = ({ contexts, children }) => {
   return contexts.reduce(
@@ -945,8 +958,8 @@ const AppProvider = ({ contexts, children }) => {
         children: prev,
       }),
     children
-  )
-}
+  );
+};
 
 const App = () => {
   return (
@@ -955,8 +968,8 @@ const App = () => {
         <SomeComponents />
       </div>
     </AppProvider>
-  )
-}
+  );
+};
 ```
 
 #### provider scope
@@ -965,10 +978,10 @@ consumer는 가장 가까운 조상 provider를 참조한다.
 만약 조상 provider가 없다면 default로 fall back된다.
 
 ```javascript
-const defaultValue = { name: 'unknown' }
-const SectionContext = createContext(defaultValue)
-const SectionProvider = SectionContext.Provider
-const SectionConsumer = SectionContext.Consumer
+const defaultValue = { name: 'unknown' };
+const SectionContext = createContext(defaultValue);
+const SectionProvider = SectionContext.Provider;
+const SectionConsumer = SectionContext.Consumer;
 
 const App = () => (
   <div>
@@ -990,7 +1003,7 @@ const App = () => (
       </div>
     </SectionProvider>
   </div>
-)
+);
 
 const Link = () => {
   const sendAnalyticsEvent = (sectionName) => {
@@ -998,15 +1011,15 @@ const Link = () => {
      * Link 컴포넌트가 어느 provider 안에 위치하는지에 따라
      * 'unknown' | 'header' | 'floating bar' | 'content' 가 출력됨
      */
-    console.log(`Link in ${sectionName} has clicked.`)
-  }
+    console.log(`Link in ${sectionName} has clicked.`);
+  };
 
   return (
     <SectionConsumer>
       {({ name }) => <a onClick={() => sendAnalyticsEvent(name)}>click me</a>}
     </SectionConsumer>
-  )
-}
+  );
+};
 ```
 
 #### 결론
@@ -1106,16 +1119,16 @@ context를 분리해야 하는 context api와 달리 불변성을 유지하면(r
 function reducer(state, action) {
   switch (action.type) {
     case 'decrement':
-      return { ...state, count: state.count - 1 }
+      return { ...state, count: state.count - 1 };
     case 'increment':
-      return { ...state, count: state.count + 1 }
+      return { ...state, count: state.count + 1 };
     default:
-      throw new Error('Unsupported action type:', action.type)
+      throw new Error('Unsupported action type:', action.type);
   }
 }
 
 function Main() {
-  const [number, dispatch] = useReducer(reducer, { count: 0 })
+  const [number, dispatch] = useReducer(reducer, { count: 0 });
   // 사용법 [state, dispatch] = useReducer(reducer, initialState, init)
 
   return (
@@ -1124,7 +1137,7 @@ function Main() {
       <button onClick={() => dispatch({ type: 'decrement' })}>-</button>
       <button onClick={() => dispatch({ type: 'increment' })}>+</button>
     </>
-  )
+  );
 }
 ```
 
@@ -1150,10 +1163,10 @@ HoC는 [HoC](https://github.com/mochang2/development-diary/blob/main/030-react.m
 
 ```jsx
 // index.js
-import { Provider } from 'react-redux'
-import store from './stores/reducers/reducer'
+import { Provider } from 'react-redux';
+import store from './stores/reducers/reducer';
 
-const root = ReactDOM.createRoot(document.getElementById('root'))
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
@@ -1161,14 +1174,14 @@ root.render(
       <App />
     </Provider>
   </React.StrictMode>
-)
+);
 ```
 
 ```jsx
 // components/App.js
-import { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { increase } from '../stores/actions/actions'
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { increase } from '../stores/actions/actions';
 
 export function ParentComponent() {
   return (
@@ -1178,7 +1191,7 @@ export function ParentComponent() {
       <ChildComponent2 />
       <ChildComponent3 />
     </div>
-  )
+  );
 }
 
 function ChildComponent1() {
@@ -1188,7 +1201,7 @@ function ChildComponent1() {
       <GrandChildComponent1 />
       <GrandChildComponent2 />
     </div>
-  )
+  );
 }
 
 function ChildComponent2() {
@@ -1196,18 +1209,18 @@ function ChildComponent2() {
     <div>
       <span>여기는 child2입니다.</span>
     </div>
-  )
+  );
 }
 
 function ChildComponent3() {
-  const dispatchCount = useDispatch()
+  const dispatchCount = useDispatch();
 
   return (
     <div>
       <span>여기는 child3입니다.</span>
       <button onClick={() => dispatchCount(increase())}>click me!</button>
     </div>
-  )
+  );
 }
 
 function GrandChildComponent1() {
@@ -1215,40 +1228,40 @@ function GrandChildComponent1() {
     <div>
       <span>여기는 grandchild1입니다.</span>
     </div>
-  )
+  );
 }
 
 function GrandChildComponent2() {
-  const count = useSelector((state) => state.count)
+  const count = useSelector((state) => state.count);
 
   return (
     <div>
       <span>여기는 grandchild2입니다. count: {count}</span>
     </div>
-  )
+  );
 }
 ```
 
 ```jsx
 // stores/reducers/reducer.js
-import { legacy_createStore } from 'redux'
+import { legacy_createStore } from 'redux';
 // createStore은 deprecated
 // 공식 문서는 redux toolkit의 configureStore 사용을 권장함
 
 const initialState = {
   count: 0,
-}
+};
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'INCREASE':
-      return { ...state, count: state.count + 1 }
+      return { ...state, count: state.count + 1 };
     default:
-      return state
+      return state;
   }
-}
+};
 
-export default legacy_createStore(rootReducer)
+export default legacy_createStore(rootReducer);
 ```
 
 ```jsx
@@ -1257,7 +1270,7 @@ export default legacy_createStore(rootReducer)
 export const increase = () => ({
   type: 'INCREASE',
   // payload를 이용해서 reducer에서 action.payload를 이용해 업데이트 하기도 함
-})
+});
 ```
 
 `state`에 변화가 있을 때 context 분리 등의 작업을 하지 않아도 `GrandChildComponent3`만 re-rendering된다는 장점이 있다.
@@ -1268,33 +1281,33 @@ export const increase = () => ({
 
 ```jsx
 const App = () => {
-  const state = useSelector((state) => state)
-  const name = state.User.name
-  const age = state.User.age
-  const address = state.User.address
+  const state = useSelector((state) => state);
+  const name = state.User.name;
+  const age = state.User.age;
+  const address = state.User.address;
   // const number = state.User.number // User안에 number 값도 있음
 
   return (
     <div>
       {`회원인 ${name}씨의 나이는 ${age}세이고, ${address}에 거주한다.`}
     </div>
-  )
-}
+  );
+};
 ```
 
 ```jsx
 const App = () => {
-  const name = useSelector((state) => state.User.name)
-  const age = useSelector((state) => state.User.age)
-  const address = useSelector((state) => state.User.address)
+  const name = useSelector((state) => state.User.name);
+  const age = useSelector((state) => state.User.age);
+  const address = useSelector((state) => state.User.address);
   // const number = useSelector((state)=> state.User.number); User안에 number 값도 있음
 
   return (
     <div>
       {`회원인 ${name}씨의 나이는 ${age}세이고, ${address}에 거주한다.`}
     </div>
-  )
-}
+  );
+};
 ```
 
 코드는 첫 번째가 더 깔끔해보이지만 두 번째 `App` 컴포넌트가 더 효율적이다.  
@@ -1347,10 +1360,10 @@ const currentUserNameQuery = selector({
   get: async ({ get }) => {
     const response = await myDBQuery({
       userID: get(currentUserIDState),
-    })
-    return response.name
+    });
+    return response.name;
   },
-})
+});
 ```
 
 ```javascript
@@ -1358,10 +1371,10 @@ const currentUserNameQuery = selector({
 const fetchCountAtom = atom(
   (get) => get(countAtom),
   async (_get, set, url) => {
-    const response = await fetch(url)
-    set(countAtom, (await response.json()).count)
+    const response = await fetch(url);
+    set(countAtom, (await response.json()).count);
   }
-)
+);
 ```
 
 #### 차이점
@@ -1396,12 +1409,12 @@ Flexible: atom들끼리 서로 결합 및 상태에 관여할 수 있고, *다�
 
 ```javascript
 // recoil
-const counterState = atom({ key: 'counter', default: 0 })
+const counterState = atom({ key: 'counter', default: 0 });
 ```
 
 ```javascript
 // jotai
-const counterAtom = atom(0)
+const counterAtom = atom(0);
 ```
 
 `recoil`은 atom을 선언할 때 key 값이 전역적으로 unique한 값이어야 한다.  
