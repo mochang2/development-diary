@@ -78,6 +78,23 @@ _참고: https://developer0809.tistory.com/128_
 - yarn은 병렬로 패키지를 설치하는 반면, npm은 순차적으로 설치해서 일반적으로 yarn의 다운로드 속도가 빠르다.
 - yarn은 yarn.lock 또는 package.json 파일에 있는 파일만 설치한다. 반면에 npm은 다른 패키지를 즉시 포함시킬 수 있는 코드를 자동으로 실행하므로, 보안 시스템에 여러 가지 취약성이 발생한다. 따라서 yarn이 npm보다 보안이 강화된 것으로 간주된다.
 
++) 2023년 10월 보강된 내용  
+[yarn vs npm 2023](https://www.copycat.dev/blog/yarn-vs-npm/)에 여전히 yarn이 더 빠르다고 나오긴 하지만 이는 npm이 로컬 캐시가 없어서 그런 것은 아니다.  
+~파이프라인 개선하다가 npm 캐시가 제대로 동작하는 건가 확인하고 싶어서 공부한 결과~ 윈도우 기준 `${Drive}:\Users\${User}\AppData\local\npm-cach\_cacache` 안에 tarball과 메타 데이터 파일들이 해시된 이름으로 존재한다.  
+기본 캐시 기간은 `npm config set` 명령어나 `.npmrc` 파일을 통해 수정하지 않는 한 영원하다.  
+
+`npm install`은 로컬 캐시를 참조하는 과정을 포함하여 다음과 같은 순서로 동작한다.  
+
+1. 캐시 확인: npm 캐시에 존재하는지 확인한다.
+2. 캐시 hit: 캐시를 바라보는 Symbolic link 또는 Hard link를 `${project_home}/node_modules`에 생성한다(복사랑은 약간 다름). 이러한 방법을 통해 디스크 공간을 효율적으로 활용하고, 네트워크를 통한 설치를 최소화함으로써 설치 속도를 향상시킬 수 있다.
+3. 캐시 miss: 캐시에 존재하지 않는다면 npm에서 존재하지 않는 모듈들을 설치하며 npm 캐시를 생성한다.
+
+_cf) 캐시 관련되어 참고할 명령어_  
+
+- `npm install --verbose`: npm install의 자세한 과정(캐시 validation 포함)을 알 수 있음.
+- `npm install`은 기본적으로 npm 캐시를 생성.
+- `npm cache add <pacakge-name>@<version>`: npm 캐시 생성.
+
 _cf) 명령어_
 동일한 명령어: `npm(yarn) init`, `npm(yarn) run`, `npm(yarn) test`, `npm(yarn) login`, `npm(yarn) logout`, `npm(yarn) link`, `npm(yarn) publish`, `npm(yarn) cache clean`
 
